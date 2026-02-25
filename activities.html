@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Browse all 39+ activities conducted by Sarhad NSS — tree plantations, blood drives, health camps, cultural events, and community service projects.">
+        content="NSS Annual Activity Calendar — 35 auspicious days and occasions observed by all NSS units at Sarhad College, Katraj, Pune.">
     <title>Activities — Sarhad NSS</title>
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -25,7 +25,7 @@
             transform: translateX(-50%);
             width: 600px;
             height: 400px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent 60%);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.06), transparent 60%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -39,8 +39,56 @@
         .page-header p {
             color: var(--text-secondary);
             font-size: 1.1rem;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
+        }
+
+        /* Calendar image showcase */
+        .calendar-showcase {
+            margin-bottom: 48px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 36px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-showcase .cal-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .calendar-showcase .cal-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .calendar-showcase .cal-info .cal-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .cal-stat-item {
+            text-align: center;
+        }
+
+        .cal-stat-item .num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .cal-stat-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
 
         /* Filter/search bar */
@@ -49,7 +97,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
         }
 
@@ -57,7 +105,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: var(--bg-glass);
+            background: rgba(255, 255, 255, 0.7);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-sm);
             padding: 10px 16px;
@@ -98,6 +146,38 @@
             color: var(--accent);
         }
 
+        /* Month filter tabs */
+        .month-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .month-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .month-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .month-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
         /* Activities grid */
         .activities-grid {
             display: grid;
@@ -124,9 +204,32 @@
             left: 0;
             width: 4px;
             height: 100%;
-            background: linear-gradient(180deg, var(--accent), var(--info));
             opacity: 0;
             transition: opacity var(--transition-fast);
+        }
+
+        .activity-card[data-category="national"]::before {
+            background: linear-gradient(180deg, #ff9933, #138808);
+        }
+
+        .activity-card[data-category="health"]::before {
+            background: linear-gradient(180deg, #059669, #10b981);
+        }
+
+        .activity-card[data-category="social"]::before {
+            background: linear-gradient(180deg, var(--accent), #c2410c);
+        }
+
+        .activity-card[data-category="environment"]::before {
+            background: linear-gradient(180deg, #16a34a, #22c55e);
+        }
+
+        .activity-card[data-category="education"]::before {
+            background: linear-gradient(180deg, #2563eb, #3b82f6);
+        }
+
+        .activity-card[data-category="awareness"]::before {
+            background: linear-gradient(180deg, #7c3aed, #a855f7);
         }
 
         .activity-card:hover {
@@ -139,6 +242,13 @@
             opacity: 1;
         }
 
+        .activity-card .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
         .activity-card .card-number {
             display: inline-block;
             padding: 4px 12px;
@@ -148,20 +258,65 @@
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 12px;
+        }
+
+        .activity-card .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .activity-card[data-category="national"] .card-icon {
+            background: rgba(255, 153, 51, 0.1);
+            color: #e65100;
+        }
+
+        .activity-card[data-category="health"] .card-icon {
+            background: rgba(5, 150, 105, 0.1);
+            color: #059669;
+        }
+
+        .activity-card[data-category="social"] .card-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+        }
+
+        .activity-card[data-category="environment"] .card-icon {
+            background: rgba(22, 163, 74, 0.1);
+            color: #16a34a;
+        }
+
+        .activity-card[data-category="education"] .card-icon {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+        }
+
+        .activity-card[data-category="awareness"] .card-icon {
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
         }
 
         .activity-card h3 {
             font-size: 1.05rem;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             line-height: 1.3;
+        }
+
+        .activity-card .hindi-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-style: italic;
         }
 
         .activity-meta {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 12px;
         }
 
         .activity-meta-item {
@@ -185,6 +340,58 @@
             line-height: 1.6;
             padding-top: 12px;
             border-top: 1px solid var(--border-subtle);
+            margin-top: 12px;
+        }
+
+        /* Category legend */
+        .category-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-glass);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.national {
+            background: #ff9933;
+        }
+
+        .legend-dot.health {
+            background: #059669;
+        }
+
+        .legend-dot.social {
+            background: var(--accent);
+        }
+
+        .legend-dot.environment {
+            background: #16a34a;
+        }
+
+        .legend-dot.education {
+            background: #2563eb;
+        }
+
+        .legend-dot.awareness {
+            background: #7c3aed;
         }
 
         /* Download button */
@@ -222,6 +429,20 @@
             .activities-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .calendar-showcase {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .calendar-showcase .cal-image {
+                width: 180px;
+                min-width: 180px;
+            }
+
+            .calendar-showcase .cal-info .cal-stats {
+                justify-content: center;
+            }
         }
 
         @media (max-width: 600px) {
@@ -236,6 +457,15 @@
 
             .search-box {
                 max-width: none;
+            }
+
+            .calendar-showcase {
+                padding: 24px;
+            }
+
+            .calendar-showcase .cal-image {
+                width: 150px;
+                min-width: 150px;
             }
         }
     </style>
@@ -272,465 +502,703 @@
     <main>
         <section class="page-header">
             <div class="container">
-                <h1>Our <span class="gradient-text">Activities</span></h1>
-                <p>Explore all the community service projects and events conducted by Sarhad NSS throughout the year.
-                </p>
+                <h1>Annual Activity <span class="gradient-text">Calendar</span></h1>
+                <p>Auspicious days and important occasions observed by all NSS units throughout the year — fostering
+                    national pride, social awareness, and community service.</p>
             </div>
         </section>
 
         <section class="section-padding" style="padding-top: 0;">
             <div class="container">
+
+                <!-- Calendar Showcase -->
+                <div class="calendar-showcase fade-in">
+                    <div class="cal-info">
+                        <h2>NSS Annual Activity <span class="gradient-text">Calendar</span></h2>
+                        <p>The National Service Scheme observes various national and international days throughout the
+                            academic year. These occasions provide NSS volunteers the opportunity to engage in awareness
+                            campaigns, community service, cultural celebrations, and social welfare activities.</p>
+                        <p>Each event is designed to empower youth with a sense of social responsibility and civic duty,
+                            aligned with the NSS motto — <strong>"Not Me, But You."</strong></p>
+                        <div class="cal-stats">
+                            <div class="cal-stat-item">
+                                <div class="num">35</div>
+                                <div class="label">Occasions</div>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div class="num">12</div>
+                                <div class="label">Months</div>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div class="num">6</div>
+                                <div class="label">Categories</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Toolbar -->
                 <div class="activities-toolbar fade-in">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <input type="text" id="searchInput" placeholder="Search activities..." autocomplete="off">
                     </div>
-                    <div class="activity-count">Showing <strong id="activityCount">39</strong> activities</div>
+                    <div class="activity-count">Showing <strong id="activityCount">35</strong> occasions</div>
+                </div>
+
+                <!-- Month Filter -->
+                <div class="month-filters fade-in">
+                    <button class="month-btn active" data-month="all">All</button>
+                    <button class="month-btn" data-month="january">January</button>
+                    <button class="month-btn" data-month="february">February</button>
+                    <button class="month-btn" data-month="march">March</button>
+                    <button class="month-btn" data-month="april">April</button>
+                    <button class="month-btn" data-month="may">May</button>
+                    <button class="month-btn" data-month="june">June</button>
+                    <button class="month-btn" data-month="july">July</button>
+                    <button class="month-btn" data-month="august">August</button>
+                    <button class="month-btn" data-month="september">September</button>
+                    <button class="month-btn" data-month="october">October</button>
+                    <button class="month-btn" data-month="november">November</button>
+                    <button class="month-btn" data-month="december">December</button>
+                </div>
+
+                <!-- Category Legend -->
+                <div class="category-legend fade-in">
+                    <div class="legend-item"><span class="legend-dot national"></span> National / Patriotic</div>
+                    <div class="legend-item"><span class="legend-dot health"></span> Health & Wellness</div>
+                    <div class="legend-item"><span class="legend-dot social"></span> Social & Cultural</div>
+                    <div class="legend-item"><span class="legend-dot environment"></span> Environment</div>
+                    <div class="legend-item"><span class="legend-dot education"></span> Education & Youth</div>
+                    <div class="legend-item"><span class="legend-dot awareness"></span> Awareness & Safety</div>
                 </div>
 
                 <!-- Activities Grid -->
                 <div class="activities-grid" id="activitiesGrid">
-                    <div class="activity-card fade-in" data-name="Tree Plantation">
-                        <span class="card-number">#001</span>
-                        <h3>Tree Plantation</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 09 April</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+
+                    <!-- #1 -->
+                    <div class="activity-card fade-in" data-name="National Youth Day" data-month="january"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#01</span>
+                            <div class="card-icon"><i class="fas fa-flag"></i></div>
                         </div>
-                        <p class="description">Planted 100 trees in the college campus.</p>
+                        <h3>National Youth Day</h3>
+                        <p class="hindi-name">राष्ट्रीय युवा दिवस</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12th January</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Birth anniversary of
+                                Swami Vivekananda</div>
+                        </div>
+                        <p class="description">Celebrated to honor Swami Vivekananda's ideals of youth empowerment,
+                            character building, and service to the nation.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Blood Donation Camp">
-                        <span class="card-number">#002</span>
-                        <h3>Blood Donation Camp</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 August</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Swarget Road</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 30 Participants</div>
+                    <!-- #2 -->
+                    <div class="activity-card fade-in" data-name="National Youth Week" data-month="january"
+                        data-category="education">
+                        <div class="card-top">
+                            <span class="card-number">#02</span>
+                            <div class="card-icon"><i class="fas fa-users"></i></div>
                         </div>
-                        <p class="description">Organized a blood donation camp with 30 donors.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Dental Check-Up">
-                        <span class="card-number">#003</span>
-                        <h3>Dental Check-Up</h3>
+                        <h3>National Youth Week</h3>
+                        <p class="hindi-name">राष्ट्रीय युवा सप्ताह</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 November</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Sarhad College</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 85 Participants</div>
-                        </div>
-                        <p class="description">Dental check-up camp for students.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="National Youth Day Celebration">
-                        <span class="card-number">#004</span>
-                        <h3>National Youth Day Celebration</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 January</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12th to 19th January</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Week-long youth programs
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
                         </div>
-                        <p class="description">Celebrated National Youth Day with cultural programs.</p>
+                        <p class="description">A week dedicated to organizing youth development programs, seminars,
+                            debates, and workshops on leadership and social responsibility.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Republic Day Celebration">
-                        <span class="card-number">#005</span>
-                        <h3>Republic Day Celebration</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 26 January</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 120 Participants</div>
+                    <!-- #3 -->
+                    <div class="activity-card fade-in" data-name="World Understanding Day" data-month="january"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#03</span>
+                            <div class="card-icon"><i class="fas fa-handshake"></i></div>
                         </div>
-                        <p class="description">Flag hoisting and cultural activities.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Cleanliness Drive">
-                        <span class="card-number">#006</span>
-                        <h3>Cleanliness Drive</h3>
+                        <h3>World Understanding Day</h3>
+                        <p class="hindi-name">जागतिक सामंजस्य दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 February</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
-                        </div>
-                        <p class="description">Cleaned streets and public areas.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Women's Day Celebration">
-                        <span class="card-number">#007</span>
-                        <h3>Women's Day Celebration</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 08 March</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 75 Participants</div>
-                        </div>
-                        <p class="description">Organized events to empower women.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Environmental Awareness Program">
-                        <span class="card-number">#008</span>
-                        <h3>Environmental Awareness Program</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 March</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
-                        </div>
-                        <p class="description">Awareness campaign on environmental issues.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Health Check-Up Camp">
-                        <span class="card-number">#009</span>
-                        <h3>Health Check-Up Camp</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 07 April</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
-                        </div>
-                        <p class="description">General health check-up for students and locals.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="National Integration Camp">
-                        <span class="card-number">#010</span>
-                        <h3>National Integration Camp</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 May</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 23rd January</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Promoting global harmony
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
                         </div>
-                        <p class="description">Promoting unity and cultural diversity.</p>
+                        <p class="description">Promoting mutual understanding, peace, and goodwill among all people
+                            through dialogue and cultural exchange.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Literacy Campaign">
-                        <span class="card-number">#011</span>
-                        <h3>Literacy Campaign</h3>
+                    <!-- #4 -->
+                    <div class="activity-card fade-in" data-name="Republic Day" data-month="january"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#04</span>
+                            <div class="card-icon"><i class="fas fa-flag"></i></div>
+                        </div>
+                        <h3>Republic Day</h3>
+                        <p class="hindi-name">प्रजासत्ताक दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 June</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 26th January</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Constitution of India
+                                came into effect</div>
+                        </div>
+                        <p class="description">Flag hoisting, parades, and cultural programs to celebrate the adoption
+                            of the Constitution of India in 1950.</p>
+                    </div>
+
+                    <!-- #5 -->
+                    <div class="activity-card fade-in" data-name="Martyr's Day" data-month="january"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#05</span>
+                            <div class="card-icon"><i class="fas fa-dove"></i></div>
+                        </div>
+                        <h3>Martyr's Day</h3>
+                        <p class="hindi-name">शहीद दिवस</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30th January</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Tribute to Mahatma Gandhi
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
                         </div>
-                        <p class="description">Teaching basic literacy skills to adults.</p>
+                        <p class="description">Observed to pay homage to Mahatma Gandhi and the freedom fighters who
+                            sacrificed their lives for the nation.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Skill Development Workshop">
-                        <span class="card-number">#012</span>
-                        <h3>Skill Development Workshop</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 July</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                    <!-- #6 -->
+                    <div class="activity-card fade-in" data-name="University Foundation Day" data-month="february"
+                        data-category="education">
+                        <div class="card-top">
+                            <span class="card-number">#06</span>
+                            <div class="card-icon"><i class="fas fa-university"></i></div>
                         </div>
-                        <p class="description">Workshops on various skills for students.</p>
+                        <h3>University Foundation Day</h3>
+                        <p class="hindi-name">विद्यापीठ वर्धापन दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10th February</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Savitribai Phule Pune
+                                University</div>
+                        </div>
+                        <p class="description">Celebrating the foundation of the university with academic events,
+                            cultural programs, and felicitation of achievers.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Blood Donation Drive">
-                        <span class="card-number">#013</span>
-                        <h3>Blood Donation Drive</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 August</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                    <!-- #7 -->
+                    <div class="activity-card fade-in" data-name="Women's Day" data-month="march"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#07</span>
+                            <div class="card-icon"><i class="fas fa-venus"></i></div>
                         </div>
-                        <p class="description">Collected blood donations for local hospitals.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Anti-Drug Awareness Campaign">
-                        <span class="card-number">#014</span>
-                        <h3>Anti-Drug Awareness Campaign</h3>
+                        <h3>Women's Day</h3>
+                        <p class="hindi-name">महिला दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 September</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Schools</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
-                        </div>
-                        <p class="description">Conducted seminars on the dangers of drug abuse.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Vocational Training Camp">
-                        <span class="card-number">#015</span>
-                        <h3>Vocational Training Camp</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 October</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 8th March</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> International celebration
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
                         </div>
-                        <p class="description">Provided training in various vocations.</p>
+                        <p class="description">Organizing events to celebrate women's achievements, promote gender
+                            equality, and empower women in society.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="E-Waste Collection Drive">
-                        <span class="card-number">#016</span>
-                        <h3>E-Waste Collection Drive</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 November</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 45 Participants</div>
+                    <!-- #8 -->
+                    <div class="activity-card fade-in" data-name="World Forest Day" data-month="march"
+                        data-category="environment">
+                        <div class="card-top">
+                            <span class="card-number">#08</span>
+                            <div class="card-icon"><i class="fas fa-tree"></i></div>
                         </div>
-                        <p class="description">Collected electronic waste for recycling.</p>
+                        <h3>World Forest Day</h3>
+                        <p class="hindi-name">जागतिक वन दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 31st March</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Forest conservation
+                                awareness</div>
+                        </div>
+                        <p class="description">Tree plantation drives and awareness campaigns to highlight the
+                            importance of forests and their conservation.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Cultural Exchange Program">
-                        <span class="card-number">#017</span>
-                        <h3>Cultural Exchange Program</h3>
+                    <!-- #9 -->
+                    <div class="activity-card fade-in" data-name="World Health Day" data-month="april"
+                        data-category="health">
+                        <div class="card-top">
+                            <span class="card-number">#09</span>
+                            <div class="card-icon"><i class="fas fa-heartbeat"></i></div>
+                        </div>
+                        <h3>World Health Day</h3>
+                        <p class="hindi-name">जागतिक आरोग्य दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 December</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 7th April</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> WHO founded in 1948</div>
+                        </div>
+                        <p class="description">Health check-up camps, blood donation drives, and hygiene awareness
+                            programs organized for students and local communities.</p>
+                    </div>
+
+                    <!-- #10 -->
+                    <div class="activity-card fade-in" data-name="Fire Prevention Day" data-month="april"
+                        data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#10</span>
+                            <div class="card-icon"><i class="fas fa-fire-extinguisher"></i></div>
+                        </div>
+                        <h3>Fire Prevention Day</h3>
+                        <p class="hindi-name">अग्निपासून बचाव दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 14th April</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Fire safety awareness
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 90 Participants</div>
                         </div>
-                        <p class="description">Cultural exchange with local communities.</p>
+                        <p class="description">Conducting fire safety drills, demonstrations, and awareness sessions on
+                            fire prevention and emergency response.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="First Aid Training">
-                        <span class="card-number">#018</span>
-                        <h3>First Aid Training</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 December</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                    <!-- #11 -->
+                    <div class="activity-card fade-in" data-name="World Labour Day" data-month="may"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#11</span>
+                            <div class="card-icon"><i class="fas fa-hard-hat"></i></div>
                         </div>
-                        <p class="description">Conducted training on basic first aid skills.</p>
+                        <h3>World Labour Day</h3>
+                        <p class="hindi-name">जागतिक कामगार दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 1st May</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Workers' rights
+                                celebration</div>
+                        </div>
+                        <p class="description">Honoring the contributions of workers and raising awareness about labor
+                            rights and dignity of labor.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Annual Sports Day">
-                        <span class="card-number">#019</span>
-                        <h3>Annual Sports Day</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 December</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
+                    <!-- #12 -->
+                    <div class="activity-card fade-in" data-name="Maharashtra Day" data-month="may"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#12</span>
+                            <div class="card-icon"><i class="fas fa-landmark"></i></div>
                         </div>
-                        <p class="description">Organized various sports competitions.</p>
+                        <h3>Maharashtra Day</h3>
+                        <p class="hindi-name">महाराष्ट्र दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 1st May</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Formation of Maharashtra
+                                (1960)</div>
+                        </div>
+                        <p class="description">Celebrating the formation of the state of Maharashtra with cultural
+                            programs, patriotic speeches, and felicitations.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="NSS Day Celebration">
-                        <span class="card-number">#020</span>
-                        <h3>NSS Day Celebration</h3>
+                    <!-- #13 -->
+                    <div class="activity-card fade-in" data-name="Nutrition Week" data-month="may"
+                        data-category="health">
+                        <div class="card-top">
+                            <span class="card-number">#13</span>
+                            <div class="card-icon"><i class="fas fa-apple-alt"></i></div>
+                        </div>
+                        <h3>Nutrition Week</h3>
+                        <p class="hindi-name">आहार सप्ताह</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 24 September</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 1st to 7th May</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Healthy diet awareness
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
                         </div>
-                        <p class="description">Celebrated NSS Day with cultural programs.</p>
+                        <p class="description">Week-long programs on nutrition, healthy eating habits, balanced diet
+                            awareness and food distribution drives.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Digital Literacy Program">
-                        <span class="card-number">#021</span>
-                        <h3>Digital Literacy Program</h3>
+                    <!-- #14 -->
+                    <div class="activity-card fade-in" data-name="World Environment Day" data-month="june"
+                        data-category="environment">
+                        <div class="card-top">
+                            <span class="card-number">#14</span>
+                            <div class="card-icon"><i class="fas fa-leaf"></i></div>
+                        </div>
+                        <h3>World Environment Day</h3>
+                        <p class="hindi-name">जागतिक पर्यावरण दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 October</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 5th June</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> UN Environment Programme
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
                         </div>
-                        <p class="description">Taught basic computer skills to seniors.</p>
+                        <p class="description">Tree plantations, cleanliness drives, rallies, and poster-making
+                            competitions to promote environmental consciousness.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Community Kitchen">
-                        <span class="card-number">#022</span>
-                        <h3>Community Kitchen</h3>
+                    <!-- #15 -->
+                    <div class="activity-card fade-in" data-name="Banamahotsav Week" data-month="july"
+                        data-category="environment">
+                        <div class="card-top">
+                            <span class="card-number">#15</span>
+                            <div class="card-icon"><i class="fas fa-seedling"></i></div>
+                        </div>
+                        <h3>Banamahotsav Week</h3>
+                        <p class="hindi-name">वनमहोत्सव सप्ताह</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 November</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 1st to 7th July</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Tree festival week</div>
+                        </div>
+                        <p class="description">Mass tree plantation drives in colleges, communities, and villages to
+                            increase green cover and combat climate change.</p>
+                    </div>
+
+                    <!-- #16 -->
+                    <div class="activity-card fade-in" data-name="World Population Day" data-month="july"
+                        data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#16</span>
+                            <div class="card-icon"><i class="fas fa-globe-asia"></i></div>
+                        </div>
+                        <h3>World Population Day</h3>
+                        <p class="hindi-name">जागतिक लोकसंख्या दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 11th July</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Population awareness
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
                         </div>
-                        <p class="description">Prepared and distributed meals to needy families.</p>
+                        <p class="description">Awareness campaigns about population growth, family planning,
+                            reproductive health, and sustainable development challenges.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Yoga Camp">
-                        <span class="card-number">#023</span>
-                        <h3>Yoga Camp</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 August</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                    <!-- #17 -->
+                    <div class="activity-card fade-in" data-name="Campaign Against Nuclear Weapon Day"
+                        data-month="august" data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#17</span>
+                            <div class="card-icon"><i class="fas fa-peace"></i></div>
                         </div>
-                        <p class="description">Conducted yoga sessions for students and staff.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Save Water Campaign">
-                        <span class="card-number">#024</span>
-                        <h3>Save Water Campaign</h3>
+                        <h3>Campaign Against Nuclear Weapons</h3>
+                        <p class="hindi-name">अणुशस्त्र विरोध दिवस</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 July</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
-                        </div>
-                        <p class="description">Raised awareness about water conservation.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Health Awareness Program">
-                        <span class="card-number">#025</span>
-                        <h3>Health Awareness Program</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 June</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local School</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
-                        </div>
-                        <p class="description">Conducted sessions on hygiene and health.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Community Gardening">
-                        <span class="card-number">#026</span>
-                        <h3>Community Gardening</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 May</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
-                        </div>
-                        <p class="description">Started a community gardening project.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Financial Literacy Program">
-                        <span class="card-number">#027</span>
-                        <h3>Financial Literacy Program</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 April</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 6th August</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Hiroshima remembrance
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
                         </div>
-                        <p class="description">Workshops on budgeting and savings.</p>
+                        <p class="description">Remembering Hiroshima and promoting peace, disarmament, and the
+                            elimination of nuclear weapons worldwide.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Road Safety Awareness">
-                        <span class="card-number">#028</span>
-                        <h3>Road Safety Awareness</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 March</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                    <!-- #18 -->
+                    <div class="activity-card fade-in" data-name="Independence Day" data-month="august"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#18</span>
+                            <div class="card-icon"><i class="fas fa-flag"></i></div>
                         </div>
-                        <p class="description">Conducted awareness sessions on road safety.</p>
+                        <h3>Independence Day</h3>
+                        <p class="hindi-name">स्वातंत्र दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15th August</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> India's Independence
+                                (1947)</div>
+                        </div>
+                        <p class="description">Grand flag hoisting ceremony, patriotic songs, cultural programs, and
+                            rallies to celebrate India's freedom.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Disaster Management Training">
-                        <span class="card-number">#029</span>
-                        <h3>Disaster Management Training</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 February</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
+                    <!-- #19 -->
+                    <div class="activity-card fade-in" data-name="Teacher's Day" data-month="september"
+                        data-category="education">
+                        <div class="card-top">
+                            <span class="card-number">#19</span>
+                            <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
                         </div>
-                        <p class="description">Trained students on disaster preparedness.</p>
+                        <h3>Teacher's Day</h3>
+                        <p class="hindi-name">शिक्षक दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 5th September</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Dr. Radhakrishnan's
+                                birthday</div>
+                        </div>
+                        <p class="description">Honoring teachers and their invaluable contribution to education with
+                            felicitation programs and cultural events.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Heritage Conservation Project">
-                        <span class="card-number">#030</span>
-                        <h3>Heritage Conservation Project</h3>
+                    <!-- #20 -->
+                    <div class="activity-card fade-in" data-name="International Literacy Day-Week"
+                        data-month="september" data-category="education">
+                        <div class="card-top">
+                            <span class="card-number">#20</span>
+                            <div class="card-icon"><i class="fas fa-book-reader"></i></div>
+                        </div>
+                        <h3>International Literacy Day-Week</h3>
+                        <p class="hindi-name">आंतरराष्ट्रीय साक्षरता दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 January</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Heritage Site
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 8th to 14th September</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> UNESCO observance</div>
+                        </div>
+                        <p class="description">Literacy campaigns, book distribution, adult education programs, and
+                            reading awareness drives in local communities.</p>
+                    </div>
+
+                    <!-- #21 -->
+                    <div class="activity-card fade-in" data-name="N.S.S. Foundation Day" data-month="september"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#21</span>
+                            <div class="card-icon"><i class="fas fa-hands-helping"></i></div>
+                        </div>
+                        <h3>N.S.S. Foundation Day</h3>
+                        <p class="hindi-name">रा.से.यो. वर्धापन दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 24th September</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> NSS established in 1969
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
                         </div>
-                        <p class="description">Restored and conserved a local heritage site.</p>
+                        <p class="description">Grand celebration of NSS Foundation Day with community service, cultural
+                            programs, volunteer felicitation, and oath-taking ceremonies.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Animal Welfare Camp">
-                        <span class="card-number">#031</span>
-                        <h3>Animal Welfare Camp</h3>
+                    <!-- #22 -->
+                    <div class="activity-card fade-in" data-name="Gandhi Jayanti" data-month="october"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#22</span>
+                            <div class="card-icon"><i class="fas fa-om"></i></div>
+                        </div>
+                        <h3>Gandhi Jayanti</h3>
+                        <p class="hindi-name">गांधी जयंती</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 December</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Animal Shelter
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 2nd October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> International Day of
+                                Non-Violence</div>
+                        </div>
+                        <p class="description">Paying tribute to Mahatma Gandhi through cleanliness drives, peace
+                            rallies, and programs promoting non-violence and truth.</p>
+                    </div>
+
+                    <!-- #23 -->
+                    <div class="activity-card fade-in" data-name="World Food Day" data-month="october"
+                        data-category="health">
+                        <div class="card-top">
+                            <span class="card-number">#23</span>
+                            <div class="card-icon"><i class="fas fa-utensils"></i></div>
+                        </div>
+                        <h3>World Food Day</h3>
+                        <p class="hindi-name">जागतिक अन्नधान्य / आहार दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 16th October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> FAO founding anniversary
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
                         </div>
-                        <p class="description">Conducted a camp for stray animals.</p>
+                        <p class="description">Food distribution drives, awareness about food wastage, hunger
+                            eradication campaigns, and nutrition education programs.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Digital Awareness Campaign">
-                        <span class="card-number">#032</span>
-                        <h3>Digital Awareness Campaign</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 November</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
+                    <!-- #24 -->
+                    <div class="activity-card fade-in" data-name="U.N.O. Day" data-month="october"
+                        data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#24</span>
+                            <div class="card-icon"><i class="fas fa-globe"></i></div>
                         </div>
-                        <p class="description">Educated people about online safety.</p>
+                        <h3>U.N.O. Day</h3>
+                        <p class="hindi-name">यु.नो. दिवस</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 24th October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> United Nations founded
+                                (1945)</div>
+                        </div>
+                        <p class="description">Seminars and discussions on global peace, human rights, international
+                            cooperation, and sustainable development goals.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Clean Drinking Water Project">
-                        <span class="card-number">#033</span>
-                        <h3>Clean Drinking Water Project</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 October</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Village</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                    <!-- #25 -->
+                    <div class="activity-card fade-in" data-name="Traffic Week" data-month="october"
+                        data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#25</span>
+                            <div class="card-icon"><i class="fas fa-traffic-light"></i></div>
                         </div>
-                        <p class="description">Installed water filtration systems in villages.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Community Health Camp">
-                        <span class="card-number">#034</span>
-                        <h3>Community Health Camp</h3>
+                        <h3>Traffic Week</h3>
+                        <p class="hindi-name">वाहतूक सप्ताह</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 September</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Health Center
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 14th to 30th October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Road safety awareness
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 90 Participants</div>
                         </div>
-                        <p class="description">Provided health check-ups and consultations.</p>
+                        <p class="description">Road safety campaigns, traffic rule awareness drives, helmet
+                            distribution, and collaboration with traffic police for safety education.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Youth Leadership Program">
-                        <span class="card-number">#035</span>
-                        <h3>Youth Leadership Program</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 August</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                    <!-- #26 -->
+                    <div class="activity-card fade-in" data-name="Savings Day" data-month="october"
+                        data-category="education">
+                        <div class="card-top">
+                            <span class="card-number">#26</span>
+                            <div class="card-icon"><i class="fas fa-piggy-bank"></i></div>
                         </div>
-                        <p class="description">Training sessions to develop leadership skills.</p>
+                        <h3>Savings Day</h3>
+                        <p class="hindi-name">बचत दिवस</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 31st October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Financial literacy</div>
+                        </div>
+                        <p class="description">Promoting financial literacy, savings habits, budgeting awareness, and
+                            responsible money management among youth.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Eco-Friendly Product Workshop">
-                        <span class="card-number">#036</span>
-                        <h3>Eco-Friendly Product Workshop</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 July</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                    <!-- #27 -->
+                    <div class="activity-card fade-in" data-name="National Integration Day" data-month="october"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#27</span>
+                            <div class="card-icon"><i class="fas fa-people-arrows"></i></div>
                         </div>
-                        <p class="description">Workshop on making eco-friendly products.</p>
-                    </div>
-
-                    <div class="activity-card fade-in" data-name="Inter-School Quiz Competition">
-                        <span class="card-number">#037</span>
-                        <h3>Inter-School Quiz Competition</h3>
+                        <h3>National Integration Day</h3>
+                        <p class="hindi-name">राष्ट्रीय एकात्मता दिन</p>
                         <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 June</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 31st October</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Sardar Patel's birthday
                             </div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
                         </div>
-                        <p class="description">Organized quiz competition among local schools.</p>
+                        <p class="description">Programs promoting unity, communal harmony, and national integration —
+                            celebrating India's diversity as its strength.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Charity Run">
-                        <span class="card-number">#038</span>
-                        <h3>Charity Run</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 May</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
+                    <!-- #28 -->
+                    <div class="activity-card fade-in" data-name="Children's Day" data-month="november"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#28</span>
+                            <div class="card-icon"><i class="fas fa-child"></i></div>
                         </div>
-                        <p class="description">Organized a run to raise funds for charity.</p>
+                        <h3>Children's Day</h3>
+                        <p class="hindi-name">बाल दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 14th November</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Pt. Nehru's birthday
+                            </div>
+                        </div>
+                        <p class="description">Organizing games, educational programs, and distribution drives at local
+                            schools to celebrate children and their rights.</p>
                     </div>
 
-                    <div class="activity-card fade-in" data-name="Mentorship Program">
-                        <span class="card-number">#039</span>
-                        <h3>Mentorship Program</h3>
-                        <div class="activity-meta">
-                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 April</div>
-                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
-                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                    <!-- #29 -->
+                    <div class="activity-card fade-in" data-name="Mother's Day" data-month="november"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#29</span>
+                            <div class="card-icon"><i class="fas fa-heart"></i></div>
                         </div>
-                        <p class="description">Mentorship sessions for junior students.</p>
+                        <h3>Mother's Day</h3>
+                        <p class="hindi-name">माता दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 19th November</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Celebrating motherhood
+                            </div>
+                        </div>
+                        <p class="description">Special events to honor mothers and their selfless contributions to
+                            families and society through appreciation programs.</p>
+                    </div>
+
+                    <!-- #30 -->
+                    <div class="activity-card fade-in" data-name="Quami Ekta Week" data-month="november"
+                        data-category="national">
+                        <div class="card-top">
+                            <span class="card-number">#30</span>
+                            <div class="card-icon"><i class="fas fa-hands-holding"></i></div>
+                        </div>
+                        <h3>Quami Ekta Week</h3>
+                        <p class="hindi-name">कौमी एकता दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 19th to 25th November</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> National harmony week
+                            </div>
+                        </div>
+                        <p class="description">Week-long programs fostering national unity, communal harmony, and
+                            cultural integration through workshops and rallies.</p>
+                    </div>
+
+                    <!-- #31 -->
+                    <div class="activity-card fade-in" data-name="Environment Awareness Month" data-month="november"
+                        data-category="environment">
+                        <div class="card-top">
+                            <span class="card-number">#31</span>
+                            <div class="card-icon"><i class="fas fa-globe-americas"></i></div>
+                        </div>
+                        <h3>Environment Awareness Month</h3>
+                        <p class="hindi-name">पर्यावरण जनजागृती मास</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 19th Nov to 18th December
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Month-long green campaign
+                            </div>
+                        </div>
+                        <p class="description">A full month of environmental activities — tree planting, cleanliness
+                            drives, poster competitions, and conservation awareness.</p>
+                    </div>
+
+                    <!-- #32 -->
+                    <div class="activity-card fade-in" data-name="Weaker's Section Day" data-month="november"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#32</span>
+                            <div class="card-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                        </div>
+                        <h3>Weaker's Section Day</h3>
+                        <p class="hindi-name">दुर्बल घटक दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 22nd November</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> Support for marginalized
+                            </div>
+                        </div>
+                        <p class="description">Outreach programs, donation drives, and initiatives to support and uplift
+                            underprivileged and marginalized communities.</p>
+                    </div>
+
+                    <!-- #33 -->
+                    <div class="activity-card fade-in" data-name="World AIDS Day" data-month="december"
+                        data-category="health">
+                        <div class="card-top">
+                            <span class="card-number">#33</span>
+                            <div class="card-icon"><i class="fas fa-ribbon"></i></div>
+                        </div>
+                        <h3>World AIDS Day</h3>
+                        <p class="hindi-name">जागतिक एड्स दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 1st December</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> HIV/AIDS awareness</div>
+                        </div>
+                        <p class="description">Awareness rallies, red ribbon campaigns, health seminars, and educational
+                            sessions on HIV/AIDS prevention and support.</p>
+                    </div>
+
+                    <!-- #34 -->
+                    <div class="activity-card fade-in" data-name="International Volunteers Day" data-month="december"
+                        data-category="social">
+                        <div class="card-top">
+                            <span class="card-number">#34</span>
+                            <div class="card-icon"><i class="fas fa-hand-sparkles"></i></div>
+                        </div>
+                        <h3>International Volunteers Day</h3>
+                        <p class="hindi-name">आंतरराष्ट्रीय स्वयंसेवक दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 5th December</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> UN observance</div>
+                        </div>
+                        <p class="description">Celebrating the spirit of volunteerism with community service projects,
+                            volunteer recognition, and social impact drives.</p>
+                    </div>
+
+                    <!-- #35 -->
+                    <div class="activity-card fade-in" data-name="Human Rights Day" data-month="december"
+                        data-category="awareness">
+                        <div class="card-top">
+                            <span class="card-number">#35</span>
+                            <div class="card-icon"><i class="fas fa-gavel"></i></div>
+                        </div>
+                        <h3>Human Rights Day</h3>
+                        <p class="hindi-name">मानव अधिकार दिन</p>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10th December</div>
+                            <div class="activity-meta-item"><i class="fas fa-info-circle"></i> UDHR adopted in 1948
+                            </div>
+                        </div>
+                        <p class="description">Seminars on human rights, constitutional values, equality, and justice —
+                            encouraging youth to stand up for fundamental freedoms.</p>
                     </div>
 
                     <!-- No results message -->
@@ -741,11 +1209,11 @@
                 </div>
 
                 <div class="download-section fade-in">
-                    <button class="btn btn-primary" onclick="downloadReport()" id="downloadReportBtn">
-                        <i class="fas fa-download"></i> Download Report
+                    <button class="btn btn-primary" onclick="downloadCalendar()" id="downloadCalendarBtn">
+                        <i class="fas fa-download"></i> Download Calendar
                     </button>
-                    <p class="disclaimer-text">All activities are conducted with the support of local communities and
-                        institutions.</p>
+                    <p class="disclaimer-text">Official NSS Annual Activity Calendar — observed by all NSS units across
+                        India.</p>
                 </div>
             </div>
         </section>
@@ -791,7 +1259,7 @@
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone"></i>
-                        <p>+91 9850726074</p>
+                        <p>+91 9850XXXXXX</p>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
@@ -816,24 +1284,56 @@
         const countEl = document.getElementById('activityCount');
         const noResults = document.getElementById('noResults');
 
+        function updateCount() {
+            let visible = 0;
+            cards.forEach(card => {
+                if (card.style.display !== 'none') visible++;
+            });
+            countEl.textContent = visible;
+            noResults.style.display = visible === 0 ? 'block' : 'none';
+        }
+
+        // Text search
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.toLowerCase();
-            let visible = 0;
+            // Reset month filter
+            document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.month-btn[data-month="all"]').classList.add('active');
 
             cards.forEach(card => {
                 const name = card.dataset.name.toLowerCase();
                 const text = card.textContent.toLowerCase();
                 const match = name.includes(query) || text.includes(query);
                 card.style.display = match ? '' : 'none';
-                if (match) visible++;
             });
-
-            countEl.textContent = visible;
-            noResults.style.display = visible === 0 ? 'block' : 'none';
+            updateCount();
         });
 
-        function downloadReport() {
-            alert("Report downloaded! (This is a placeholder functionality.)");
+        // Month filter
+        document.querySelectorAll('.month-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                searchInput.value = '';
+
+                const month = btn.dataset.month;
+                cards.forEach(card => {
+                    if (month === 'all') {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = card.dataset.month === month ? '' : 'none';
+                    }
+                });
+                updateCount();
+            });
+        });
+
+        function downloadCalendar() {
+            // Open the calendar image in a new tab to download
+            const link = document.createElement('a');
+            link.href = 'actvt.jpg';
+            link.download = 'NSS_Annual_Activity_Calendar.jpg';
+            link.click();
         }
     </script>
 </body>

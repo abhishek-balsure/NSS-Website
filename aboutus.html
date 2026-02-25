@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Learn about the National Service Scheme (NSS) at Sarhad College — our mission, motto, objectives, history, and impact.">
+    <title>About Us — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── About page styles ── */
+        .page-header {
+            padding: calc(var(--nav-height) + 60px) 0 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Department highlight */
+        .dept-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(59, 130, 246, 0.06));
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 48px;
+        }
+
+        .dept-card .dept-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: var(--radius-md);
+            background: rgba(245, 158, 11, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--accent-light);
+            flex-shrink: 0;
+        }
+
+        .dept-card .dept-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .dept-card .dept-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 4px 0;
+        }
+
+        .dept-card .dept-info .role-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--info);
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        /* Content sections */
+        .about-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .about-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 36px 40px;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .about-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .about-card .card-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: var(--radius-sm);
+            background: rgba(245, 158, 11, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--accent-light);
+            flex-shrink: 0;
+        }
+
+        .about-card h3 {
+            font-size: 1.3rem;
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .about-card ol {
+            counter-reset: item;
+            padding-left: 0;
+        }
+
+        .about-card ol li {
+            counter-increment: item;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .about-card ol li::before {
+            content: counter(item);
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--accent-light);
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .about-card .highlight-text {
+            color: var(--accent-light);
+            font-weight: 700;
+            font-size: 1.15rem;
+            text-align: center;
+            padding: 16px;
+            background: rgba(245, 158, 11, 0.06);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+
+        .about-card .benefit-list {
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        /* CTA at bottom */
+        .about-cta {
+            text-align: center;
+            padding: 48px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            margin-top: 48px;
+        }
+
+        .about-cta h3 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+        }
+
+        .about-cta p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .dept-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .about-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="Home.html" class="nav-logo">
+                <div class="logo-icon">N</div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="Home.html">Home</a>
+                <a href="aboutus.html" class="active">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>About <span class="gradient-text">Sarhad NSS</span></h1>
+                <p>Discover our mission, values, and the impact we create through community service and social
+                    responsibility.</p>
+            </div>
+        </section>
+
+        <section class="section-padding" style="padding-top: 0;">
+            <div class="container">
+
+                <!-- Department Info -->
+                <div class="dept-card fade-in">
+                    <div class="dept-icon"><i class="fas fa-users-cog"></i></div>
+                    <div class="dept-info">
+                        <h3>NSS Department — Sarhad College</h3>
+                        <p><span class="role-tag">Programme Officer</span> Dr. Manauti Sandeep Patil</p>
+                        <p><span class="role-tag">Assistant Programme</span> Assistant Prof. Rajendra Thorat</p>
+                    </div>
+                </div>
+
+                <!-- Content Sections -->
+                <div class="about-sections stagger-children">
+
+                    <!-- Introduction -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-book-open"></i></div>
+                            <h3>Introduction</h3>
+                        </div>
+                        <p>The National Service Scheme (NSS) is a government-sponsored program in India aimed at
+                            developing students' personalities and character through voluntary community service.
+                            Introduced in <strong>1969</strong> by the Ministry of Youth Affairs and Sports and based on
+                            the ideals of Mahatma Gandhi, the NSS motto is <strong>"NOT ME, BUT YOU."</strong></p>
+                        <p>An NSS volunteer places the 'community' before 'self', and its purpose is <strong>"Education
+                                through Service."</strong></p>
+                        <p>NSS aims to help students develop qualities and competencies, understand the community, and
+                            identify community needs and problems. It encourages a sense of social and civic
+                            responsibility, knowledge application for problem-solving, and skills in mobilizing
+                            community participation. Additionally, NSS fosters leadership qualities, democratic values,
+                            and the ability to respond to emergencies and natural disasters.</p>
+                    </div>
+
+                    <!-- Motto -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-quote-left"></i></div>
+                            <h3>Our Motto</h3>
+                        </div>
+                        <div class="highlight-text">"NOT ME BUT YOU"</div>
+                    </div>
+
+                    <!-- Objectives -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+                            <h3>Objectives of NSS</h3>
+                        </div>
+                        <p>NSS aims at developing the following qualities and competencies among volunteers:</p>
+                        <ol>
+                            <li>Understand the community in which they work and their relation to it</li>
+                            <li>Identify the needs and problems of the community and involve themselves in
+                                problem-solving exercises</li>
+                            <li>Develop a sense of social and civic responsibility</li>
+                            <li>Gain skills in mobilizing community participation</li>
+                            <li>Acquire leadership qualities and democratic values</li>
+                            <li>Develop the capacity to meet emergencies and natural disasters</li>
+                            <li>Practice national integration and social harmony</li>
+                        </ol>
+                        <p>NSS attempts to establish meaningful linkages between <strong>"Campus and
+                                Community"</strong>, <strong>"College and Village"</strong>, and <strong>"Knowledge and
+                                Action"</strong>.</p>
+                    </div>
+
+                    <!-- Benefits -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-award"></i></div>
+                            <h3>Benefits of Being an NSS Volunteer</h3>
+                        </div>
+                        <p>An NSS volunteer participating in the community service program would typically be a college
+                            or senior secondary student. Active participation offers these student volunteers the
+                            opportunity to become:</p>
+                        <p class="benefit-list">
+                            ✦ An accomplished social leader<br>
+                            ✦ An efficient administrator<br>
+                            ✦ A person who understands human nature
+                        </p>
+                    </div>
+
+                    <!-- History -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-landmark"></i></div>
+                            <h3>History of NSS</h3>
+                        </div>
+                        <p>The NSS was launched in <strong>1969</strong>, during the Gandhi Centenary Year, with the aim
+                            of enriching the youth with a sense of social service and responsibility. Over the years,
+                            the program has evolved to encompass a wide range of activities, including health camps,
+                            environmental conservation, and education drives.</p>
+                    </div>
+
+                    <!-- Impact -->
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                            <h3>Impact of NSS</h3>
+                        </div>
+                        <p>NSS has made significant contributions to society by mobilizing youth for various social
+                            causes. Through countless projects, NSS volunteers have positively impacted communities,
+                            improved local environments, and supported education for underprivileged children.</p>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="about-cta fade-in">
+                    <h3>Ready to Make a <span class="gradient-text">Difference?</span></h3>
+                    <p>If you are interested in making a difference in your community, consider joining NSS!</p>
+                    <a href="register.html" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Register Now
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer
+                        at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="Home.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850726074</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com"
+                                style="color: var(--accent-light);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 Sarhad National Service Scheme. All rights reserved.</p>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+</body>
+
+</html>

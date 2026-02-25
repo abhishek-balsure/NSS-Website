@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NSS Enrollment Form — Register as a volunteer at Sarhad College NSS unit.">
+    <title>Enrollment Form — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Form page styles ── */
+        .form-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--nav-height) + 40px) 24px 80px;
+        }
+
+        .enrollment-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            max-width: 640px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enrollment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .form-header .form-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            background: rgba(245, 158, 11, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.5rem;
+            color: var(--accent-light);
+        }
+
+        .form-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Form fields */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group label .required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all var(--transition-fast);
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 16px) center;
+        }
+
+        .form-group select option {
+            background: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .form-actions .btn {
+            justify-content: center;
+            padding: 14px 24px;
+            font-size: 0.95rem;
+        }
+
+        /* Validation error */
+        .form-group.error input,
+        .form-group.error select {
+            border-color: var(--danger);
+        }
+
+        .form-group .error-text {
+            display: none;
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
+        .form-group.error .error-text {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .enrollment-card {
+                padding: 32px 20px;
+            }
+
+            .form-row,
+            .form-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="Home.html" class="nav-logo">
+                <div class="logo-icon">N</div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="Home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="form-page">
+            <div class="enrollment-card">
+                <div class="form-header">
+                    <div class="form-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <h1>NSS <span class="gradient-text">Enrollment Form</span></h1>
+                    <p>Fill in your details below to register as an NSS volunteer.</p>
+                </div>
+
+                <form action="code.php" method="post" id="enrollmentForm" onsubmit="return validateForm(event);">
+                    <div class="form-group">
+                        <label for="Name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="Name" name="Name" placeholder="Enter your full name" required>
+                        <span class="error-text">Please enter your name</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Class">Class <span class="required">*</span></label>
+                            <input type="text" id="Class" name="Class" placeholder="e.g. FY BCS" required>
+                            <span class="error-text">Please enter your class</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="RollNo">Roll Number <span class="required">*</span></label>
+                            <input type="text" id="RollNo" name="RollNo" placeholder="e.g. 42" required>
+                            <span class="error-text">Please enter your roll number</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Eligibility">Eligibility Number <span class="required">*</span></label>
+                        <input type="text" id="Eligibility" name="Eligibility"
+                            placeholder="Enter your eligibility number" required>
+                        <span class="error-text">Please enter your eligibility number</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="MobileNo">Mobile Number <span class="required">*</span></label>
+                            <input type="tel" id="MobileNo" name="MobileNo" placeholder="10-digit number" required>
+                            <span class="error-text">Enter a valid 10-digit number</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Gender">Gender <span class="required">*</span></label>
+                            <select name="Gender" id="Gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="error-text">Please select your gender</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Cast">Caste <span class="required">*</span></label>
+                        <input type="text" id="Cast" name="Cast" placeholder="Enter your caste" required>
+                        <span class="error-text">Please enter your caste</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success" name="Register">
+                            <i class="fas fa-paper-plane"></i> Submit
+                        </button>
+                        <button type="reset" class="btn btn-outline">
+                            <i class="fas fa-redo"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="shared.js"></script>
+    <script>
+        function validateForm(event) {
+            let isValid = true;
+            const fields = ['Name', 'Class', 'RollNo', 'Eligibility', 'MobileNo', 'Gender', 'Cast'];
+
+            // Clear previous errors
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                const val = el.value.trim();
+                if (val === '') {
+                    el.closest('.form-group').classList.add('error');
+                    isValid = false;
+                }
+            });
+
+            // Mobile number validation
+            const mobileNo = document.getElementById('MobileNo').value.trim();
+            if (mobileNo && !/^\d{10}$/.test(mobileNo)) {
+                document.getElementById('MobileNo').closest('.form-group').classList.add('error');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        }
+
+        // Remove error on input
+        document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
+            el.addEventListener('input', () => {
+                el.closest('.form-group').classList.remove('error');
+            });
+        });
+    </script>
+</body>
+
+</html>

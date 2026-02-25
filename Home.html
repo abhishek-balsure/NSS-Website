@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sarhad NSS — National Service Scheme unit at Sarhad College of Arts, Commerce and Science, Katraj, Pune. Join us in community service and social development.">
+    <title>Sarhad NSS — National Service Scheme</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Home-specific Styles ── */
+
+        /* Hero Image Area */
+        .hero-images {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        .hero-image-card {
+            width: 180px;
+            height: 220px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero-image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Announcement banner */
+        .announcement-bar {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08), rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.08));
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            overflow: hidden;
+        }
+
+        .announcement-bar .tag {
+            background: var(--accent);
+            color: #0f172a;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .announcement-text {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .announcement-text span {
+            display: inline-block;
+            animation: scroll-text 25s linear infinite;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes scroll-text {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Name banner */
+        .name-banner {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 153, 51, 0.08), rgba(255, 255, 255, 0.04), rgba(19, 136, 8, 0.08));
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 64px;
+        }
+
+        .name-banner h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #ff9933, var(--text-primary), #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .name-banner p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .name-banner .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff9933, white, #138808);
+            margin: 12px auto;
+            border-radius: 2px;
+        }
+
+        /* Vision & Mission */
+        .vm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+
+        .vm-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .vm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--info));
+        }
+
+        .vm-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .vm-card .vm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-sm);
+            background: rgba(245, 158, 11, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent-light);
+            margin-bottom: 20px;
+        }
+
+        .vm-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .vm-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .vm-card .vm-point {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+
+        .vm-card .vm-point .num {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--accent-light);
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .vm-card .vm-point p {
+            margin: 0;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 64px 40px;
+            margin-bottom: 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1), transparent);
+            border-radius: 50%;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .cta-section > p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto 32px;
+            position: relative;
+        }
+
+        .cta-section .btn {
+            position: relative;
+        }
+
+        /* Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+            position: relative;
+        }
+
+        .testimonial-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 28px;
+            transition: all var(--transition-normal);
+        }
+
+        .testimonial-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .testimonial-card .stars {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-card blockquote {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-style: italic;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: white;
+        }
+
+        .testimonial-author .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .testimonial-author .role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 1024px) {
+            .vm-grid {
+                grid-template-columns: 1fr;
+            }
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-images {
+                display: none;
+            }
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            .cta-section {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="Home.html" class="nav-logo">
+                <div class="logo-icon">N</div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="Home.html" class="active">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fas fa-star"></i>
+                        Sarhad College, Katraj Pune
+                    </div>
+                    <h1>Empowering Youth Through <span class="gradient-text">Community Service</span></h1>
+                    <p>National Service Scheme — Building leaders, fostering social responsibility, and creating lasting impact since 1969. <strong>"Not Me, But You."</strong></p>
+                    <div class="hero-buttons">
+                        <a href="register.html" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i> Join NSS Today
+                        </a>
+                        <a href="aboutus.html" class="btn btn-outline">
+                            <i class="fas fa-info-circle"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="section-padding">
+            <div class="container">
+                <div class="announcement-bar fade-in">
+                    <span class="tag">News</span>
+                    <div class="announcement-text">
+                        <span>Welcome to the Official Website of Sarhad National Service Scheme © 2024 — Join us in making a difference in our community!</span>
+                    </div>
+                </div>
+
+                <div class="stats-bar fade-in">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="1500" data-suffix="+">0</div>
+                        <div class="stat-label">Volunteers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="39" data-suffix="+">0</div>
+                        <div class="stat-label">Activities</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="15" data-suffix="+">0</div>
+                        <div class="stat-label">Years Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="5000" data-suffix="+">0</div>
+                        <div class="stat-label">Lives Impacted</div>
+                    </div>
+                </div>
+
+                <!-- Name Banner with Indian Tri-Color -->
+                <div class="name-banner fade-in">
+                    <h2>राष्ट्रीय सेवा योजना</h2>
+                    <div class="divider"></div>
+                    <p>National Service Scheme</p>
+                </div>
+
+                <!-- Vision & Mission -->
+                <div class="vm-grid">
+                    <div class="vm-card fade-in">
+                        <div class="vm-icon"><i class="fas fa-eye"></i></div>
+                        <h3>Our Vision</h3>
+                        <p>The National Service Scheme aims to develop a sense of social responsibility and community service among students, fostering holistic development through voluntary engagement.</p>
+                        <div class="vm-point">
+                            <span class="num">1</span>
+                            <p><strong>Promoting Social Awareness</strong> — Creating consciousness about societal challenges.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">2</span>
+                            <p><strong>Encouraging Volunteerism</strong> — Instilling a spirit of selfless service.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">3</span>
+                            <p><strong>Fostering National Integration</strong> — Unity through diverse collaboration.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">4</span>
+                            <p><strong>Developing Leadership</strong> — Teamwork, management, and human values.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">5</span>
+                            <p><strong>Enhancing Personal Growth</strong> — Practical experience alongside academics.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">6</span>
+                            <p><strong>Addressing Social Issues</strong> — Health, education, environment, and rural development.</p>
+                        </div>
+                    </div>
+
+                    <div class="vm-card fade-in fade-in-delay-1">
+                        <div class="vm-icon"><i class="fas fa-bullseye"></i></div>
+                        <h3>Our Mission</h3>
+                        <p>Providing opportunities for students to participate in community service and contribute to local and national development.</p>
+                        <div class="vm-point">
+                            <span class="num">1</span>
+                            <p><strong>Social Responsibility</strong> — Understanding one's role in society.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">2</span>
+                            <p><strong>Voluntary Service</strong> — Emphasizing selfless contribution to welfare.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">3</span>
+                            <p><strong>Developing Human Values</strong> — Empathy, compassion, and integrity.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">4</span>
+                            <p><strong>Personal & Professional Growth</strong> — Leadership, life skills, practical experience.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">5</span>
+                            <p><strong>Addressing Community Needs</strong> — Tangible impact on local issues.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">6</span>
+                            <p><strong>National Integration</strong> — Students from diverse backgrounds working together.</p>
+                        </div>
+                        <div class="vm-point">
+                            <span class="num">7</span>
+                            <p><strong>Culture of Volunteerism</strong> — Active citizenship throughout life.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA + Testimonials -->
+                <div class="cta-section fade-in">
+                    <h2>Get Involved with <span class="gradient-text">NSS!</span></h2>
+                    <p>Join us in making a difference in our community. Your involvement can bring positive change!</p>
+                    <a href="register.html" class="btn btn-primary">
+                        <i class="fas fa-hand-holding-heart"></i> Join Us Now
+                    </a>
+
+                    <div class="testimonials-grid stagger-children">
+                        <div class="testimonial-card">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <blockquote>"Being a part of NSS has transformed my perspective on social responsibility. It's not just about volunteering; it's about making a lasting impact!"</blockquote>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar">AB</div>
+                                <div>
+                                    <div class="name">Abhishek B.</div>
+                                    <div class="role">NSS Volunteer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <blockquote>"I've developed so many skills and made lifelong friends through NSS. I highly recommend it!"</blockquote>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar">MK</div>
+                                <div>
+                                    <div class="name">Minakshi K.</div>
+                                    <div class="role">NSS Volunteer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <blockquote>"NSS has taught me the importance of community service and leadership. I feel empowered to make a difference!"</blockquote>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar">RJ</div>
+                                <div>
+                                    <div class="name">Ruturaj J.</div>
+                                    <div class="role">NSS Volunteer</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="Home.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850726074</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent-light);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 Sarhad National Service Scheme. All rights reserved.</p>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+</body>
+
+</html>

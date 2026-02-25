@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Browse all 39+ activities conducted by Sarhad NSS — tree plantations, blood drives, health camps, cultural events, and community service projects.">
+    <title>Activities — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Activities page styles ── */
+        .page-header {
+            padding: calc(var(--nav-height) + 60px) 0 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Filter/search bar */
+        .activities-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 10px 16px;
+            flex: 1;
+            max-width: 400px;
+            transition: border-color var(--transition-fast);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent);
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .activity-count {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .activity-count strong {
+            color: var(--accent-light);
+        }
+
+        /* Activities grid */
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .activity-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), var(--info));
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .activity-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .activity-card:hover::before {
+            opacity: 1;
+        }
+
+        .activity-card .card-number {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 12px;
+        }
+
+        .activity-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .activity-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .activity-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .activity-meta-item i {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        .activity-card .description {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        /* Download button */
+        .download-section {
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .disclaimer-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 16px;
+        }
+
+        /* No results message */
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 64px 24px;
+            grid-column: 1 / -1;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .no-results p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .activities-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activities-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="Home.html" class="nav-logo">
+                <div class="logo-icon">N</div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="Home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html" class="active">Activities</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Our <span class="gradient-text">Activities</span></h1>
+                <p>Explore all the community service projects and events conducted by Sarhad NSS throughout the year.
+                </p>
+            </div>
+        </section>
+
+        <section class="section-padding" style="padding-top: 0;">
+            <div class="container">
+                <!-- Toolbar -->
+                <div class="activities-toolbar fade-in">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search activities..." autocomplete="off">
+                    </div>
+                    <div class="activity-count">Showing <strong id="activityCount">39</strong> activities</div>
+                </div>
+
+                <!-- Activities Grid -->
+                <div class="activities-grid" id="activitiesGrid">
+                    <div class="activity-card fade-in" data-name="Tree Plantation">
+                        <span class="card-number">#001</span>
+                        <h3>Tree Plantation</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 09 April</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Planted 100 trees in the college campus.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Blood Donation Camp">
+                        <span class="card-number">#002</span>
+                        <h3>Blood Donation Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 August</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Swarget Road</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 30 Participants</div>
+                        </div>
+                        <p class="description">Organized a blood donation camp with 30 donors.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Dental Check-Up">
+                        <span class="card-number">#003</span>
+                        <h3>Dental Check-Up</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 November</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Sarhad College</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 85 Participants</div>
+                        </div>
+                        <p class="description">Dental check-up camp for students.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="National Youth Day Celebration">
+                        <span class="card-number">#004</span>
+                        <h3>National Youth Day Celebration</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 January</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">Celebrated National Youth Day with cultural programs.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Republic Day Celebration">
+                        <span class="card-number">#005</span>
+                        <h3>Republic Day Celebration</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 26 January</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 120 Participants</div>
+                        </div>
+                        <p class="description">Flag hoisting and cultural activities.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Cleanliness Drive">
+                        <span class="card-number">#006</span>
+                        <h3>Cleanliness Drive</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 February</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Cleaned streets and public areas.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Women's Day Celebration">
+                        <span class="card-number">#007</span>
+                        <h3>Women's Day Celebration</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 08 March</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 75 Participants</div>
+                        </div>
+                        <p class="description">Organized events to empower women.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Environmental Awareness Program">
+                        <span class="card-number">#008</span>
+                        <h3>Environmental Awareness Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 March</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
+                        </div>
+                        <p class="description">Awareness campaign on environmental issues.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Health Check-Up Camp">
+                        <span class="card-number">#009</span>
+                        <h3>Health Check-Up Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 07 April</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">General health check-up for students and locals.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="National Integration Camp">
+                        <span class="card-number">#010</span>
+                        <h3>National Integration Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 May</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
+                        </div>
+                        <p class="description">Promoting unity and cultural diversity.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Literacy Campaign">
+                        <span class="card-number">#011</span>
+                        <h3>Literacy Campaign</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 June</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                        </div>
+                        <p class="description">Teaching basic literacy skills to adults.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Skill Development Workshop">
+                        <span class="card-number">#012</span>
+                        <h3>Skill Development Workshop</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 July</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Workshops on various skills for students.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Blood Donation Drive">
+                        <span class="card-number">#013</span>
+                        <h3>Blood Donation Drive</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 August</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">Collected blood donations for local hospitals.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Anti-Drug Awareness Campaign">
+                        <span class="card-number">#014</span>
+                        <h3>Anti-Drug Awareness Campaign</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 September</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Schools</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
+                        </div>
+                        <p class="description">Conducted seminars on the dangers of drug abuse.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Vocational Training Camp">
+                        <span class="card-number">#015</span>
+                        <h3>Vocational Training Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 October</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                        </div>
+                        <p class="description">Provided training in various vocations.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="E-Waste Collection Drive">
+                        <span class="card-number">#016</span>
+                        <h3>E-Waste Collection Drive</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 November</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 45 Participants</div>
+                        </div>
+                        <p class="description">Collected electronic waste for recycling.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Cultural Exchange Program">
+                        <span class="card-number">#017</span>
+                        <h3>Cultural Exchange Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 December</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 90 Participants</div>
+                        </div>
+                        <p class="description">Cultural exchange with local communities.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="First Aid Training">
+                        <span class="card-number">#018</span>
+                        <h3>First Aid Training</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 December</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                        </div>
+                        <p class="description">Conducted training on basic first aid skills.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Annual Sports Day">
+                        <span class="card-number">#019</span>
+                        <h3>Annual Sports Day</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 01 December</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
+                        </div>
+                        <p class="description">Organized various sports competitions.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="NSS Day Celebration">
+                        <span class="card-number">#020</span>
+                        <h3>NSS Day Celebration</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 24 September</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">Celebrated NSS Day with cultural programs.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Digital Literacy Program">
+                        <span class="card-number">#021</span>
+                        <h3>Digital Literacy Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 October</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
+                        </div>
+                        <p class="description">Taught basic computer skills to seniors.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Community Kitchen">
+                        <span class="card-number">#022</span>
+                        <h3>Community Kitchen</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 November</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Prepared and distributed meals to needy families.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Yoga Camp">
+                        <span class="card-number">#023</span>
+                        <h3>Yoga Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 August</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Ground</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                        </div>
+                        <p class="description">Conducted yoga sessions for students and staff.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Save Water Campaign">
+                        <span class="card-number">#024</span>
+                        <h3>Save Water Campaign</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 July</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                        </div>
+                        <p class="description">Raised awareness about water conservation.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Health Awareness Program">
+                        <span class="card-number">#025</span>
+                        <h3>Health Awareness Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 June</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local School</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">Conducted sessions on hygiene and health.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Community Gardening">
+                        <span class="card-number">#026</span>
+                        <h3>Community Gardening</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 May</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
+                        </div>
+                        <p class="description">Started a community gardening project.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Financial Literacy Program">
+                        <span class="card-number">#027</span>
+                        <h3>Financial Literacy Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 April</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Workshops on budgeting and savings.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Road Safety Awareness">
+                        <span class="card-number">#028</span>
+                        <h3>Road Safety Awareness</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 March</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                        </div>
+                        <p class="description">Conducted awareness sessions on road safety.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Disaster Management Training">
+                        <span class="card-number">#029</span>
+                        <h3>Disaster Management Training</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 February</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 70 Participants</div>
+                        </div>
+                        <p class="description">Trained students on disaster preparedness.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Heritage Conservation Project">
+                        <span class="card-number">#030</span>
+                        <h3>Heritage Conservation Project</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 January</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Heritage Site
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                        </div>
+                        <p class="description">Restored and conserved a local heritage site.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Animal Welfare Camp">
+                        <span class="card-number">#031</span>
+                        <h3>Animal Welfare Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 20 December</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Animal Shelter
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Conducted a camp for stray animals.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Digital Awareness Campaign">
+                        <span class="card-number">#032</span>
+                        <h3>Digital Awareness Campaign</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 15 November</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Community</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 40 Participants</div>
+                        </div>
+                        <p class="description">Educated people about online safety.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Clean Drinking Water Project">
+                        <span class="card-number">#033</span>
+                        <h3>Clean Drinking Water Project</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 October</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Village</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                        </div>
+                        <p class="description">Installed water filtration systems in villages.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Community Health Camp">
+                        <span class="card-number">#034</span>
+                        <h3>Community Health Camp</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 September</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Health Center
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 90 Participants</div>
+                        </div>
+                        <p class="description">Provided health check-ups and consultations.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Youth Leadership Program">
+                        <span class="card-number">#035</span>
+                        <h3>Youth Leadership Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 10 August</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 60 Participants</div>
+                        </div>
+                        <p class="description">Training sessions to develop leadership skills.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Eco-Friendly Product Workshop">
+                        <span class="card-number">#036</span>
+                        <h3>Eco-Friendly Product Workshop</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 12 July</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 50 Participants</div>
+                        </div>
+                        <p class="description">Workshop on making eco-friendly products.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Inter-School Quiz Competition">
+                        <span class="card-number">#037</span>
+                        <h3>Inter-School Quiz Competition</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 25 June</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Auditorium
+                            </div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 100 Participants</div>
+                        </div>
+                        <p class="description">Organized quiz competition among local schools.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Charity Run">
+                        <span class="card-number">#038</span>
+                        <h3>Charity Run</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 30 May</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> Local Park</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 150 Participants</div>
+                        </div>
+                        <p class="description">Organized a run to raise funds for charity.</p>
+                    </div>
+
+                    <div class="activity-card fade-in" data-name="Mentorship Program">
+                        <span class="card-number">#039</span>
+                        <h3>Mentorship Program</h3>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item"><i class="fas fa-calendar"></i> 05 April</div>
+                            <div class="activity-meta-item"><i class="fas fa-map-marker-alt"></i> College Campus</div>
+                            <div class="activity-meta-item"><i class="fas fa-users"></i> 80 Participants</div>
+                        </div>
+                        <p class="description">Mentorship sessions for junior students.</p>
+                    </div>
+
+                    <!-- No results message -->
+                    <div class="no-results" id="noResults">
+                        <i class="fas fa-search"></i>
+                        <p>No activities found matching your search.</p>
+                    </div>
+                </div>
+
+                <div class="download-section fade-in">
+                    <button class="btn btn-primary" onclick="downloadReport()" id="downloadReportBtn">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                    <p class="disclaimer-text">All activities are conducted with the support of local communities and
+                        institutions.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer
+                        at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="Home.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850726074</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com"
+                                style="color: var(--accent-light);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 Sarhad National Service Scheme. All rights reserved.</p>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const grid = document.getElementById('activitiesGrid');
+        const cards = grid.querySelectorAll('.activity-card');
+        const countEl = document.getElementById('activityCount');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            let visible = 0;
+
+            cards.forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const text = card.textContent.toLowerCase();
+                const match = name.includes(query) || text.includes(query);
+                card.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+
+            countEl.textContent = visible;
+            noResults.style.display = visible === 0 ? 'block' : 'none';
+        });
+
+        function downloadReport() {
+            alert("Report downloaded! (This is a placeholder functionality.)");
+        }
+    </script>
+</body>
+
+</html>

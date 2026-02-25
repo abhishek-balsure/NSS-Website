@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Join Sarhad NSS — register as a volunteer and start making a difference in your community today.">
+    <title>Join NSS — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Register page styles ── */
+        .register-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--nav-height) + 40px) 24px 80px;
+        }
+
+        .register-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 64px 56px;
+            max-width: 580px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--info), var(--success));
+        }
+
+        .register-card::after {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.06), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .register-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(59, 130, 246, 0.15));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            font-size: 2rem;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .register-card h1 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .register-card>p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .register-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .register-buttons .btn {
+            min-width: 140px;
+            justify-content: center;
+            font-size: 1rem;
+            padding: 16px 32px;
+        }
+
+        /* Benefits list */
+        .benefits-list {
+            text-align: left;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .benefits-list h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .benefit-item i {
+            color: var(--success);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+            .register-card {
+                padding: 40px 24px;
+            }
+
+            .register-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="Home.html" class="nav-logo">
+                <div class="logo-icon">N</div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="Home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta active">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="register-page">
+            <div class="register-card">
+                <div class="register-icon">🤝</div>
+                <h1>Ready to <span class="gradient-text">Join NSS?</span></h1>
+                <p>Be part of something bigger. Develop leadership skills, serve your community, and create lasting
+                    friendships.</p>
+
+                <div class="register-buttons">
+                    <button class="btn btn-success" onclick="confirmDecision('yes')">
+                        <i class="fas fa-check"></i> Yes, I'm In!
+                    </button>
+                    <button class="btn btn-outline" onclick="confirmDecision('no')">
+                        <i class="fas fa-arrow-left"></i> Not Now
+                    </button>
+                </div>
+
+                <div class="benefits-list">
+                    <h4>Why Join NSS?</h4>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Develop leadership & teamwork skills</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Contribute to community development</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Get recognition & certificates</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Make lifelong friends & memories</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Build your resume with real impact</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="shared.js"></script>
+    <script>
+        function confirmDecision(decision) {
+            if (decision === 'yes') {
+                window.location.href = 'form.html';
+            } else {
+                if (confirm("Are you sure you want to leave?")) {
+                    window.location.href = 'Home.html';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

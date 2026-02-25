@@ -444,13 +444,30 @@
 
                 const name = form.querySelector('#contact-name').value.trim();
                 const email = form.querySelector('#contact-email').value.trim();
+                const subject = form.querySelector('#contact-subject').value.trim();
                 const message = form.querySelector('#contact-message').value.trim();
 
                 if (name === '' || email === '' || message === '') {
                     return;
                 }
 
-                console.log('Message sent:', { name, email, message });
+                const contactMessage = {
+                    name,
+                    email,
+                    subject,
+                    message,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Store in local storage
+                try {
+                    const messages = JSON.parse(localStorage.getItem('nss_contact_messages') || '[]');
+                    messages.push(contactMessage);
+                    localStorage.setItem('nss_contact_messages', JSON.stringify(messages));
+                    console.log('Contact message saved to localStorage:', contactMessage);
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
 
                 // Show success message
                 successMsg.classList.add('show');

@@ -163,6 +163,63 @@
             display: block;
         }
 
+        /* Success message */
+        .success-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: var(--bg-body);
+            z-index: 10;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .success-overlay.active {
+            display: flex;
+        }
+
+        .success-overlay .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .success-overlay h2 {
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .success-overlay p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 400px;
+            margin-bottom: 32px;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 600px) {
             .enrollment-card {
                 padding: 32px 20px;
@@ -213,7 +270,16 @@
                     <p>Fill in your details below to register as an NSS volunteer.</p>
                 </div>
 
-                <form action="code.php" method="post" id="enrollmentForm" onsubmit="return validateForm(event);">
+                <div class="success-overlay" id="successOverlay">
+                    <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                    <h2>Submission Successful!</h2>
+                    <p>Thank You, we will analyze the details and inform you about your registration.</p>
+                    <button class="btn btn-primary" onclick="window.location.href='Home.html'">Go to Home</button>
+                    <button class="btn btn-outline" style="margin-left: 10px;" onclick="location.reload()">Back to
+                        Form</button>
+                </div>
+
+                <form id="enrollmentForm">
                     <div class="form-group">
                         <label for="Name">Full Name <span class="required">*</span></label>
                         <input type="text" id="Name" name="Name" placeholder="Enter your full name" required>
@@ -279,16 +345,24 @@
 
     <script src="shared.js"></script>
     <script>
-        function validateForm(event) {
+        const enrollmentForm = document.getElementById('enrollmentForm');
+
+        enrollmentForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
             let isValid = true;
             const fields = ['Name', 'Class', 'RollNo', 'Eligibility', 'MobileNo', 'Gender', 'Cast'];
 
             // Clear previous errors
             document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
 
+            const formData = {};
+
             fields.forEach(id => {
                 const el = document.getElementById(id);
                 const val = el.value.trim();
+                formData[id] = val;
+
                 if (val === '') {
                     el.closest('.form-group').classList.add('error');
                     isValid = false;
@@ -302,13 +376,26 @@
                 isValid = false;
             }
 
-            if (!isValid) {
-                event.preventDefault();
-                return false;
-            }
+            if (isValid) {
+                // Store in local storage
+                try {
+                    const registrations = JSON.parse(localStorage.getItem('nss_registrations') || '[]');
+                    formData.timestamp = new Date().toISOString();
+                    registrations.push(formData);
+                    localStorage.setItem('nss_registrations', JSON.stringify(registrations));
 
-            return true;
-        }
+                    // Show success message
+                    document.getElementById('successOverlay').classList.add('active');
+                    enrollmentForm.reset();
+
+                    // Console log for verification
+                    console.log('Form data saved to localStorage:', formData);
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                    alert('There was an error saving your registration. Please try again.');
+                }
+            }
+        });
 
         // Remove error on input
         document.querySelectorAll('.form-group input, .form-group select').forEach(el => {

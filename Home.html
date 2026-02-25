@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sarhad NSS — National Service Scheme unit at Sarhad College of Arts, Commerce and Science, Katraj, Pune. Join us in community service and social development.">
+    <meta name="description"
+        content="Sarhad NSS — National Service Scheme unit at Sarhad College of Arts, Commerce and Science, Katraj, Pune. Join us in community service and social development.">
     <title>Sarhad NSS — National Service Scheme</title>
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -74,25 +75,31 @@
         }
 
         @keyframes scroll-text {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         /* Name banner */
         .name-banner {
             text-align: center;
-            background: linear-gradient(135deg, rgba(255, 153, 51, 0.08), rgba(255, 255, 255, 0.04), rgba(19, 136, 8, 0.08));
+            background: linear-gradient(135deg, rgba(255, 153, 51, 0.06), rgba(255, 255, 255, 0.6), rgba(19, 136, 8, 0.06));
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-lg);
             padding: 32px;
             margin-bottom: 64px;
+            box-shadow: var(--shadow-sm);
         }
 
         .name-banner h2 {
             font-size: 1.6rem;
             font-weight: 800;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #ff9933, var(--text-primary), #138808);
+            background: linear-gradient(90deg, #e65100, var(--text-primary), #1b5e20);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -106,7 +113,7 @@
         .name-banner .divider {
             width: 60px;
             height: 3px;
-            background: linear-gradient(90deg, #ff9933, white, #138808);
+            background: linear-gradient(90deg, #ff9933, #ccc, #138808);
             margin: 12px auto;
             border-radius: 2px;
         }
@@ -128,6 +135,7 @@
             position: relative;
             overflow: hidden;
             transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
         }
 
         .vm-card::before {
@@ -150,12 +158,12 @@
             width: 52px;
             height: 52px;
             border-radius: var(--radius-sm);
-            background: rgba(245, 158, 11, 0.12);
+            background: rgba(245, 158, 11, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            color: var(--accent-light);
+            color: var(--accent);
             margin-bottom: 20px;
         }
 
@@ -179,8 +187,8 @@
         }
 
         .vm-card .vm-point .num {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--accent-light);
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
             width: 26px;
             height: 26px;
             border-radius: var(--radius-full);
@@ -208,6 +216,7 @@
             margin-bottom: 64px;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .cta-section::before {
@@ -227,7 +236,7 @@
             position: relative;
         }
 
-        .cta-section > p {
+        .cta-section>p {
             color: var(--text-secondary);
             font-size: 1.1rem;
             max-width: 500px;
@@ -309,6 +318,7 @@
             .vm-grid {
                 grid-template-columns: 1fr;
             }
+
             .testimonials-grid {
                 grid-template-columns: 1fr;
             }
@@ -318,9 +328,11 @@
             .hero-images {
                 display: none;
             }
+
             .testimonials-grid {
                 grid-template-columns: 1fr;
             }
+
             .cta-section {
                 padding: 40px 24px;
             }
@@ -333,9 +345,13 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <a href="Home.html" class="nav-logo">
-                <div class="logo-icon">N</div>
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
                 Sarhad<span>NSS</span>
             </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
             <div class="nav-links" id="navLinks">
                 <a href="Home.html" class="active">Home</a>
                 <a href="aboutus.html">About</a>
@@ -362,7 +378,8 @@
                         Sarhad College, Katraj Pune
                     </div>
                     <h1>Empowering Youth Through <span class="gradient-text">Community Service</span></h1>
-                    <p>National Service Scheme — Building leaders, fostering social responsibility, and creating lasting impact since 1969. <strong>"Not Me, But You."</strong></p>
+                    <p>National Service Scheme — Building leaders, fostering social responsibility, and creating lasting
+                        impact since 1969. <strong>"Not Me, But You."</strong></p>
                     <div class="hero-buttons">
                         <a href="register.html" class="btn btn-primary">
                             <i class="fas fa-rocket"></i> Join NSS Today
@@ -381,7 +398,8 @@
                 <div class="announcement-bar fade-in">
                     <span class="tag">News</span>
                     <div class="announcement-text">
-                        <span>Welcome to the Official Website of Sarhad National Service Scheme © 2024 — Join us in making a difference in our community!</span>
+                        <span>Welcome to the Official Website of Sarhad National Service Scheme © 2024 — Join us in
+                            making a difference in our community!</span>
                     </div>
                 </div>
 
@@ -416,10 +434,12 @@
                     <div class="vm-card fade-in">
                         <div class="vm-icon"><i class="fas fa-eye"></i></div>
                         <h3>Our Vision</h3>
-                        <p>The National Service Scheme aims to develop a sense of social responsibility and community service among students, fostering holistic development through voluntary engagement.</p>
+                        <p>The National Service Scheme aims to develop a sense of social responsibility and community
+                            service among students, fostering holistic development through voluntary engagement.</p>
                         <div class="vm-point">
                             <span class="num">1</span>
-                            <p><strong>Promoting Social Awareness</strong> — Creating consciousness about societal challenges.</p>
+                            <p><strong>Promoting Social Awareness</strong> — Creating consciousness about societal
+                                challenges.</p>
                         </div>
                         <div class="vm-point">
                             <span class="num">2</span>
@@ -427,7 +447,8 @@
                         </div>
                         <div class="vm-point">
                             <span class="num">3</span>
-                            <p><strong>Fostering National Integration</strong> — Unity through diverse collaboration.</p>
+                            <p><strong>Fostering National Integration</strong> — Unity through diverse collaboration.
+                            </p>
                         </div>
                         <div class="vm-point">
                             <span class="num">4</span>
@@ -435,18 +456,21 @@
                         </div>
                         <div class="vm-point">
                             <span class="num">5</span>
-                            <p><strong>Enhancing Personal Growth</strong> — Practical experience alongside academics.</p>
+                            <p><strong>Enhancing Personal Growth</strong> — Practical experience alongside academics.
+                            </p>
                         </div>
                         <div class="vm-point">
                             <span class="num">6</span>
-                            <p><strong>Addressing Social Issues</strong> — Health, education, environment, and rural development.</p>
+                            <p><strong>Addressing Social Issues</strong> — Health, education, environment, and rural
+                                development.</p>
                         </div>
                     </div>
 
                     <div class="vm-card fade-in fade-in-delay-1">
                         <div class="vm-icon"><i class="fas fa-bullseye"></i></div>
                         <h3>Our Mission</h3>
-                        <p>Providing opportunities for students to participate in community service and contribute to local and national development.</p>
+                        <p>Providing opportunities for students to participate in community service and contribute to
+                            local and national development.</p>
                         <div class="vm-point">
                             <span class="num">1</span>
                             <p><strong>Social Responsibility</strong> — Understanding one's role in society.</p>
@@ -461,7 +485,8 @@
                         </div>
                         <div class="vm-point">
                             <span class="num">4</span>
-                            <p><strong>Personal & Professional Growth</strong> — Leadership, life skills, practical experience.</p>
+                            <p><strong>Personal & Professional Growth</strong> — Leadership, life skills, practical
+                                experience.</p>
                         </div>
                         <div class="vm-point">
                             <span class="num">5</span>
@@ -469,7 +494,8 @@
                         </div>
                         <div class="vm-point">
                             <span class="num">6</span>
-                            <p><strong>National Integration</strong> — Students from diverse backgrounds working together.</p>
+                            <p><strong>National Integration</strong> — Students from diverse backgrounds working
+                                together.</p>
                         </div>
                         <div class="vm-point">
                             <span class="num">7</span>
@@ -495,7 +521,8 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                             </div>
-                            <blockquote>"Being a part of NSS has transformed my perspective on social responsibility. It's not just about volunteering; it's about making a lasting impact!"</blockquote>
+                            <blockquote>"Being a part of NSS has transformed my perspective on social responsibility.
+                                It's not just about volunteering; it's about making a lasting impact!"</blockquote>
                             <div class="testimonial-author">
                                 <div class="testimonial-avatar">AB</div>
                                 <div>
@@ -512,7 +539,8 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                             </div>
-                            <blockquote>"I've developed so many skills and made lifelong friends through NSS. I highly recommend it!"</blockquote>
+                            <blockquote>"I've developed so many skills and made lifelong friends through NSS. I highly
+                                recommend it!"</blockquote>
                             <div class="testimonial-author">
                                 <div class="testimonial-avatar">MK</div>
                                 <div>
@@ -529,7 +557,8 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                             </div>
-                            <blockquote>"NSS has taught me the importance of community service and leadership. I feel empowered to make a difference!"</blockquote>
+                            <blockquote>"NSS has taught me the importance of community service and leadership. I feel
+                                empowered to make a difference!"</blockquote>
                             <div class="testimonial-author">
                                 <div class="testimonial-avatar">RJ</div>
                                 <div>
@@ -550,11 +579,17 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <h3>Sarhad<span>NSS</span></h3>
-                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer
+                        at a time.</p>
                     <div class="footer-social">
                         <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                         <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
                     </div>
                 </div>
                 <div class="footer-col">
@@ -582,7 +617,8 @@
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
-                        <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent-light);">nssposarhad@gmail.com</a></p>
+                        <p><a href="mailto:nssposarhad@gmail.com"
+                                style="color: var(--accent);">nssposarhad@gmail.com</a></p>
                     </div>
                 </div>
             </div>

@@ -95,7 +95,7 @@
         }
 
         .activity-count strong {
-            color: var(--accent-light);
+            color: var(--accent);
         }
 
         /* Activities grid */
@@ -114,6 +114,7 @@
             transition: all var(--transition-normal);
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .activity-card::before {
@@ -141,12 +142,12 @@
         .activity-card .card-number {
             display: inline-block;
             padding: 4px 12px;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
             border-radius: 100px;
             font-size: 0.75rem;
             font-weight: 700;
-            color: var(--accent-light);
+            color: var(--accent);
             margin-bottom: 12px;
         }
 
@@ -245,9 +246,13 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <a href="Home.html" class="nav-logo">
-                <div class="logo-icon">N</div>
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
                 Sarhad<span>NSS</span>
             </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
             <div class="nav-links" id="navLinks">
                 <a href="Home.html">Home</a>
                 <a href="aboutus.html">About</a>
@@ -759,6 +764,11 @@
                         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                         <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                     </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+                    </div>
                 </div>
                 <div class="footer-col">
                     <h4>Quick Links</h4>
@@ -786,7 +796,7 @@
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
                         <p><a href="mailto:nssposarhad@gmail.com"
-                                style="color: var(--accent-light);">nssposarhad@gmail.com</a></p>
+                                style="color: var(--accent);">nssposarhad@gmail.com</a></p>
                     </div>
                 </div>
             </div>

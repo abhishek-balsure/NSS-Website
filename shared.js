@@ -105,10 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Active nav link highlight ──
-    const currentPage = window.location.pathname.split('/').pop() || 'Home.html';
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.nav-links a:not(.nav-cta)').forEach(link => {
         const href = link.getAttribute('href');
-        if (href === currentPage) {
+        if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
             link.classList.add('active');
         }
     });

@@ -55,7 +55,7 @@ The NSS motto reflects the essence of democratic living and upholds the need for
 ## 📞 Contact Us
 
 - **Address**: Sarhad College of Arts, Commerce & Science, Katraj, Pune-46
-- **Phone**: +91 9850726074
+- **Phone**: +91 9850XXXXXX
 - **Email**: [nssposarhad@gmail.com](mailto:nssposarhad@gmail.com)
 
 ---

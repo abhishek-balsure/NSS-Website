@@ -62,4 +62,4 @@ The NSS motto reflects the essence of democratic living and upholds the need for
 
 ## 📜 License
 
-© 2024 Sarhad National Service Scheme. All rights reserved. Designed and developed for community impact.
+© All rights reserved by Me. Designed and developed for community impact.

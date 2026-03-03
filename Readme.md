@@ -62,4 +62,4 @@ The NSS motto reflects the essence of democratic living and upholds the need for
 
 ## 📜 License
 
-© All rights reserved by Me. Designed and developed for community impact.
+© Made By Abhishek Balsure !!. Designed and developed for community impact.

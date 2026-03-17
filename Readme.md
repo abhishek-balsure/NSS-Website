@@ -1,65 +1,93 @@
 # Sarhad NSS — National Service Scheme
 
-![NSS Logo](logos/nss.jpg)
+<p align="center">
+  <img src="logos/nss.jpg" alt="NSS Logo" width="80">
+</p>
 
-Welcome to the official repository of the **National Service Scheme (NSS)** unit at **Sarhad College of Arts, Commerce and Science**, Katraj, Pune. Our mission is to empower youth through community service and foster social responsibility.
-
-## 🌟 Motto: "Not Me, But You."
-
-The NSS motto reflects the essence of democratic living and upholds the need for selfless service.
-
----
-
-## 🚀 Features
-
-- **Modern & Responsive Design**: A premium user interface built with glassmorphism effects, smooth animations, and a mobile-first approach.
-- **Vision & Mission**: Clearly defined goals for social awareness, leadership development, and national integration.
-- **Activity Showcase**: A dedicated section highlighting our impact, including blood donation camps, cleanliness drives, and social awareness programs.
-- **Dynamic Stats**: Real-time visualization of our volunteers, activities, and lives impacted.
-- **Registration System**: An easy-to-use enrollment form for aspiring volunteers.
-- **Shared Design System**: Consistent styling across all pages using a robust CSS/JS architecture.
+<p align="center">
+  Official website of the National Service Scheme (NSS) unit at Sarhad College of Arts, Commerce and Science, Katraj, Pune.
+</p>
 
 ---
 
-## 📂 Project Structure
+## ✨ Features
 
-- `index.html`: The gateway to our unit, featuring our vision, mission, and impact statistics.
-- `aboutus.html`: Details about our history, organizational structure, and core values.
-- `activities.html`: A comprehensive gallery and description of our past and ongoing projects.
-- `register.html` & `form.html`: The enrollment gateway for students to join our cause.
-- `contactus.html`: A direct channel for communication with our coordinators.
-- `shared.css` & `shared.js`: The core of our design system, ensuring a seamless experience across the entire site.
-
----
-
-## 💻 Tech Stack
-
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Properties, Flexbox, Grid)
-- **Design Philosophy**: Glassmorphism, Vibrant Gradients, Modern Typography (Inter/Roboto)
-- **Logic**: Vanilla JavaScript for animations, navigation, and form handling
-- **Icons**: Font Awesome 6.6.0
+- **Responsive Design** — Works on desktop, tablet, and mobile devices
+- **Modern UI** — Glassmorphism effects, smooth animations, clean typography
+- **6 Pages** — Home, About Us, Activities, Contact, Register, Enrollment Form
+- **Shared Components** — Consistent navigation and footer across all pages
+- **Interactive Elements** — Animated counters, scroll-triggered animations, mobile menu
+- **SEO Ready** — Meta descriptions and viewport settings included
 
 ---
 
-## 🛠️ Getting Started
+## 📁 Project Structure
 
-1. **Clone the repository**:
+```
+NSS-Website/
+├── index.html          # Home page
+├── aboutus.html        # About page
+├── activities.html     # Activities & gallery
+├── contactus.html      # Contact page
+├── register.html       # Registration info
+├── form.html           # Enrollment form
+├── shared.css          # Global styles
+├── shared.js           # JavaScript utilities
+├── logos/              # Logo images
+│   ├── nss.jpg
+│   ├── clg.jpg
+│   └── sppu.jpg
+└── actvt.jpg           # Activity calendar image
+```
+
+---
+
+## 🛠️ Tech Stack
+
+- **HTML5** — Semantic markup
+- **CSS3** — Custom properties, Flexbox, Grid, media queries
+- **JavaScript** — Vanilla JS for interactions
+- **Icons** — Font Awesome 6.6
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/abhishek-balsure/NSS-Website.git
    ```
-2. **Open the project**:
-   Simply open `index.html` in your preferred web browser to view the site locally.
+
+2. **Open in browser**
+   - Simply open `index.html` in your browser
+   - Or use a local server: `npx serve .`
 
 ---
 
-## 📞 Contact Us
+## 📸 Preview
+
+The site includes:
+- Hero section with call-to-action
+- Vision & Mission cards
+- Stats counter (volunteers, activities, hours, lives impacted)
+- Activity gallery
+- Testimonials
+- Registration form
+- Contact information
+
+---
+
+## 📞 Contact
 
 - **Address**: Sarhad College of Arts, Commerce & Science, Katraj, Pune-46
-- **Phone**: +91 9850XXXXXX
-- **Email**: [nssposarhad@gmail.com](mailto:nssposarhad@gmail.com)
+- **Email**: nssposarhad@gmail.com
 
 ---
 
 ## 📜 License
 
-© Made By Abhishek Balsure !!. Designed and developed for community impact.
+This project is for educational purposes.
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://github.com/abhishek-balsure">Abhishek Balsure</a></p>

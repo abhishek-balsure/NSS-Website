@@ -497,6 +497,46 @@
             }
         }
 
+        /* Name input styles */
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1.5px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all var(--transition-fast);
+            outline: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
         @media (max-width: 600px) {
             .quiz-container {
                 padding: 24px;
@@ -511,6 +551,7 @@
             }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -564,13 +605,13 @@
                         </div>
                         <h2 class="text-center" style="font-size: 1.6rem; font-weight: 800;">NSS Trivia Challenge</h2>
                         <p class="text-center" style="color: var(--text-secondary); max-width: 500px; margin: 0 auto;">
-                            How well do you know the National Service Scheme? Answer these 10 questions to test your knowledge, earn badges, and win your certificate of completion!
+                            How well do you know the National Service Scheme? Answer these 15 questions to test your knowledge, earn badges, and win your certificate of completion!
                         </p>
 
                         <div class="rules-list">
                             <h3>Rules of the Challenge:</h3>
                             <ul>
-                                <li><i class="fas fa-check-circle"></i> <span><strong>10 Questions</strong> multiple-choice challenge.</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span><strong>15 Questions</strong> multiple-choice challenge.</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span><strong>20 Seconds</strong> limit per question.</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Get educational explanations for every answer.</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Score <strong>70% or more</strong> to earn a special Volunteer Badge &amp; Certificate!</span></li>
@@ -578,9 +619,9 @@
                         </div>
 
                         <!-- Name Input for Certificate -->
-                        <div class="form-group" style="max-width: 400px; margin: 0 auto 12px; width: 100%;">
-                            <label for="userName" style="text-align: left;">Enter Your Name (For Certificate):</label>
-                            <input type="text" id="userName" placeholder="e.g. Abhishek Balsure" style="background: rgba(255,255,255,0.8); border: 1px solid var(--border-glass);" required>
+                        <div class="form-group" style="max-width: 400px; margin: 0 auto 16px; width: 100%;">
+                            <label for="userName">Enter Your Name (For Certificate):</label>
+                            <input type="text" id="userName" placeholder="e.g. Abhishek Balsure" required>
                         </div>
 
                         <button class="btn btn-primary" style="align-self: center; padding: 14px 48px;" id="startQuizBtn">
@@ -593,7 +634,7 @@
                         <!-- HUD & Progress -->
                         <div>
                             <div class="quiz-hud">
-                                <span id="questionCounter">Question 1 of 10</span>
+                                <span id="questionCounter">Question 1 of 15</span>
                                 <span id="hudTimer"><i class="far fa-clock"></i> 20s</span>
                             </div>
                             <div class="progress-bar-container">
@@ -669,6 +710,9 @@
 
                             <!-- Post-quiz Actions -->
                             <div class="cert-actions" id="certActionGroup">
+                                <button class="btn btn-success" id="downloadPdfBtn" style="display: none;">
+                                    <i class="fas fa-file-download"></i> Download PDF Certificate
+                                </button>
                                 <button class="btn btn-outline" onclick="window.print()" id="printCertBtn">
                                     <i class="fas fa-print"></i> Print Certificate
                                 </button>
@@ -803,6 +847,36 @@
                 choices: ["Taj Mahal", "Sanchi Stupa", "Konark Sun Temple", "Red Fort"],
                 answer: 2,
                 explanation: "The wheel in the NSS emblem is a simplified representation of the giant wheel from the Konark Sun Temple in Odisha, representing continuous motion and progress."
+            },
+            {
+                question: "What is the main objective of the National Service Scheme (NSS)?",
+                choices: ["Personality development of students through community service", "Providing military training to students", "Securing high-paying jobs for college graduates", "Funding college sports events"],
+                answer: 0,
+                explanation: "The main objective of the NSS is the development of the personality of students through community service. It helps students understand community needs and problems."
+            },
+            {
+                question: "What does the saffron/red color in the NSS badge symbolize?",
+                choices: ["Peace and non-violence", "Vibrancy, blood, and active youth", "Cosmos and vastness", "Sacrifice and devotion"],
+                answer: 1,
+                explanation: "Saffron represents the active, energetic blood of the youth, signifying that NSS volunteers are full of energy, spirit, and ready to act."
+            },
+            {
+                question: "Which committee first recommended the introduction of voluntary national service in Indian educational institutions?",
+                choices: ["Kothari Commission", "Radhakrishnan Commission", "Mudaliar Commission", "Sarkaria Commission"],
+                answer: 1,
+                explanation: "The University Education Commission, chaired by Dr. Sarvepalli Radhakrishnan (1948-1950), first introduced the idea of voluntary national service in academic institutions."
+            },
+            {
+                question: "What is the name of the special residential camp organized by NSS units, typically lasting for 7 days in an adopted village?",
+                choices: ["NSS Special Camp", "National Integration Camp (NIC)", "Adventure Camp", "Republic Day Parade Camp (RD)"],
+                answer: 0,
+                explanation: "NSS Special Camps are 7-day residential camps organized in adopted rural villages or urban slums, focusing on local development projects."
+            },
+            {
+                question: "What is the name of the official song of the National Service Scheme (NSS) sung during camps?",
+                choices: ["Vande Mataram", "Hum Honge Kaamyab", "Jana Gana Mana", "Sare Jahan Se Achha"],
+                answer: 1,
+                explanation: "'Hum Honge Kaamyab' (We Shall Overcome) is the official theme song sung at all NSS assemblies and camps to build solidarity, hope, and community motivation."
             }
         ];
 
@@ -987,11 +1061,14 @@
             // Set final HUD progress to 100%
             progressBar.style.width = '100%';
 
-            scoreNum.textContent = score;
+            // Score out of 15
+            scoreNum.innerHTML = `${score} <span style="font-size: 1.5rem; color: var(--text-muted); font-weight: 500;">/ 15</span>`;
 
             // Calculate percentage
-            const percentage = (score / questionsList.length) * 100;
+            const percentage = Math.round((score / questionsList.length) * 100);
             certScore.textContent = `${percentage}%`;
+
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
             // Badge criteria
             if (percentage >= 90) {
@@ -1000,27 +1077,45 @@
                 resultGreeting.textContent = `Excellent job, ${userNameVal}! You are an outstanding volunteer.`;
                 certificateBox.style.display = 'block';
                 printCertBtn.style.display = 'inline-flex';
+                if (downloadPdfBtn) downloadPdfBtn.style.display = 'inline-flex';
             } else if (percentage >= 70) {
                 badgeName.textContent = "Social Leader (Silver)";
                 badgeDisplay.className = "badge-display silver";
                 resultGreeting.textContent = `Great performance, ${userNameVal}! You displayed strong social awareness.`;
                 certificateBox.style.display = 'block';
                 printCertBtn.style.display = 'inline-flex';
+                if (downloadPdfBtn) downloadPdfBtn.style.display = 'inline-flex';
             } else if (percentage >= 50) {
                 badgeName.textContent = "Active Volunteer (Bronze)";
                 badgeDisplay.className = "badge-display bronze";
                 resultGreeting.textContent = `Good effort, ${userNameVal}! Keep serving and learning.`;
                 certificateBox.style.display = 'none'; // No certificate for low scores
                 printCertBtn.style.display = 'none';
+                if (downloadPdfBtn) downloadPdfBtn.style.display = 'none';
             } else {
                 badgeName.textContent = "NSS Learner";
                 badgeDisplay.className = "badge-display learner";
                 resultGreeting.textContent = `Keep studying, ${userNameVal}! Learn more about NSS guidelines to improve.`;
                 certificateBox.style.display = 'none';
                 printCertBtn.style.display = 'none';
+                if (downloadPdfBtn) downloadPdfBtn.style.display = 'none';
             }
 
             certName.textContent = userNameVal;
+
+            // Bind PDF downloader
+            if (downloadPdfBtn) {
+                downloadPdfBtn.onclick = () => {
+                    const opt = {
+                        margin:       0.15,
+                        filename:     `NSS_Certificate_${userNameVal.replace(/\s+/g, '_')}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2, useCORS: true },
+                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+                    };
+                    html2pdf().set(opt).from(certificateBox).save();
+                };
+            }
         }
 
         // ── Restart Quiz ──

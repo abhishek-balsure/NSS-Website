@@ -89,7 +89,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.7);
@@ -102,14 +103,21 @@
             outline: none;
         }
 
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             border-color: var(--accent);
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
         }
 
-        .form-group input::placeholder {
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
             color: var(--text-muted);
         }
 
@@ -127,9 +135,38 @@
             color: var(--text-primary);
         }
 
+        /* Section divider */
+        .form-section {
+            margin-top: 32px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(245, 158, 11, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section i {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .form-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 16px;
         }
 
@@ -146,9 +183,37 @@
             font-size: 0.95rem;
         }
 
+        /* Declaration checkbox */
+        .declaration-group {
+            margin-top: 24px;
+            margin-bottom: 0;
+        }
+
+        .declaration-group label {
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .declaration-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         /* Validation error */
         .form-group.error input,
-        .form-group.error select {
+        .form-group.error select,
+        .form-group.error textarea {
             border-color: var(--danger);
         }
 
@@ -161,6 +226,11 @@
 
         .form-group.error .error-text {
             display: block;
+        }
+
+        .declaration-group.error .error-text {
+            display: block;
+            margin-left: 28px;
         }
 
         /* Success message */
@@ -176,6 +246,8 @@
             text-align: center;
             padding: 40px;
             animation: fadeIn 0.4s ease-out;
+            overflow-y: auto;
+            max-height: 100%;
         }
 
         .success-overlay.active {
@@ -194,6 +266,7 @@
             font-size: 2.5rem;
             margin-bottom: 24px;
             animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
         }
 
         .success-overlay h2 {
@@ -201,11 +274,11 @@
             color: var(--text-primary);
         }
 
-        .success-overlay p {
+        .success-overlay>p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
-            max-width: 400px;
-            margin-bottom: 32px;
+            font-size: 0.95rem;
+            max-width: 440px;
+            margin-bottom: 24px;
         }
 
         @keyframes scaleIn {
@@ -220,101 +293,220 @@
             }
         }
 
-        /* Invoice/Receipt styles */
-        .invoice-card {
-            background: #ffffff;
-            border: 2px solid var(--border-glass);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            margin: 20px 0;
-            text-align: left;
+        /* ════════════════════════════════════════════
+           PRINTABLE FORM (hidden on screen, only for PDF)
+           ════════════════════════════════════════════ */
+        .printable-form {
+            display: none;
+        }
+
+        .print-form-container {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 16mm;
+            background: #fff;
             color: #0f172a;
-            position: relative;
-            box-shadow: var(--shadow-sm);
+            font-family: 'Times New Roman', 'Serif', serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            box-sizing: border-box;
         }
 
-        .invoice-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--primary-light);
-            padding-bottom: 12px;
-            margin-bottom: 16px;
+        /* Letterhead */
+        .pf-letterhead {
+            text-align: center;
+            border-bottom: 3px double #1e3a5f;
+            padding-bottom: 10px;
+            margin-bottom: 6px;
         }
 
-        .invoice-header h3 {
-            font-size: 1.15rem;
-            color: var(--primary-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .invoice-header .logo-text {
-            font-weight: 800;
-            color: var(--accent);
-            font-size: 0.95rem;
-        }
-
-        .invoice-ref {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .invoice-details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-
-        .invoice-detail-item {
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 6px;
-        }
-
-        .invoice-detail-item .label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .invoice-detail-item .value {
+        .pf-letterhead .pf-college {
+            font-size: 14pt;
             font-weight: 700;
-            color: var(--text-primary);
+            color: #1e3a5f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pf-letterhead .pf-affiliation {
+            font-size: 9pt;
+            color: #64748b;
             margin-top: 2px;
         }
 
-        .invoice-instructions {
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px dashed var(--accent);
-            border-radius: var(--radius-sm);
-            padding: 12px 16px;
-            font-size: 0.88rem;
+        .pf-letterhead .pf-title {
+            font-size: 16pt;
             font-weight: 700;
-            color: var(--text-accent);
-            text-align: center;
-            margin-top: 16px;
+            color: #b45309;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .pf-letterhead .pf-subtitle {
+            font-size: 9pt;
+            color: #64748b;
+        }
+
+        /* Ref row */
+        .pf-ref-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9.5pt;
+            color: #475569;
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        /* Section headers */
+        .pf-section-title {
+            background: #1e3a5f;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 14px 0 0 0;
+        }
+
+        /* Table layout */
+        .pf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .pf-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            font-size: 10.5pt;
+            vertical-align: top;
+        }
+
+        .pf-table .pf-label {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #334155;
+            width: 35%;
+            font-size: 9.5pt;
+        }
+
+        .pf-table .pf-value {
+            color: #0f172a;
+            font-weight: 400;
+        }
+
+        /* Photo box on right */
+        .pf-header-row {
+            display: flex;
+            gap: 0;
+        }
+
+        .pf-header-row .pf-info-side {
+            flex: 1;
+        }
+
+        .pf-header-row .pf-photo-box {
+            width: 30mm;
+            height: 38mm;
+            border: 2px solid #1e3a5f;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 0;
+            font-size: 8pt;
+            color: #94a3b8;
+            text-align: center;
         }
 
-        .invoice-instructions i {
-            font-size: 1rem;
-            color: var(--accent);
+        /* Declaration */
+        .pf-declaration {
+            margin-top: 14px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            color: #334155;
         }
 
-        /* success overlay wrapper styles */
-        .success-overlay {
-            overflow-y: auto;
-            max-height: 100%;
-            padding: 24px;
+        .pf-declaration strong {
+            color: #0f172a;
+        }
+
+        /* Signature area */
+        .pf-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 0;
+        }
+
+        .pf-sig-block {
+            text-align: center;
+            width: 40%;
+        }
+
+        .pf-sig-line {
+            border-top: 1px solid #334155;
+            margin-top: 40px;
+            padding-top: 4px;
+            font-size: 9.5pt;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .pf-sig-sub {
+            font-size: 8pt;
+            color: #64748b;
+        }
+
+        /* Office use */
+        .pf-office-use {
+            margin-top: 20px;
+            border: 2px solid #1e3a5f;
+            padding: 0;
+        }
+
+        .pf-office-use .pf-section-title {
+            margin: 0;
+        }
+
+        .pf-office-use-content {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 9.5pt;
+            color: #475569;
+        }
+
+        .pf-office-field {
+            border-bottom: 1px dotted #94a3b8;
+            padding-bottom: 16px;
+        }
+
+        /* Footer instruction */
+        .pf-footer-note {
+            margin-top: 16px;
+            padding: 8px 12px;
+            background: #fffbeb;
+            border: 1px dashed #b45309;
+            font-size: 10pt;
+            font-weight: 700;
+            color: #92400e;
+            text-align: center;
+        }
+
+        /* Success screen button area */
+        .success-btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         @media (max-width: 600px) {
@@ -323,6 +515,7 @@
             }
 
             .form-row,
+            .form-row-3,
             .form-actions {
                 grid-template-columns: 1fr;
             }
@@ -367,66 +560,144 @@
                 <div class="form-header">
                     <div class="form-icon"><i class="fas fa-clipboard-list"></i></div>
                     <h1>NSS <span class="gradient-text">Enrollment Form</span></h1>
-                    <p>Fill in your details below to register as an NSS volunteer.</p>
+                    <p>Fill in your details below to register as an NSS volunteer at Sarhad College of Arts, Commerce &
+                        Science.</p>
                 </div>
 
+                <!-- ══════════ SUCCESS OVERLAY ══════════ -->
                 <div class="success-overlay" id="successOverlay">
                     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-                    <h2>Submission Successful!</h2>
-                    <p>Thank you for registering. Your enrollment details are recorded below:</p>
+                    <h2>Enrollment Submitted!</h2>
+                    <p>Your enrollment form has been generated. Download or print the form below and submit it to the
+                        NSS Department.</p>
 
-                    <!-- Invoice Card -->
-                    <div class="invoice-card" id="invoiceCard">
-                        <div class="invoice-header">
-                            <h3>NSS Enrollment Invoice</h3>
-                            <div class="logo-text">Sarhad NSS</div>
-                        </div>
-                        <div class="invoice-ref">
-                            <span>Ref ID: <strong id="invRefId">SRH-NSS-2026-0000</strong></span>
-                            <span id="invDate">Date</span>
-                        </div>
-                        <div class="invoice-details-grid">
-                            <div class="invoice-detail-item">
-                                <div class="label">Full Name</div>
-                                <div class="value" id="invName">Name</div>
-                            </div>
-                            <div class="invoice-detail-item">
-                                <div class="label">Class &amp; Roll No</div>
-                                <div class="value" id="invClassRoll">Class (Roll 0)</div>
-                            </div>
-                            <div class="invoice-detail-item">
-                                <div class="label">Eligibility No</div>
-                                <div class="value" id="invEligibility">Eligibility</div>
-                            </div>
-                            <div class="invoice-detail-item">
-                                <div class="label">Mobile &amp; Gender</div>
-                                <div class="value" id="invMobileGender">Mobile (Gender)</div>
-                            </div>
-                            <div class="invoice-detail-item" style="grid-column: span 2;">
-                                <div class="label">Caste Category</div>
-                                <div class="value" id="invCaste">Caste</div>
-                            </div>
-                        </div>
-                        <div class="invoice-instructions">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Show this invoice to NSS department or head to join NSS</span>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
-                        <button class="btn btn-success" id="downloadInvoiceBtn">
-                            <i class="fas fa-file-download"></i> Download Invoice PDF
+                    <div class="success-btn-row">
+                        <button class="btn btn-success" id="downloadPdfBtn">
+                            <i class="fas fa-file-download"></i> Download Form (PDF)
                         </button>
-                        <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Home</button>
-                        <button class="btn btn-outline" onclick="location.reload()">Back to Form</button>
+                        <button class="btn btn-primary" id="printFormBtn">
+                            <i class="fas fa-print"></i> Print Form
+                        </button>
+                        <button class="btn btn-outline" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Fill Another
+                        </button>
                     </div>
                 </div>
 
+                <!-- ══════════ ENROLLMENT FORM ══════════ -->
                 <form id="enrollmentForm">
+
+                    <!-- SECTION 1: Personal Info -->
+                    <div class="form-section">
+                        <i class="fas fa-user"></i>
+                        <h3>Personal Information</h3>
+                    </div>
+
                     <div class="form-group">
-                        <label for="Name">Full Name <span class="required">*</span></label>
+                        <label for="Name">Full Name (as per records) <span class="required">*</span></label>
                         <input type="text" id="Name" name="Name" placeholder="Enter your full name" required>
                         <span class="error-text">Please enter your name</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ParentName">Parent / Guardian Name <span class="required">*</span></label>
+                            <input type="text" id="ParentName" name="ParentName"
+                                placeholder="Father / Mother / Guardian" required>
+                            <span class="error-text">Please enter parent/guardian name</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="DOB">Date of Birth <span class="required">*</span></label>
+                            <input type="date" id="DOB" name="DOB" required>
+                            <span class="error-text">Please enter your birth date</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label for="Gender">Gender <span class="required">*</span></label>
+                            <select name="Gender" id="Gender" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="error-text">Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="BloodGroup">Blood Group <span class="required">*</span></label>
+                            <select name="BloodGroup" id="BloodGroup" required>
+                                <option value="">Select</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                            <span class="error-text">Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Cast">Category <span class="required">*</span></label>
+                            <select name="Cast" id="Cast" required>
+                                <option value="">Select</option>
+                                <option value="Open / General">Open / General</option>
+                                <option value="OBC">OBC</option>
+                                <option value="SC">SC</option>
+                                <option value="ST">ST</option>
+                                <option value="VJNT">VJNT</option>
+                                <option value="NT-B">NT-B</option>
+                                <option value="NT-C">NT-C</option>
+                                <option value="NT-D">NT-D</option>
+                                <option value="SBC">SBC</option>
+                                <option value="EWS">EWS</option>
+                            </select>
+                            <span class="error-text">Required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="AadharNo">Aadhar Number <span class="required">*</span></label>
+                        <input type="text" id="AadharNo" name="AadharNo" placeholder="12-digit Aadhar number"
+                            maxlength="14" required>
+                        <span class="error-text">Enter a valid 12-digit Aadhar number</span>
+                    </div>
+
+                    <!-- SECTION 2: Academic Info -->
+                    <div class="form-section">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Academic Details</h3>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Department">Department <span class="required">*</span></label>
+                            <select name="Department" id="Department" required>
+                                <option value="">Select Department</option>
+                                <option value="BCS (Computer Science)">BCS (Computer Science)</option>
+                                <option value="BBA (Business Admin.)">BBA (Business Admin.)</option>
+                                <option value="BCA (Computer App.)">BCA (Computer App.)</option>
+                                <option value="B.Com (Commerce)">B.Com (Commerce)</option>
+                                <option value="BA (Arts)">BA (Arts)</option>
+                                <option value="B.Sc (Science)">B.Sc (Science)</option>
+                                <option value="M.Com (Commerce PG)">M.Com (Commerce PG)</option>
+                                <option value="MA (Arts PG)">MA (Arts PG)</option>
+                                <option value="M.Sc (Science PG)">M.Sc (Science PG)</option>
+                            </select>
+                            <span class="error-text">Please select your department</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="AcademicYear">Academic Year <span class="required">*</span></label>
+                            <select name="AcademicYear" id="AcademicYear" required>
+                                <option value="">Select Year</option>
+                                <option value="2025-2026">2025–2026</option>
+                                <option value="2026-2027" selected>2026–2027</option>
+                                <option value="2027-2028">2027–2028</option>
+                            </select>
+                            <span class="error-text">Please select academic year</span>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -443,39 +714,133 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="Eligibility">Eligibility Number <span class="required">*</span></label>
+                        <label for="Eligibility">Eligibility / PRN Number <span class="required">*</span></label>
                         <input type="text" id="Eligibility" name="Eligibility"
-                            placeholder="Enter your eligibility number" required>
-                        <span class="error-text">Please enter your eligibility number</span>
+                            placeholder="Enter your eligibility / PRN number" required>
+                        <span class="error-text">Please enter eligibility / PRN number</span>
+                    </div>
+
+                    <!-- SECTION 3: Contact Info -->
+                    <div class="form-section">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Contact Information</h3>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="MobileNo">Mobile Number <span class="required">*</span></label>
-                            <input type="tel" id="MobileNo" name="MobileNo" placeholder="10-digit number" required>
-                            <span class="error-text">Enter a valid 10-digit number</span>
+                            <label for="Email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="Email" name="Email" placeholder="student@gmail.com" required>
+                            <span class="error-text">Please enter a valid email</span>
                         </div>
                         <div class="form-group">
-                            <label for="Gender">Gender <span class="required">*</span></label>
-                            <select name="Gender" id="Gender" required>
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                            <label for="MobileNo">Mobile Number <span class="required">*</span></label>
+                            <input type="tel" id="MobileNo" name="MobileNo" placeholder="10-digit mobile number"
+                                maxlength="10" required>
+                            <span class="error-text">Enter a valid 10-digit number</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="EmergencyNo">Emergency Contact No. <span class="required">*</span></label>
+                            <input type="tel" id="EmergencyNo" name="EmergencyNo" placeholder="Parent / guardian number"
+                                maxlength="10" required>
+                            <span class="error-text">Enter a valid emergency number</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="EmergencyRelation">Emergency Contact Relation <span
+                                    class="required">*</span></label>
+                            <select name="EmergencyRelation" id="EmergencyRelation" required>
+                                <option value="">Select Relation</option>
+                                <option value="Father">Father</option>
+                                <option value="Mother">Mother</option>
+                                <option value="Sibling">Sibling</option>
+                                <option value="Guardian">Guardian</option>
                                 <option value="Other">Other</option>
                             </select>
-                            <span class="error-text">Please select your gender</span>
+                            <span class="error-text">Please select relation</span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="Cast">Caste <span class="required">*</span></label>
-                        <input type="text" id="Cast" name="Cast" placeholder="Enter your caste" required>
-                        <span class="error-text">Please enter your caste</span>
+                        <label for="Address">Residential Address <span class="required">*</span></label>
+                        <textarea id="Address" name="Address"
+                            placeholder="Enter your complete residential address with pin code" required></textarea>
+                        <span class="error-text">Please enter your address</span>
                     </div>
 
+                    <!-- SECTION 4: NSS Specific -->
+                    <div class="form-section">
+                        <i class="fas fa-hands-helping"></i>
+                        <h3>NSS Details</h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Interest">Volunteer Area of Interest <span class="required">*</span></label>
+                        <select name="Interest" id="Interest" required>
+                            <option value="">Select Preferred Activity Area</option>
+                            <option value="Blood Donation Drives">Blood Donation Drives</option>
+                            <option value="Cleanliness & Swachh Bharat">Cleanliness & Swachh Bharat</option>
+                            <option value="Tree Plantation & Environment">Tree Plantation & Environment</option>
+                            <option value="Health Campaigns & First Aid">Health Campaigns & First Aid</option>
+                            <option value="Disaster Management">Disaster Management</option>
+                            <option value="Social Awareness & Rallies">Social Awareness & Rallies</option>
+                            <option value="Rural Development Camps">Rural Development Camps</option>
+                            <option value="Literacy & Education Drives">Literacy & Education Drives</option>
+                            <option value="Women Empowerment">Women Empowerment</option>
+                            <option value="Digital Literacy">Digital Literacy</option>
+                        </select>
+                        <span class="error-text">Please select your area of interest</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="PrevNSS">Previous NSS Experience <span class="required">*</span></label>
+                            <select name="PrevNSS" id="PrevNSS" required>
+                                <option value="">Select</option>
+                                <option value="No">No, First Time</option>
+                                <option value="Yes - School Level">Yes — School Level</option>
+                                <option value="Yes - College Level">Yes — College Level</option>
+                            </select>
+                            <span class="error-text">Please select an option</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="TShirtSize">T-Shirt Size <span class="required">*</span></label>
+                            <select name="TShirtSize" id="TShirtSize" required>
+                                <option value="">Select Size</option>
+                                <option value="S">S (Small)</option>
+                                <option value="M">M (Medium)</option>
+                                <option value="L">L (Large)</option>
+                                <option value="XL">XL (Extra Large)</option>
+                                <option value="XXL">XXL</option>
+                            </select>
+                            <span class="error-text">Please select your size</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Medical">Medical Conditions / Allergies (if any)</label>
+                        <textarea id="Medical" name="Medical"
+                            placeholder="Mention any medical conditions, allergies, or physical disabilities. Write 'None' if not applicable."
+                            rows="2"></textarea>
+                    </div>
+
+                    <!-- Declaration -->
+                    <div class="form-group declaration-group">
+                        <label for="Declaration">
+                            <input type="checkbox" id="Declaration" name="Declaration" required>
+                            <span>I hereby declare that the information provided above is true and correct to the best
+                                of my knowledge. I understand that NSS activities involve physical participation and I
+                                am voluntarily enrolling. I agree to follow the NSS code of conduct and participate in a
+                                minimum of 120 hours of community service.</span>
+                        </label>
+                        <span class="error-text">You must accept the declaration to proceed</span>
+                    </div>
+
+                    <!-- Actions -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-success" name="Register">
-                            <i class="fas fa-paper-plane"></i> Submit
+                            <i class="fas fa-paper-plane"></i> Submit Enrollment
                         </button>
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-redo"></i> Clear Form
@@ -486,99 +851,164 @@
         </section>
     </main>
 
+    <!-- ══════════════════════════════════════════════════════
+         PRINTABLE FORM — Hidden container, used only for PDF
+         ══════════════════════════════════════════════════════ -->
+    <div class="printable-form" id="printableForm">
+        <div class="print-form-container" id="printFormContainer">
+
+            <!-- Letterhead -->
+            <div class="pf-letterhead">
+                <div class="pf-college">Sarhad College of Arts, Commerce & Science</div>
+                <div class="pf-affiliation">Affiliated to Savitribai Phule Pune University (SPPU) | Katraj, Pune –
+                    411046</div>
+                <div class="pf-title">NSS Volunteer Enrollment Form</div>
+                <div class="pf-subtitle">National Service Scheme — "Not Me But You"</div>
+            </div>
+
+            <!-- Ref & Date -->
+            <div class="pf-ref-row">
+                <span>Application Ref: <strong id="pfRefId"></strong></span>
+                <span>Academic Year: <strong id="pfAcadYear"></strong></span>
+                <span>Date: <strong id="pfDate"></strong></span>
+            </div>
+
+            <!-- Top section: Info table + Photo box -->
+            <div class="pf-header-row">
+                <div class="pf-info-side">
+                    <div class="pf-section-title">A. Personal Details</div>
+                    <table class="pf-table">
+                        <tr>
+                            <td class="pf-label">Full Name</td>
+                            <td class="pf-value" id="pfName"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Parent / Guardian Name</td>
+                            <td class="pf-value" id="pfParent"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Date of Birth</td>
+                            <td class="pf-value" id="pfDob"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Gender</td>
+                            <td class="pf-value" id="pfGender"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Blood Group</td>
+                            <td class="pf-value" id="pfBlood"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Caste / Category</td>
+                            <td class="pf-value" id="pfCaste"></td>
+                        </tr>
+                        <tr>
+                            <td class="pf-label">Aadhar Number</td>
+                            <td class="pf-value" id="pfAadhar"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pf-photo-box">
+                    Paste<br>Passport<br>Photo<br>Here
+                </div>
+            </div>
+
+            <!-- Academic Details -->
+            <div class="pf-section-title">B. Academic Details</div>
+            <table class="pf-table">
+                <tr>
+                    <td class="pf-label">Department</td>
+                    <td class="pf-value" id="pfDept"></td>
+                    <td class="pf-label">Class</td>
+                    <td class="pf-value" id="pfClass"></td>
+                </tr>
+                <tr>
+                    <td class="pf-label">Roll Number</td>
+                    <td class="pf-value" id="pfRoll"></td>
+                    <td class="pf-label">Eligibility / PRN No.</td>
+                    <td class="pf-value" id="pfEligibility"></td>
+                </tr>
+            </table>
+
+            <!-- Contact Details -->
+            <div class="pf-section-title">C. Contact Information</div>
+            <table class="pf-table">
+                <tr>
+                    <td class="pf-label">Email Address</td>
+                    <td class="pf-value" colspan="3" id="pfEmail"></td>
+                </tr>
+                <tr>
+                    <td class="pf-label">Mobile Number</td>
+                    <td class="pf-value" id="pfMobile"></td>
+                    <td class="pf-label">Emergency Contact</td>
+                    <td class="pf-value" id="pfEmergency"></td>
+                </tr>
+                <tr>
+                    <td class="pf-label">Residential Address</td>
+                    <td class="pf-value" colspan="3" id="pfAddress"></td>
+                </tr>
+            </table>
+
+            <!-- NSS Details -->
+            <div class="pf-section-title">D. NSS Details</div>
+            <table class="pf-table">
+                <tr>
+                    <td class="pf-label">Area of Interest</td>
+                    <td class="pf-value" colspan="3" id="pfInterest"></td>
+                </tr>
+                <tr>
+                    <td class="pf-label">Previous NSS Experience</td>
+                    <td class="pf-value" id="pfPrevNss"></td>
+                    <td class="pf-label">T-Shirt Size</td>
+                    <td class="pf-value" id="pfTshirt"></td>
+                </tr>
+                <tr>
+                    <td class="pf-label">Medical Conditions</td>
+                    <td class="pf-value" colspan="3" id="pfMedical"></td>
+                </tr>
+            </table>
+
+            <!-- Declaration -->
+            <div class="pf-declaration">
+                <strong>Declaration:</strong> I hereby declare that the information provided above is true and correct
+                to the best of my knowledge. I understand that NSS activities involve physical participation and I am
+                voluntarily enrolling. I agree to follow the NSS code of conduct and participate in a minimum of
+                <strong>120 hours</strong> of community service as per the NSS guidelines.
+            </div>
+
+            <!-- Signatures -->
+            <div class="pf-signatures">
+                <div class="pf-sig-block">
+                    <div class="pf-sig-line">Signature of Student</div>
+                    <div class="pf-sig-sub">( Applicant )</div>
+                </div>
+                <div class="pf-sig-block">
+                    <div class="pf-sig-line">Signature of Parent / Guardian</div>
+                    <div class="pf-sig-sub">( With Date )</div>
+                </div>
+            </div>
+
+            <!-- Office Use Only -->
+            <div class="pf-office-use">
+                <div class="pf-section-title">For Office Use Only</div>
+                <div class="pf-office-use-content">
+                    <div class="pf-office-field">NSS Unit No.: _______________</div>
+                    <div class="pf-office-field">NSS Volunteer ID: _______________</div>
+                    <div class="pf-office-field">Verified By: _______________</div>
+                    <div class="pf-office-field">Date of Approval: _______________</div>
+                </div>
+            </div>
+
+            <!-- Footer note -->
+            <div class="pf-footer-note">
+                ★ Print this form, paste your passport-size photo, sign it, and submit to the NSS Department / Programme
+                Officer to complete your enrollment. ★
+            </div>
+        </div>
+    </div>
+
     <script src="shared.js"></script>
-    <script>
-        const enrollmentForm = document.getElementById('enrollmentForm');
-
-        enrollmentForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            let isValid = true;
-            const fields = ['Name', 'Class', 'RollNo', 'Eligibility', 'MobileNo', 'Gender', 'Cast'];
-
-            // Clear previous errors
-            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
-
-            const formData = {};
-
-            fields.forEach(id => {
-                const el = document.getElementById(id);
-                const val = el.value.trim();
-                formData[id] = val;
-
-                if (val === '') {
-                    el.closest('.form-group').classList.add('error');
-                    isValid = false;
-                }
-            });
-
-            // Mobile number validation
-            const mobileNo = document.getElementById('MobileNo').value.trim();
-            if (mobileNo && !/^\d{10}$/.test(mobileNo)) {
-                document.getElementById('MobileNo').closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            if (isValid) {
-                // Store in local storage
-                try {
-                    const registrations = JSON.parse(localStorage.getItem('nss_registrations') || '[]');
-                    formData.timestamp = new Date().toISOString();
-                    registrations.push(formData);
-                    localStorage.setItem('nss_registrations', JSON.stringify(registrations));
-
-                    // Populate Invoice Card Details
-                    const refId = 'SRH-NSS-2026-' + Math.floor(1000 + Math.random() * 9000);
-                    const formattedDate = new Date().toLocaleDateString('en-US', { 
-                        day: 'numeric', month: 'long', year: 'numeric' 
-                    }) + ' ' + new Date().toLocaleTimeString('en-US', { 
-                        hour: '2-digit', minute: '2-digit' 
-                    });
-
-                    document.getElementById('invRefId').textContent = refId;
-                    document.getElementById('invDate').textContent = formattedDate;
-                    document.getElementById('invName').textContent = formData.Name;
-                    document.getElementById('invClassRoll').textContent = `${formData.Class} (Roll: ${formData.RollNo})`;
-                    document.getElementById('invEligibility').textContent = formData.Eligibility;
-                    document.getElementById('invMobileGender').textContent = `${formData.MobileNo} (${formData.Gender})`;
-                    document.getElementById('invCaste').textContent = formData.Cast;
-
-                    // Bind PDF download click event
-                    const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
-                    if (downloadInvoiceBtn) {
-                        downloadInvoiceBtn.onclick = () => {
-                            const element = document.getElementById('invoiceCard');
-                            const opt = {
-                                margin:       0.25,
-                                filename:     `NSS_Enrollment_Invoice_${formData.Name.replace(/\s+/g, '_')}.pdf`,
-                                image:        { type: 'jpeg', quality: 0.98 },
-                                html2canvas:  { scale: 2 },
-                                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-                            };
-                            html2pdf().set(opt).from(element).save();
-                        };
-                    }
-
-                    // Show success message overlay
-                    document.getElementById('successOverlay').classList.add('active');
-                    enrollmentForm.reset();
-
-                    // Console log for verification
-                    console.log('Form data saved and invoice generated:', formData);
-                } catch (e) {
-                    console.error('Error saving to localStorage:', e);
-                    alert('There was an error saving your registration. Please try again.');
-                }
-            }
-        });
-
-        // Remove error on input
-        document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
-            el.addEventListener('input', () => {
-                el.closest('.form-group').classList.remove('error');
-            });
-        });
-    </script>
+    <script src="register.js"></script>
 </body>
 
 </html>

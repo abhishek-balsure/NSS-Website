@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Sarhad NSS Event Calendar & Notice Board. Stay updated with upcoming camps, blood donation drives, cleanliness rallies, and notices.">
+    <title>Events & Notices — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Events Page specific Styles ── */
+        .page-header {
+            padding: calc(var(--nav-height) + 60px) 0 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.08), transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Layout Grid */
+        .events-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+
+        /* Glass container styles */
+        .events-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            height: fit-content;
+        }
+
+        /* Notice Board specific */
+        .notice-board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 16px;
+        }
+
+        .notice-board-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notice-board-header h2 i {
+            color: var(--accent);
+        }
+
+        /* Notice Filters */
+        .notice-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* Notices list */
+        .notices-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .notices-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notices-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.03);
+            border-radius: 3px;
+        }
+
+        .notices-list::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.12);
+            border-radius: 3px;
+        }
+
+        .notice-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--text-muted);
+        }
+
+        .notice-card.urgent::before {
+            background: var(--danger);
+        }
+
+        .notice-card.camp::before {
+            background: var(--accent);
+        }
+
+        .notice-card.meeting::before {
+            background: var(--info);
+        }
+
+        .notice-card.general::before {
+            background: var(--success);
+        }
+
+        .notice-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(15, 23, 42, 0.15);
+        }
+
+        .notice-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .notice-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-urgent {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .badge-camp {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-meeting {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .badge-general {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .notice-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .notice-card p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Calendar Card */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 16px;
+        }
+
+        .calendar-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cal-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .cal-nav-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* Grid */
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-primary);
+            position: relative;
+            border: 1px solid transparent;
+        }
+
+        .calendar-day:hover {
+            background: rgba(15, 23, 42, 0.06);
+            border-color: var(--border-glass);
+        }
+
+        .calendar-day.empty {
+            cursor: default;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .calendar-day.prev-next-month {
+            color: var(--text-muted);
+            opacity: 0.35;
+        }
+
+        .calendar-day.today {
+            background: var(--primary-light);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .calendar-day.has-event {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .calendar-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .calendar-day.has-event.selected {
+            background: var(--accent);
+            color: #ffffff !important;
+            border-color: var(--accent);
+        }
+
+        .calendar-day.has-event.selected::after {
+            background: #ffffff;
+        }
+
+        /* Detail Panel */
+        .event-details-card {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--transition-normal);
+        }
+
+        .event-details-card.has-data {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow: var(--shadow-md);
+        }
+
+        .details-header {
+            margin-bottom: 16px;
+        }
+
+        .details-header .badge {
+            margin-bottom: 8px;
+        }
+
+        .details-header h3 {
+            font-size: 1.25rem;
+            line-height: 1.3;
+        }
+
+        .details-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 0;
+        }
+
+        .details-meta-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .details-meta-item i {
+            color: var(--text-muted);
+            width: 16px;
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        .details-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .details-empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--text-muted);
+        }
+
+        .details-empty-state i {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            opacity: 0.7;
+        }
+
+        .details-empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all var(--transition-normal);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            max-width: 500px;
+            width: calc(100% - 32px);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: all var(--transition-normal);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            line-height: 1.3;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            padding: 4px;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            background: rgba(15, 23, 42, 0.02);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* No search results */
+        .no-notices {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+
+        .no-notices i {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .events-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .events-panel {
+                padding: 20px;
+            }
+
+            .notice-board-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html" class="active">Events</a>
+                <a href="quiz.html">Quiz</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>Events &amp; <span class="gradient-text">Announcements</span></h1>
+                <p>Stay updated with our upcoming events, camps, cleanliness drives, meetings, and official NSS circulars.</p>
+            </div>
+        </section>
+
+        <!-- Events and Notices Section -->
+        <section class="section-padding" style="padding-top: 0;">
+            <div class="container">
+                <div class="events-layout">
+                    
+                    <!-- Left Column: Notice Board -->
+                    <div class="events-panel fade-in">
+                        <div class="notice-board-header">
+                            <h2><i class="fas fa-bullhorn"></i> Notice Board</h2>
+                            <div class="notice-filters">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="urgent">Urgent</button>
+                                <button class="filter-btn" data-filter="camp">Camps</button>
+                                <button class="filter-btn" data-filter="meeting">Meetings</button>
+                                <button class="filter-btn" data-filter="general">General</button>
+                            </div>
+                        </div>
+
+                        <!-- Notices Container -->
+                        <div class="notices-list" id="noticesList">
+                            <!-- Notices populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interactive Calendar -->
+                    <div class="events-panel fade-in fade-in-delay-1">
+                        <div class="calendar-header">
+                            <div class="calendar-title" id="calendarTitle">June 2026</div>
+                            <div class="calendar-nav">
+                                <button class="cal-nav-btn" id="prevMonthBtn" aria-label="Previous Month"><i class="fas fa-chevron-left"></i></button>
+                                <button class="cal-nav-btn" id="nextMonthBtn" aria-label="Next Month"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Weekdays -->
+                        <div class="calendar-weekdays">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+
+                        <!-- Calendar Days Grid -->
+                        <div class="calendar-days" id="calendarDays">
+                            <!-- Days populated by JavaScript -->
+                        </div>
+
+                        <!-- Selected Event Details Display Panel -->
+                        <div class="event-details-card" id="eventDetailsCard">
+                            <div class="details-empty-state" id="detailsEmptyState">
+                                <i class="far fa-calendar-alt"></i>
+                                <p>Click on highlighted calendar days (or a notice card) to view detailed event schedules and coordinate.</p>
+                            </div>
+                            <div class="details-content" id="detailsContent" style="display: none;">
+                                <div class="details-header">
+                                    <span class="badge" id="detailsBadge">Camp</span>
+                                    <h3 id="detailsTitle">Event Title</h3>
+                                </div>
+                                <div class="details-meta">
+                                    <div class="details-meta-item">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <span id="detailsDate">Date</span>
+                                    </div>
+                                    <div class="details-meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span id="detailsTime">Time</span>
+                                    </div>
+                                    <div class="details-meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span id="detailsVenue">Venue</span>
+                                    </div>
+                                    <div class="details-meta-item">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span id="detailsLeader">Leader</span>
+                                    </div>
+                                </div>
+                                <div class="details-desc" id="detailsDescription">
+                                    Description of the event.
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%; justify-content: center;" id="detailsActionBtn">
+                                    <i class="fas fa-edit"></i> Register as Volunteer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notice Detail Modal -->
+    <div class="modal" id="noticeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Notice Title</h3>
+                <button class="modal-close" id="modalCloseBtn" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <span class="badge" id="modalBadge">Urgent</span>
+                <div style="margin: 16px 0; color: var(--text-secondary); font-size: 0.9rem;" id="modalMeta">
+                    <!-- Meta info -->
+                </div>
+                <div id="modalDescription" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                    Description text.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modalCloseFooterBtn">Close</button>
+                <button class="btn btn-success" id="modalActionBtn">Sign Up / Participate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce &amp; Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850XXXXXX</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <!-- © Made By Abhishek Balsure !! -->
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        // ── Events & Notice Board System Data ──
+        const eventsData = [
+            // June 2026
+            {
+                id: 1,
+                title: "World Environment Day - Tree Plantation Drive",
+                date: "2026-06-05",
+                time: "08:00 AM - 11:30 AM",
+                category: "camp", // matches tag
+                badgeText: "Camps",
+                venue: "Sarhad College Campus & Katraj Lake Area",
+                leader: "Assistant Prof. Rajendra Thorat",
+                description: "On the occasion of World Environment Day, Sarhad NSS unit is organizing a mass tree plantation drive. We aim to plant 100+ native tree saplings. Please wear comfortable shoes and carry water bottles. Light snacks will be provided.",
+                isUrgent: false
+            },
+            {
+                id: 2,
+                title: "Blood Donation Camp & Health Check-up",
+                date: "2026-06-14",
+                time: "09:00 AM - 04:00 PM",
+                category: "urgent",
+                badgeText: "Urgent",
+                venue: "College Seminar Hall (2nd floor)",
+                leader: "Dr. Manauti Sandeep Patil (PO)",
+                description: "In collaboration with Pune Blood Bank, a mega blood donation drive is being scheduled. NSS volunteers will assist in management, registrations, and volunteer service. Donors will receive certificates and appreciation cards. High participation expected.",
+                isUrgent: true
+            },
+            {
+                id: 3,
+                title: "International Yoga Day Demonstration",
+                date: "2026-06-21",
+                time: "07:00 AM - 08:30 AM",
+                category: "general",
+                badgeText: "General",
+                venue: "College Play Ground",
+                leader: "Assistant Prof. Rajendra Thorat",
+                description: "A collective Yoga session guided by certified instructors to promote mental peace, physical health, and community wellness. Open to all students, faculty, and NSS volunteers. Bring your yoga mats.",
+                isUrgent: false
+            },
+            {
+                id: 4,
+                title: "Anti-Drug Abuse Awareness Rally",
+                date: "2026-06-26",
+                time: "09:00 AM - 11:00 AM",
+                category: "camp",
+                badgeText: "Camps",
+                venue: "Katraj Chowk Area, Pune",
+                leader: "Dr. Manauti Sandeep Patil (PO)",
+                description: "An awareness rally with banners, placards, and slogans to educate youth and the public on the hazards of substance abuse. The local police department will also participate. All volunteers must assemble by 8:30 AM in the campus yard.",
+                isUrgent: false
+            },
+            // July 2026
+            {
+                id: 5,
+                title: "NSS Orientation Program & Enrollment Drive",
+                date: "2026-07-01",
+                time: "11:00 AM - 01:00 PM",
+                category: "general",
+                badgeText: "General",
+                venue: "Main Assembly Hall",
+                leader: "Dr. Manauti Sandeep Patil (PO)",
+                description: "Welcome event for newly admitted first-year students to introduce NSS goals, operations, and benefits. Detailed explanation of camp rules, social campaigns, and 120-hour service requirements will be given.",
+                isUrgent: false
+            },
+            {
+                id: 6,
+                title: "Monthly Planning Meeting (NSS Committee)",
+                date: "2026-07-05",
+                time: "02:00 PM - 03:30 PM",
+                category: "meeting",
+                badgeText: "Meetings",
+                venue: "NSS Department Office (Room 102)",
+                leader: "Dr. Manauti Patill & Student Leaders",
+                description: "Official planning meeting for NSS student committee members and group leaders. Discussions will cover upcoming activities, review of registrations, and logistics for cleanliness drives.",
+                isUrgent: false
+            },
+            {
+                id: 7,
+                title: "Cleanliness Drive - Swachh Bharat Abhiyan",
+                date: "2026-07-15",
+                time: "07:30 AM - 10:30 AM",
+                category: "camp",
+                badgeText: "Camps",
+                venue: "Katraj Bus Depot & Nearby Streets",
+                leader: "Assistant Prof. Rajendra Thorat",
+                description: "Cleanliness camp to collect plastic wastes, clean bus stops, and paint walls. Masks, hand gloves, and waste disposal bins will be provided. Attendance is mandatory for all active NSS volunteers.",
+                isUrgent: false
+            },
+            {
+                id: 8,
+                title: "Kargil Vijay Diwas Tribute Ceremony",
+                date: "2026-07-26",
+                time: "10:00 AM - 11:30 AM",
+                category: "general",
+                badgeText: "General",
+                venue: "College Amphitheatre",
+                leader: "Dr. Manauti Sandeep Patil (PO)",
+                description: "A patriotic program to pay homage to the martyrs of the Kargil War. Features national pledge, poetry reading, and addresses by retired army officials.",
+                isUrgent: false
+            },
+            // August 2026
+            {
+                id: 9,
+                title: "International Youth Day Debate",
+                date: "2026-08-12",
+                time: "12:00 PM - 03:00 PM",
+                category: "general",
+                badgeText: "General",
+                venue: "College Conference Room",
+                leader: "Assistant Prof. Rajendra Thorat",
+                description: "Elocution and debate competitions on the topic 'Youth Power in Solving Urban Issues.' Prizes and certificates of appreciation will be awarded to winners.",
+                isUrgent: false
+            },
+            {
+                id: 10,
+                title: "Independence Day Flag Hoisting",
+                date: "2026-08-15",
+                time: "07:15 AM - 10:00 AM",
+                category: "urgent",
+                badgeText: "Urgent",
+                venue: "Main Ground",
+                leader: "Dr. Manauti Sandeep Patil (PO)",
+                description: "Official Independence Day celebrations. NSS volunteers will manage the parade and guard of honor. Patriotic songs and cultural dance performances by the NSS cultural group.",
+                isUrgent: true
+            }
+        ];
+
+        // ── State Management ──
+        let currentDate = new Date(2026, 5, 1); // Start at June 2026 (index 5)
+        let activeFilter = 'all';
+        let selectedEventId = null;
+
+        // ── DOM Elements ──
+        const calendarTitle = document.getElementById('calendarTitle');
+        const calendarDays = document.getElementById('calendarDays');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const noticesList = document.getElementById('noticesList');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        const detailsEmptyState = document.getElementById('detailsEmptyState');
+        const detailsContent = document.getElementById('detailsContent');
+        const eventDetailsCard = document.getElementById('eventDetailsCard');
+        
+        const detailsBadge = document.getElementById('detailsBadge');
+        const detailsTitle = document.getElementById('detailsTitle');
+        const detailsDate = document.getElementById('detailsDate');
+        const detailsTime = document.getElementById('detailsTime');
+        const detailsVenue = document.getElementById('detailsVenue');
+        const detailsLeader = document.getElementById('detailsLeader');
+        const detailsDescription = document.getElementById('detailsDescription');
+        const detailsActionBtn = document.getElementById('detailsActionBtn');
+
+        // Modal elements
+        const noticeModal = document.getElementById('noticeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBadge = document.getElementById('modalBadge');
+        const modalMeta = document.getElementById('modalMeta');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalCloseFooterBtn = document.getElementById('modalCloseFooterBtn');
+        const modalActionBtn = document.getElementById('modalActionBtn');
+
+        // ── Calendar Rendering Function ──
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Month Name
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            calendarTitle.textContent = `${monthNames[month]} ${year}`;
+
+            // First day of the month
+            const firstDayIndex = new Date(year, month, 1).getDay();
+
+            // Total days in the month
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            // Clear days
+            calendarDays.innerHTML = '';
+
+            // Render empty cells for previous month padding
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.classList.add('calendar-day', 'empty');
+                calendarDays.appendChild(emptyDiv);
+            }
+
+            // Render days
+            for (let day = 1; day <= totalDays; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day');
+                dayDiv.textContent = day;
+
+                // Build date string in local format YYYY-MM-DD
+                const monthStr = String(month + 1).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                const dateKey = `${year}-${monthStr}-${dayStr}`;
+
+                // Check if this date is today (simulated or real)
+                const today = new Date();
+                if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day) {
+                    dayDiv.classList.add('today');
+                }
+
+                // Check if date has events
+                const dayEvent = eventsData.find(e => e.date === dateKey);
+                if (dayEvent) {
+                    dayDiv.classList.add('has-event');
+                    dayDiv.setAttribute('title', dayEvent.title);
+                    
+                    if (selectedEventId === dayEvent.id) {
+                        dayDiv.classList.add('selected');
+                    }
+
+                    // Click event to show details
+                    dayDiv.addEventListener('click', () => {
+                        selectEvent(dayEvent.id);
+                    });
+                } else {
+                    dayDiv.addEventListener('click', () => {
+                        clearSelection();
+                    });
+                }
+
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+
+        // ── Notice Board Rendering Function ──
+        function renderNotices() {
+            noticesList.innerHTML = '';
+            
+            const filteredEvents = eventsData.filter(event => {
+                if (activeFilter === 'all') return true;
+                if (activeFilter === 'urgent') return event.isUrgent;
+                return event.category === activeFilter;
+            });
+
+            if (filteredEvents.length === 0) {
+                noticesList.innerHTML = `
+                    <div class="no-notices">
+                        <i class="far fa-folder-open"></i>
+                        <p>No notices found for this category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by date ascending
+            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            filteredEvents.forEach(event => {
+                const card = document.createElement('div');
+                card.classList.add('notice-card');
+                
+                let badgeClass = 'badge-general';
+                if (event.isUrgent) badgeClass = 'badge-urgent';
+                else if (event.category === 'camp') badgeClass = 'badge-camp';
+                else if (event.category === 'meeting') badgeClass = 'badge-meeting';
+
+                if (event.isUrgent) card.classList.add('urgent');
+                else card.classList.add(event.category);
+
+                const formatDate = new Date(event.date).toLocaleDateString('en-US', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="notice-meta">
+                        <span class="notice-date">${formatDate}</span>
+                        <span class="badge ${badgeClass}">${event.badgeText}</span>
+                    </div>
+                    <h3>${event.title}</h3>
+                    <p>${event.description}</p>
+                `;
+
+                card.addEventListener('click', () => {
+                    // Navigate calendar to this event's month
+                    const eventDateObj = new Date(event.date);
+                    currentDate = new Date(eventDateObj.getFullYear(), eventDateObj.getMonth(), 1);
+                    
+                    // Show in details panel and select day
+                    selectEvent(event.id);
+                    renderCalendar();
+
+                    // Scroll detail panel into view on mobile
+                    if (window.innerWidth <= 1024) {
+                        eventDetailsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+
+                noticesList.appendChild(card);
+            });
+        }
+
+        // ── Select Event and show Details ──
+        function selectEvent(eventId) {
+            selectedEventId = eventId;
+            const event = eventsData.find(e => e.id === eventId);
+            if (!event) return;
+
+            // Highlight in calendar
+            const allDays = calendarDays.querySelectorAll('.calendar-day');
+            allDays.forEach(d => d.classList.remove('selected'));
+            
+            const eventDay = new Date(event.date).getDate();
+            // Find the day element and select it
+            allDays.forEach(dayEl => {
+                if (dayEl.textContent == eventDay && !dayEl.classList.contains('empty') && dayEl.classList.contains('has-event')) {
+                    dayEl.classList.add('selected');
+                }
+            });
+
+            // Update Panel details
+            detailsEmptyState.style.display = 'none';
+            detailsContent.style.display = 'block';
+            eventDetailsCard.classList.add('has-data');
+
+            // Badge color styling
+            let badgeClass = 'badge-general';
+            if (event.isUrgent) badgeClass = 'badge-urgent';
+            else if (event.category === 'camp') badgeClass = 'badge-camp';
+            else if (event.category === 'meeting') badgeClass = 'badge-meeting';
+
+            detailsBadge.className = `badge ${badgeClass}`;
+            detailsBadge.textContent = event.badgeText;
+            detailsTitle.textContent = event.title;
+            
+            const formatDate = new Date(event.date).toLocaleDateString('en-US', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+            detailsDate.textContent = formatDate;
+            detailsTime.textContent = event.time;
+            detailsVenue.textContent = event.venue;
+            detailsLeader.textContent = event.leader;
+            detailsDescription.textContent = event.description;
+
+            // Update Action Button
+            if (event.category === 'meeting') {
+                detailsActionBtn.innerHTML = '<i class="fas fa-check"></i> Add to Calendar';
+                detailsActionBtn.className = 'btn btn-outline';
+                detailsActionBtn.style.borderColor = 'var(--info)';
+                detailsActionBtn.style.color = 'var(--info)';
+            } else {
+                detailsActionBtn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Register as Volunteer';
+                detailsActionBtn.className = 'btn btn-primary';
+                detailsActionBtn.style.borderColor = '';
+                detailsActionBtn.style.color = '';
+            }
+
+            // Click listener for details action button
+            detailsActionBtn.onclick = () => {
+                openModal(event);
+            };
+        }
+
+        // ── Clear Selection ──
+        function clearSelection() {
+            selectedEventId = null;
+            const allDays = calendarDays.querySelectorAll('.calendar-day');
+            allDays.forEach(d => d.classList.remove('selected'));
+
+            detailsEmptyState.style.display = 'block';
+            detailsContent.style.display = 'none';
+            eventDetailsCard.classList.remove('has-data');
+        }
+
+        // ── Modal Handlers ──
+        function openModal(event) {
+            modalTitle.textContent = event.title;
+            modalDescription.textContent = event.description;
+            
+            let badgeClass = 'badge-general';
+            if (event.isUrgent) badgeClass = 'badge-urgent';
+            else if (event.category === 'camp') badgeClass = 'badge-camp';
+            else if (event.category === 'meeting') badgeClass = 'badge-meeting';
+            
+            modalBadge.className = `badge ${badgeClass}`;
+            modalBadge.textContent = event.badgeText;
+
+            const formatDate = new Date(event.date).toLocaleDateString('en-US', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+            modalMeta.innerHTML = `
+                <div style="margin-bottom: 6px;"><i class="fas fa-calendar-alt"></i> ${formatDate} | ${event.time}</div>
+                <div><i class="fas fa-map-marker-alt"></i> ${event.venue}</div>
+                <div style="margin-top: 6px;"><i class="fas fa-user"></i> Coordinate: <strong>${event.leader}</strong></div>
+            `;
+
+            if (event.category === 'meeting') {
+                modalActionBtn.innerHTML = '<i class="fas fa-calendar-plus"></i> Add to Google Calendar';
+                modalActionBtn.className = 'btn btn-outline';
+                modalActionBtn.style.borderColor = 'var(--info)';
+                modalActionBtn.style.color = 'var(--info)';
+                modalActionBtn.onclick = () => {
+                    alert('Successfully added to your Google Calendar!');
+                    closeModal();
+                };
+            } else {
+                modalActionBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register as Volunteer';
+                modalActionBtn.className = 'btn btn-success';
+                modalActionBtn.onclick = () => {
+                    window.location.href = 'form.html';
+                };
+            }
+
+            noticeModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            noticeModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Modal Close triggers
+        modalCloseBtn.addEventListener('click', closeModal);
+        modalCloseFooterBtn.addEventListener('click', closeModal);
+        noticeModal.addEventListener('click', (e) => {
+            if (e.target === noticeModal) closeModal();
+        });
+
+        // ── Month Navigation Triggers ──
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+            clearSelection();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+            clearSelection();
+        });
+
+        // ── Notice Filter buttons Triggers ──
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilter = btn.dataset.filter;
+                renderNotices();
+            });
+        });
+
+        // ── Initialization ──
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+            renderNotices();
+        });
+    </script>
+</body>
+
+</html>

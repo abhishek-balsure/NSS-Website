@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Test your knowledge with the NSS Trivia Challenge. Learn about NSS history, emblem, motto, and volunteer roles.">
+    <title>NSS Trivia Challenge — Sarhad NSS</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* ── Quiz Page specific Styles ── */
+        .page-header {
+            padding: calc(var(--nav-height) + 60px) 0 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(5, 150, 105, 0.08), transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Quiz Container Card */
+        .quiz-container {
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto 80px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .quiz-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--info), var(--success));
+        }
+
+        /* Screens */
+        .quiz-screen {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+            width: 100%;
+        }
+
+        .quiz-screen.active {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Start Screen */
+        .start-icon {
+            font-size: 3.5rem;
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 8px;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .rules-list {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: left;
+            margin: 16px 0;
+        }
+
+        .rules-list h3 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .rules-list ul {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rules-list li {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rules-list li i {
+            color: var(--success);
+            font-size: 0.85rem;
+        }
+
+        /* Progress Bar & Header */
+        .quiz-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(15, 23, 42, 0.05);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 100px;
+            transition: width var(--transition-normal);
+        }
+
+        /* Timer bar */
+        .timer-bar-container {
+            width: 100%;
+            height: 3px;
+            background: rgba(15, 23, 42, 0.03);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--info);
+            transition: width 0.1s linear;
+        }
+
+        .timer-bar.warning {
+            background: var(--danger);
+        }
+
+        /* Question & Options */
+        .question-box h2 {
+            font-size: 1.35rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: var(--bg-card-hover);
+            border-color: rgba(15, 23, 42, 0.2);
+            transform: translateX(4px);
+            color: var(--text-primary);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(220, 38, 38, 0.12) !important;
+            border-color: var(--danger) !important;
+            color: var(--danger) !important;
+        }
+
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .option-btn .option-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1.5px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all var(--transition-fast);
+        }
+
+        .option-btn.correct .option-indicator {
+            border-color: var(--success);
+            background: var(--success);
+            color: #ffffff;
+        }
+
+        .option-btn.incorrect .option-indicator {
+            border-color: var(--danger);
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            display: none;
+            background: rgba(37, 99, 235, 0.05);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            border-radius: var(--radius-md);
+            padding: 18px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .explanation-box strong {
+            color: var(--info);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Result Screen */
+        .results-box {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 6px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: var(--shadow-md);
+        }
+
+        .score-num {
+            font-size: 2.8rem;
+            font-weight: 900;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-total {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1.5px solid var(--accent);
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+
+        .badge-display.silver {
+            background: rgba(148, 163, 184, 0.12);
+            border-color: #64748b;
+            color: #475569;
+        }
+
+        .badge-display.bronze {
+            background: rgba(180, 83, 9, 0.12);
+            border-color: #b45309;
+            color: #b45309;
+        }
+
+        .badge-display.learner {
+            background: rgba(37, 99, 235, 0.12);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        /* Dynamic Certificate Box */
+        .certificate-container {
+            display: none;
+            background: #ffffff;
+            border: 10px double var(--primary-light);
+            border-radius: var(--radius-sm);
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            color: #0f172a;
+        }
+
+        .certificate-container::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(15, 23, 42, 0.2);
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .certificate-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .certificate-recipient {
+            font-size: 1.6rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            border-bottom: 2px solid var(--border-glass);
+            display: inline-block;
+            padding: 0 24px 4px;
+            margin-bottom: 18px;
+            color: var(--text-primary);
+        }
+
+        .certificate-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        .certificate-text strong {
+            color: var(--accent);
+        }
+
+        .certificate-footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+        }
+
+        .cert-sig {
+            width: 100px;
+            border-top: 1px solid var(--text-muted);
+            padding-top: 6px;
+            text-align: center;
+        }
+
+        .cert-stamp {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px dashed var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 0.65rem;
+            font-weight: 800;
+            transform: rotate(-15deg);
+        }
+
+        /* Action bar for cert */
+        .cert-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        /* Animation */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Certificate Print CSS overrides */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #certificateBox,
+            #certificateBox * {
+                visibility: visible;
+            }
+
+            #certificateBox {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: 12px double #1a3a5c;
+                box-shadow: none;
+                margin: 0;
+                padding: 40px;
+                background: #fff;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 24px;
+            }
+
+            .rules-list {
+                padding: 16px;
+            }
+
+            .cert-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="quiz.html" class="active">Quiz</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>NSS Trivia <span class="gradient-text">Challenge</span></h1>
+                <p>Test your knowledge about the National Service Scheme — its history, objectives, symbols, and core values.</p>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section style="padding-bottom: 80px;">
+            <div class="container">
+                <div class="quiz-container">
+                    
+                    <!-- ── SCREEN 1: Start Screen ── -->
+                    <div class="quiz-screen active" id="startScreen">
+                        <div class="start-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h2 class="text-center" style="font-size: 1.6rem; font-weight: 800;">NSS Trivia Challenge</h2>
+                        <p class="text-center" style="color: var(--text-secondary); max-width: 500px; margin: 0 auto;">
+                            How well do you know the National Service Scheme? Answer these 10 questions to test your knowledge, earn badges, and win your certificate of completion!
+                        </p>
+
+                        <div class="rules-list">
+                            <h3>Rules of the Challenge:</h3>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> <span><strong>10 Questions</strong> multiple-choice challenge.</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span><strong>20 Seconds</strong> limit per question.</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Get educational explanations for every answer.</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Score <strong>70% or more</strong> to earn a special Volunteer Badge &amp; Certificate!</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Name Input for Certificate -->
+                        <div class="form-group" style="max-width: 400px; margin: 0 auto 12px; width: 100%;">
+                            <label for="userName" style="text-align: left;">Enter Your Name (For Certificate):</label>
+                            <input type="text" id="userName" placeholder="e.g. Abhishek Balsure" style="background: rgba(255,255,255,0.8); border: 1px solid var(--border-glass);" required>
+                        </div>
+
+                        <button class="btn btn-primary" style="align-self: center; padding: 14px 48px;" id="startQuizBtn">
+                            <i class="fas fa-play"></i> Start Trivia Challenge
+                        </button>
+                    </div>
+
+                    <!-- ── SCREEN 2: Question Screen ── -->
+                    <div class="quiz-screen" id="questionScreen">
+                        <!-- HUD & Progress -->
+                        <div>
+                            <div class="quiz-hud">
+                                <span id="questionCounter">Question 1 of 10</span>
+                                <span id="hudTimer"><i class="far fa-clock"></i> 20s</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <div class="timer-bar-container">
+                                <div class="timer-bar" id="timerBar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question Box -->
+                        <div class="question-box">
+                            <h2 id="questionText">What is the motto of the National Service Scheme (NSS)?</h2>
+                        </div>
+
+                        <!-- Options Grid -->
+                        <div class="options-grid" id="optionsGrid">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Explanation Box -->
+                        <div class="explanation-box" id="explanationBox">
+                            <strong>Explanation:</strong>
+                            <span id="explanationText">Explain why the correct answer is correct.</span>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <button class="btn btn-primary" style="display: none; align-self: flex-end;" id="nextQuestionBtn">
+                            Next Question <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- ── SCREEN 3: Results Screen ── -->
+                    <div class="quiz-screen" id="resultScreen">
+                        <div class="results-box">
+                            <h2 style="font-size: 1.8rem; margin-bottom: 8px;">Challenge Completed!</h2>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;" id="resultGreeting">Well done, Volunteer!</p>
+
+                            <!-- Score display -->
+                            <div class="score-circle">
+                                <div class="score-num" id="scoreNum">8</div>
+                                <div class="score-total">Score</div>
+                            </div>
+
+                            <!-- Badge display -->
+                            <div>
+                                <div class="badge-display" id="badgeDisplay">
+                                    <i class="fas fa-medal"></i> <span id="badgeName">Social Leader</span>
+                                </div>
+                            </div>
+
+                            <!-- Certificate Panel -->
+                            <div class="certificate-container" id="certificateBox">
+                                <div class="certificate-header">Sarhad NSS Unit</div>
+                                <div class="certificate-title">Certificate of Merit</div>
+                                <div style="font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-bottom: 16px;">This is proudly presented to</div>
+                                <div class="certificate-recipient" id="certName">Abhishek Balsure</div>
+                                <div class="certificate-text">
+                                    for successfully completing the <strong>NSS Trivia &amp; Awareness Challenge</strong> with an outstanding score of <strong id="certScore">80%</strong>, demonstrating excellent awareness of the National Service Scheme rules, history, and community ideals.
+                                </div>
+                                <div class="certificate-footer">
+                                    <div class="cert-sig">
+                                        Dr. M. S. Patil<br>
+                                        <strong>Programme Officer</strong>
+                                    </div>
+                                    <div class="cert-stamp">SARHAD<br>NSS</div>
+                                    <div class="cert-sig">
+                                        Sarhad College<br>
+                                        <strong>Katraj, Pune</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Post-quiz Actions -->
+                            <div class="cert-actions" id="certActionGroup">
+                                <button class="btn btn-outline" onclick="window.print()" id="printCertBtn">
+                                    <i class="fas fa-print"></i> Print Certificate
+                                </button>
+                                <button class="btn btn-primary" id="restartQuizBtn">
+                                    <i class="fas fa-redo"></i> Restart Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce &amp; Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850XXXXXX</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <!-- © Made By Abhishek Balsure !! -->
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        // ── Quiz Question Repository ──
+        const questionsList = [
+            {
+                question: "What is the motto of the National Service Scheme (NSS)?",
+                choices: ["Service Before Self", "Not Me, But You", "Unity and Discipline", "Duty Unto Death"],
+                answer: 1, // 0-indexed index of correct choice
+                explanation: "The motto of NSS is 'NOT ME, BUT YOU'. It underlines the concept of democratic living and upholds the need for selfless service and appreciation of other persons' points of view."
+            },
+            {
+                question: "In which year was the National Service Scheme (NSS) officially launched?",
+                choices: ["1947 (Independence Year)", "1950 (Republic Year)", "1969 (Gandhi Centenary Year)", "1972"],
+                answer: 2,
+                explanation: "NSS was launched on 24th September 1969, during the Gandhi Centenary Year, with 37,000 volunteers across 37 universities."
+            },
+            {
+                question: "The NSS was launched during the centenary year of which national leader?",
+                choices: ["Swami Vivekananda", "Mahatma Gandhi", "Subhas Chandra Bose", "Jawaharlal Nehru"],
+                answer: 1,
+                explanation: "NSS was launched in 1969 to commemorate the 100th birth anniversary of Mahatma Gandhi, whose ideals are the foundation of NSS service."
+            },
+            {
+                question: "What is the primary color of the NSS badge, representing the energy and spirit of volunteers?",
+                choices: ["Navy Blue", "Pure Green", "Saffron / Giant Orange-Red", "Deep Yellow"],
+                answer: 2,
+                explanation: "Saffron represents the blood, energy, and spirit of the NSS volunteers. The Navy Blue color represents the cosmos, of which the NSS is a tiny part, ready to contribute to its welfare."
+            },
+            {
+                question: "How many spokes are there in the NSS emblem wheel, taken from the Konark Sun Temple?",
+                choices: ["8 spokes", "12 spokes", "24 spokes", "16 spokes"],
+                answer: 0,
+                explanation: "The NSS emblem contains an 8-spoked wheel. These 8 spokes represent the 24 hours of the day, signifying that a volunteer is ready to serve the nation round the clock."
+            },
+            {
+                question: "What is the minimum hours of community service a volunteer must complete in a year?",
+                choices: ["60 hours", "120 hours", "240 hours", "50 hours"],
+                answer: 1,
+                explanation: "An NSS volunteer is required to complete at least 120 hours of social service activities annually, along with participation in special camping programs."
+            },
+            {
+                question: "On which day is National Youth Day celebrated, commemorating Swami Vivekananda's birth anniversary?",
+                choices: ["24th September", "2nd October", "12th January", "15th August"],
+                answer: 2,
+                explanation: "National Youth Day is celebrated on 12th January. It honors Swami Vivekananda's teachings and motivates youth towards nation-building."
+            },
+            {
+                question: "On which day is 'NSS Day' celebrated annually across India?",
+                choices: ["24th September", "2nd October", "12th January", "1st May"],
+                answer: 0,
+                explanation: "NSS Day is celebrated on 24th September because the scheme was officially declared open on this exact date in 1969."
+            },
+            {
+                question: "Which ministry governs and sponsors the National Service Scheme in India?",
+                choices: ["Ministry of Education", "Ministry of Home Affairs", "Ministry of Youth Affairs and Sports", "Ministry of Social Justice"],
+                answer: 2,
+                explanation: "NSS is a public service program sponsored and run under the guidance of the Ministry of Youth Affairs and Sports, Government of India."
+            },
+            {
+                question: "The giant wheel in the NSS logo is inspired by which historical monument?",
+                choices: ["Taj Mahal", "Sanchi Stupa", "Konark Sun Temple", "Red Fort"],
+                answer: 2,
+                explanation: "The wheel in the NSS emblem is a simplified representation of the giant wheel from the Konark Sun Temple in Odisha, representing continuous motion and progress."
+            }
+        ];
+
+        // ── State Variables ──
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; // records selected answers
+        let timer = null;
+        let timeRemaining = 20;
+        let userNameVal = "";
+
+        // ── DOM Elements ──
+        const startScreen = document.getElementById('startScreen');
+        const questionScreen = document.getElementById('questionScreen');
+        const resultScreen = document.getElementById('resultScreen');
+
+        const userNameInput = document.getElementById('userName');
+        const startQuizBtn = document.getElementById('startQuizBtn');
+
+        const questionCounter = document.getElementById('questionCounter');
+        const hudTimer = document.getElementById('hudTimer');
+        const progressBar = document.getElementById('progressBar');
+        const timerBar = document.getElementById('timerBar');
+        const questionText = document.getElementById('questionText');
+        const optionsGrid = document.getElementById('optionsGrid');
+        const explanationBox = document.getElementById('explanationBox');
+        const explanationText = document.getElementById('explanationText');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+
+        const resultGreeting = document.getElementById('resultGreeting');
+        const scoreNum = document.getElementById('scoreNum');
+        const badgeDisplay = document.getElementById('badgeDisplay');
+        const badgeName = document.getElementById('badgeName');
+        const certificateBox = document.getElementById('certificateBox');
+        const certName = document.getElementById('certName');
+        const certScore = document.getElementById('certScore');
+        const restartQuizBtn = document.getElementById('restartQuizBtn');
+        const printCertBtn = document.getElementById('printCertBtn');
+
+        // ── Start Quiz ──
+        startQuizBtn.addEventListener('click', () => {
+            userNameVal = userNameInput.value.trim();
+            if (userNameVal === '') {
+                userNameInput.style.borderColor = 'var(--danger)';
+                userNameInput.focus();
+                return;
+            }
+            userNameInput.style.borderColor = 'var(--border-glass)';
+            
+            // Switch screens
+            startScreen.classList.remove('active');
+            questionScreen.classList.add('active');
+
+            // Reset quiz states
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            loadQuestion();
+        });
+
+        // ── Load Question ──
+        function loadQuestion() {
+            // Reset question UI
+            explanationBox.style.display = 'none';
+            nextQuestionBtn.style.display = 'none';
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('warning');
+
+            const currentQuestion = questionsList[currentQuestionIndex];
+            
+            // HUD updates
+            questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questionsList.length}`;
+            progressBar.style.width = `${((currentQuestionIndex) / questionsList.length) * 100}%`;
+            
+            // Question display
+            questionText.textContent = currentQuestion.question;
+            
+            // Options display
+            optionsGrid.innerHTML = '';
+            currentQuestion.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.classList.add('option-btn');
+                
+                const letter = String.fromCharCode(65 + index); // A, B, C, D
+                button.innerHTML = `
+                    <span>${choice}</span>
+                    <span class="option-indicator">${letter}</span>
+                `;
+
+                button.addEventListener('click', () => {
+                    selectAnswer(index);
+                });
+
+                optionsGrid.appendChild(button);
+            });
+
+            // Start Timer
+            timeRemaining = 20;
+            hudTimer.innerHTML = `<i class="far fa-clock"></i> ${timeRemaining}s`;
+            startTimer();
+        }
+
+        // ── Timer Functions ──
+        function startTimer() {
+            clearInterval(timer);
+            const duration = 20000; // 20s
+            const startTime = Date.now();
+
+            timer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.max(0, 1 - (elapsed / duration));
+                timeRemaining = Math.ceil((duration - elapsed) / 1000);
+
+                // Update text
+                hudTimer.innerHTML = `<i class="far fa-clock"></i> ${Math.max(0, timeRemaining)}s`;
+
+                // Update width
+                timerBar.style.width = `${progress * 100}%`;
+
+                // Warnings
+                if (timeRemaining <= 5) {
+                    timerBar.classList.add('warning');
+                }
+
+                if (elapsed >= duration) {
+                    clearInterval(timer);
+                    timeRemaining = 0;
+                    hudTimer.innerHTML = `<i class="far fa-clock"></i> 0s`;
+                    selectAnswer(-1); // Timeout selection
+                }
+            }, 100);
+        }
+
+        // ── Select Answer ──
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            const currentQuestion = questionsList[currentQuestionIndex];
+            const correctIndex = currentQuestion.answer;
+
+            userAnswers.push(selectedIndex);
+            
+            // Disable all option buttons
+            const optionButtons = optionsGrid.querySelectorAll('.option-btn');
+            optionButtons.forEach(btn => btn.classList.add('disabled'));
+
+            if (selectedIndex === correctIndex) {
+                // Correct choice
+                optionButtons[selectedIndex].classList.add('correct');
+                score++;
+            } else if (selectedIndex === -1) {
+                // Time-out
+                optionButtons[correctIndex].classList.add('correct');
+            } else {
+                // Incorrect choice
+                optionButtons[selectedIndex].classList.add('incorrect');
+                optionButtons[correctIndex].classList.add('correct');
+            }
+
+            // Show explanation
+            explanationBox.style.display = 'block';
+            explanationText.textContent = currentQuestion.explanation;
+
+            // Show next button
+            nextQuestionBtn.style.display = 'inline-flex';
+        }
+
+        // ── Next Question ──
+        nextQuestionBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionsList.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // ── Show Results Screen ──
+        function showResults() {
+            questionScreen.classList.remove('active');
+            resultScreen.classList.add('active');
+
+            // Set final HUD progress to 100%
+            progressBar.style.width = '100%';
+
+            scoreNum.textContent = score;
+
+            // Calculate percentage
+            const percentage = (score / questionsList.length) * 100;
+            certScore.textContent = `${percentage}%`;
+
+            // Badge criteria
+            if (percentage >= 90) {
+                badgeName.textContent = "NSS Commander (Gold)";
+                badgeDisplay.className = "badge-display"; // Gold/Orange default
+                resultGreeting.textContent = `Excellent job, ${userNameVal}! You are an outstanding volunteer.`;
+                certificateBox.style.display = 'block';
+                printCertBtn.style.display = 'inline-flex';
+            } else if (percentage >= 70) {
+                badgeName.textContent = "Social Leader (Silver)";
+                badgeDisplay.className = "badge-display silver";
+                resultGreeting.textContent = `Great performance, ${userNameVal}! You displayed strong social awareness.`;
+                certificateBox.style.display = 'block';
+                printCertBtn.style.display = 'inline-flex';
+            } else if (percentage >= 50) {
+                badgeName.textContent = "Active Volunteer (Bronze)";
+                badgeDisplay.className = "badge-display bronze";
+                resultGreeting.textContent = `Good effort, ${userNameVal}! Keep serving and learning.`;
+                certificateBox.style.display = 'none'; // No certificate for low scores
+                printCertBtn.style.display = 'none';
+            } else {
+                badgeName.textContent = "NSS Learner";
+                badgeDisplay.className = "badge-display learner";
+                resultGreeting.textContent = `Keep studying, ${userNameVal}! Learn more about NSS guidelines to improve.`;
+                certificateBox.style.display = 'none';
+                printCertBtn.style.display = 'none';
+            }
+
+            certName.textContent = userNameVal;
+        }
+
+        // ── Restart Quiz ──
+        restartQuizBtn.addEventListener('click', () => {
+            resultScreen.classList.remove('active');
+            startScreen.classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

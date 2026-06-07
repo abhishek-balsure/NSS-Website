@@ -220,6 +220,103 @@
             }
         }
 
+        /* Invoice/Receipt styles */
+        .invoice-card {
+            background: #ffffff;
+            border: 2px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 20px 0;
+            text-align: left;
+            color: #0f172a;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .invoice-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .invoice-header h3 {
+            font-size: 1.15rem;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .invoice-header .logo-text {
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 0.95rem;
+        }
+
+        .invoice-ref {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .invoice-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .invoice-detail-item {
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 6px;
+        }
+
+        .invoice-detail-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .invoice-detail-item .value {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+
+        .invoice-instructions {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px dashed var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-accent);
+            text-align: center;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .invoice-instructions i {
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        /* success overlay wrapper styles */
+        .success-overlay {
+            overflow-y: auto;
+            max-height: 100%;
+            padding: 24px;
+        }
+
         @media (max-width: 600px) {
             .enrollment-card {
                 padding: 32px 20px;
@@ -231,6 +328,7 @@
             }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -275,10 +373,53 @@
                 <div class="success-overlay" id="successOverlay">
                     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
                     <h2>Submission Successful!</h2>
-                    <p>Thank You, we will analyze the details and inform you about your registration.</p>
-                    <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Home</button>
-                    <button class="btn btn-outline" style="margin-left: 10px;" onclick="location.reload()">Back to
-                        Form</button>
+                    <p>Thank you for registering. Your enrollment details are recorded below:</p>
+
+                    <!-- Invoice Card -->
+                    <div class="invoice-card" id="invoiceCard">
+                        <div class="invoice-header">
+                            <h3>NSS Enrollment Invoice</h3>
+                            <div class="logo-text">Sarhad NSS</div>
+                        </div>
+                        <div class="invoice-ref">
+                            <span>Ref ID: <strong id="invRefId">SRH-NSS-2026-0000</strong></span>
+                            <span id="invDate">Date</span>
+                        </div>
+                        <div class="invoice-details-grid">
+                            <div class="invoice-detail-item">
+                                <div class="label">Full Name</div>
+                                <div class="value" id="invName">Name</div>
+                            </div>
+                            <div class="invoice-detail-item">
+                                <div class="label">Class &amp; Roll No</div>
+                                <div class="value" id="invClassRoll">Class (Roll 0)</div>
+                            </div>
+                            <div class="invoice-detail-item">
+                                <div class="label">Eligibility No</div>
+                                <div class="value" id="invEligibility">Eligibility</div>
+                            </div>
+                            <div class="invoice-detail-item">
+                                <div class="label">Mobile &amp; Gender</div>
+                                <div class="value" id="invMobileGender">Mobile (Gender)</div>
+                            </div>
+                            <div class="invoice-detail-item" style="grid-column: span 2;">
+                                <div class="label">Caste Category</div>
+                                <div class="value" id="invCaste">Caste</div>
+                            </div>
+                        </div>
+                        <div class="invoice-instructions">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Show this invoice to NSS department or head to join NSS</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+                        <button class="btn btn-success" id="downloadInvoiceBtn">
+                            <i class="fas fa-file-download"></i> Download Invoice PDF
+                        </button>
+                        <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Home</button>
+                        <button class="btn btn-outline" onclick="location.reload()">Back to Form</button>
+                    </div>
                 </div>
 
                 <form id="enrollmentForm">
@@ -386,12 +527,44 @@
                     registrations.push(formData);
                     localStorage.setItem('nss_registrations', JSON.stringify(registrations));
 
-                    // Show success message
+                    // Populate Invoice Card Details
+                    const refId = 'SRH-NSS-2026-' + Math.floor(1000 + Math.random() * 9000);
+                    const formattedDate = new Date().toLocaleDateString('en-US', { 
+                        day: 'numeric', month: 'long', year: 'numeric' 
+                    }) + ' ' + new Date().toLocaleTimeString('en-US', { 
+                        hour: '2-digit', minute: '2-digit' 
+                    });
+
+                    document.getElementById('invRefId').textContent = refId;
+                    document.getElementById('invDate').textContent = formattedDate;
+                    document.getElementById('invName').textContent = formData.Name;
+                    document.getElementById('invClassRoll').textContent = `${formData.Class} (Roll: ${formData.RollNo})`;
+                    document.getElementById('invEligibility').textContent = formData.Eligibility;
+                    document.getElementById('invMobileGender').textContent = `${formData.MobileNo} (${formData.Gender})`;
+                    document.getElementById('invCaste').textContent = formData.Cast;
+
+                    // Bind PDF download click event
+                    const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
+                    if (downloadInvoiceBtn) {
+                        downloadInvoiceBtn.onclick = () => {
+                            const element = document.getElementById('invoiceCard');
+                            const opt = {
+                                margin:       0.25,
+                                filename:     `NSS_Enrollment_Invoice_${formData.Name.replace(/\s+/g, '_')}.pdf`,
+                                image:        { type: 'jpeg', quality: 0.98 },
+                                html2canvas:  { scale: 2 },
+                                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                            };
+                            html2pdf().set(opt).from(element).save();
+                        };
+                    }
+
+                    // Show success message overlay
                     document.getElementById('successOverlay').classList.add('active');
                     enrollmentForm.reset();
 
                     // Console log for verification
-                    console.log('Form data saved to localStorage:', formData);
+                    console.log('Form data saved and invoice generated:', formData);
                 } catch (e) {
                     console.error('Error saving to localStorage:', e);
                     alert('There was an error saving your registration. Please try again.');

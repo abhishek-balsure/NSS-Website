@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        /* ── Register page styles ── */
         .register-page {
             min-height: 100vh;
             display: flex;
@@ -24,8 +23,8 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-xl);
-            padding: 64px 56px;
-            max-width: 580px;
+            padding: 48px 48px;
+            max-width: 640px;
             width: 100%;
             text-align: center;
             position: relative;
@@ -42,62 +41,228 @@
             background: linear-gradient(90deg, var(--accent), var(--info), var(--success));
         }
 
-        .register-card::after {
-            content: '';
-            position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.06), transparent);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
         .register-icon {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             border-radius: var(--radius-lg);
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(37, 99, 235, 0.12));
             border: 1px solid rgba(15, 23, 42, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 28px;
-            font-size: 2rem;
+            margin: 0 auto 24px;
+            font-size: 1.8rem;
             animation: pulse 3s ease-in-out infinite;
         }
 
         .register-card h1 {
-            font-size: 2rem;
-            margin-bottom: 12px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
         }
 
         .register-card>p {
             color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 40px;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
             line-height: 1.6;
         }
 
-        .register-buttons {
+        /* ── Step indicator ── */
+        .step-bar {
             display: flex;
-            gap: 16px;
             justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
         }
 
-        .register-buttons .btn {
-            min-width: 140px;
-            justify-content: center;
-            font-size: 1rem;
-            padding: 16px 32px;
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.1);
+            transition: all var(--transition-normal);
         }
 
-        /* Benefits list */
+        .step-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .step-dot.done {
+            background: var(--success);
+        }
+
+        /* ── Step panels ── */
+        .step-panel {
+            display: none;
+            text-align: left;
+            animation: fadeInUp 0.35s ease-out;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-panel h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-panel h3 i {
+            color: var(--accent);
+        }
+
+        /* ── Rules list ── */
+        .rules-box {
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            max-height: 260px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        .rule-item .rule-num {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .rule-item strong {
+            color: var(--text-primary);
+        }
+
+        /* ── Eligibility checklist ── */
+        .elig-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .elig-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .elig-item:hover {
+            background: rgba(15, 23, 42, 0.06);
+        }
+
+        .elig-item.checked {
+            border-color: var(--success);
+            background: rgba(5, 150, 105, 0.06);
+        }
+
+        .elig-item input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--success);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .elig-item .elig-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .elig-item .elig-text strong {
+            color: var(--text-primary);
+        }
+
+        /* ── Agreement checkbox ── */
+        .agree-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 20px 0 24px;
+            padding: 14px 16px;
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: var(--radius-sm);
+        }
+
+        .agree-group input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .agree-group label {
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        /* ── Buttons ── */
+        .step-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .step-actions .btn {
+            min-width: 130px;
+            justify-content: center;
+            font-size: 0.95rem;
+            padding: 14px 28px;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ── Benefits (show after completion) ── */
         .benefits-list {
             text-align: left;
-            margin-top: 40px;
-            padding-top: 32px;
+            margin-top: 32px;
+            padding-top: 24px;
             border-top: 1px solid var(--border-subtle);
         }
 
@@ -106,16 +271,16 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: var(--text-muted);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .benefit-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
         .benefit-item i {
@@ -126,18 +291,26 @@
 
         @media (max-width: 600px) {
             .register-card {
-                padding: 40px 24px;
+                padding: 32px 20px;
             }
 
-            .register-buttons {
+            .rules-box {
+                max-height: 200px;
+                padding: 14px 16px;
+            }
+
+            .step-actions {
                 flex-direction: column;
+            }
+
+            .step-actions .btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <a href="index.html" class="nav-logo">
@@ -170,40 +343,150 @@
         <section class="register-page">
             <div class="register-card">
                 <div class="register-icon">🤝</div>
-                <h1>Ready to <span class="gradient-text">Join NSS?</span></h1>
-                <p>Be part of something bigger. Develop leadership skills, serve your community, and create lasting
-                    friendships.</p>
+                <h1>Join <span class="gradient-text">NSS</span></h1>
+                <p>Sarhad College NSS Unit — "Not Me But You"</p>
 
-                <div class="register-buttons">
-                    <button class="btn btn-success" onclick="confirmDecision('yes')">
-                        <i class="fas fa-check"></i> Yes, I'm In!
-                    </button>
-                    <button class="btn btn-outline" onclick="confirmDecision('no')">
-                        <i class="fas fa-arrow-left"></i> Not Now
-                    </button>
+                <!-- Step indicator -->
+                <div class="step-bar">
+                    <span class="step-dot active" data-step="1"></span>
+                    <span class="step-dot" data-step="2"></span>
+                    <span class="step-dot" data-step="3"></span>
                 </div>
 
-                <div class="benefits-list">
-                    <h4>Why Join NSS?</h4>
-                    <div class="benefit-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Develop leadership & teamwork skills</span>
+                <!-- ══════ STEP 1: Rules & Code of Conduct ══════ -->
+                <div class="step-panel active" id="step1">
+                    <h3><i class="fas fa-book-open"></i> NSS Rules & Code of Conduct</h3>
+
+                    <div class="rules-box">
+                        <div class="rule-item">
+                            <span class="rule-num">1</span>
+                            <span><strong>Regular Attendance:</strong> Every volunteer must attend a minimum of 120 hours of community service over two years, including a 7-day residential camp.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">2</span>
+                            <span><strong>Discipline:</strong> Maintain discipline and uphold the dignity of the NSS at all times. Follow the instructions of the Programme Officer and senior volunteers.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">3</span>
+                            <span><strong>Uniform:</strong> Wear the prescribed NSS uniform (white kurta / shirt, khaki trousers, NSS cap, and badge) during all NSS activities and events.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">4</span>
+                            <span><strong>Punctuality:</strong> Be punctual for all meetings, drives, camps, and activities. Latecomers may be marked absent.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">5</span>
+                            <span><strong>Teamwork:</strong> Work collaboratively with fellow volunteers and the local community. Respect diverse opinions and backgrounds.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">6</span>
+                            <span><strong>No Discrimination:</strong> NSS is open to all. Discrimination based on caste, creed, religion, or gender is strictly prohibited.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">7</span>
+                            <span><strong>Care for Equipment:</strong> Take care of NSS property, equipment, and materials. Any damage due to negligence may result in penalty.</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-num">8</span>
+                            <span><strong>Drug & Alcohol Free:</strong> Consumption of alcohol, tobacco, or any intoxicants during NSS activities is strictly forbidden and will lead to immediate dismissal.</span>
+                        </div>
                     </div>
-                    <div class="benefit-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Contribute to community development</span>
+
+                    <div class="agree-group">
+                        <input type="checkbox" id="agreeRules">
+                        <label for="agreeRules">I have read and agree to abide by the NSS Rules & Code of Conduct mentioned above.</label>
                     </div>
-                    <div class="benefit-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Get recognition & certificates</span>
+
+                    <div class="step-actions">
+                        <button class="btn btn-outline" onclick="goStep(-1)">Cancel</button>
+                        <button class="btn btn-primary" id="step1Next" disabled onclick="goStep(1)">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
-                    <div class="benefit-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Make lifelong friends & memories</span>
+                </div>
+
+                <!-- ══════ STEP 2: Eligibility ══════ -->
+                <div class="step-panel" id="step2">
+                    <h3><i class="fas fa-clipboard-check"></i> Eligibility Confirmation</h3>
+                    <p style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;">Please confirm you meet each of the following requirements:</p>
+
+                    <div class="elig-list" id="eligList">
+                        <label class="elig-item">
+                            <input type="checkbox" class="elig-check">
+                            <span class="elig-text">I am a <strong>regular student</strong> of Sarhad College of Arts, Commerce & Science (any stream).</span>
+                        </label>
+                        <label class="elig-item">
+                            <input type="checkbox" class="elig-check">
+                            <span class="elig-text">My <strong>age is between 17–25 years</strong> as of the date of enrollment.</span>
+                        </label>
+                        <label class="elig-item">
+                            <input type="checkbox" class="elig-check">
+                            <span class="elig-text">I am <strong>physically fit</strong> and capable of participating in field activities, camps, and community service.</span>
+                        </label>
+                        <label class="elig-item">
+                            <input type="checkbox" class="elig-check">
+                            <span class="elig-text">I have <strong>no pending disciplinary action</strong> against me in the college.</span>
+                        </label>
+                        <label class="elig-item">
+                            <input type="checkbox" class="elig-check">
+                            <span class="elig-text">I am <strong>not a member of any other NSS unit</strong> simultaneously.</span>
+                        </label>
                     </div>
-                    <div class="benefit-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Build your resume with real impact</span>
+
+                    <div class="step-actions">
+                        <button class="btn btn-outline" onclick="goStep(-1)">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="btn btn-primary" id="step2Next" disabled onclick="goStep(1)">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══════ STEP 3: Confirmation ══════ -->
+                <div class="step-panel" id="step3">
+                    <h3><i class="fas fa-handshake"></i> Final Confirmation</h3>
+                    <p style="text-align:center;color:var(--text-secondary);font-size:0.92rem;line-height:1.6;">
+                        You've reviewed the rules and confirmed your eligibility.<br>
+                        Click below to proceed to the enrollment form and begin your NSS journey.
+                    </p>
+
+                    <div class="agree-group" style="margin-top:12px;">
+                        <input type="checkbox" id="agreePledge">
+                        <label for="agreePledge">I solemnly pledge to work with dedication, serve the community selflessly, and uphold the motto <strong>"Not Me But You"</strong>.</label>
+                    </div>
+
+                    <div class="step-actions">
+                        <button class="btn btn-outline" onclick="goStep(-1)">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="btn btn-success" id="step3Go" disabled onclick="proceedToForm()">
+                            <i class="fas fa-check"></i> Yes, I'm In!
+                        </button>
+                    </div>
+
+                    <div class="benefits-list">
+                        <h4>What You Gain</h4>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Leadership & teamwork skills</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Contribute to community development</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Recognition & certificates</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Make lifelong friends & memories</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Build your resume with real impact</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -212,14 +495,55 @@
 
     <script src="shared.js"></script>
     <script>
-        function confirmDecision(decision) {
-            if (decision === 'yes') {
-                window.location.href = 'form.html';
-            } else {
-                if (confirm("Are you sure you want to leave?")) {
-                    window.location.href = 'index.html';
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function updateSteps() {
+            document.querySelectorAll('.step-dot').forEach(dot => {
+                const s = parseInt(dot.dataset.step);
+                dot.classList.toggle('active', s === currentStep);
+                dot.classList.toggle('done', s < currentStep);
+            });
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('step' + currentStep).classList.add('active');
+        }
+
+        function goStep(dir) {
+            const next = currentStep + dir;
+            if (next < 1 || next > totalSteps) {
+                if (dir < 0) {
+                    if (confirm("Are you sure you want to leave?")) {
+                        window.location.href = 'index.html';
+                    }
                 }
+                return;
             }
+            currentStep = next;
+            updateSteps();
+        }
+
+        // Step 1: Enable Next only if rules checkbox is checked
+        document.getElementById('agreeRules').addEventListener('change', function () {
+            document.getElementById('step1Next').disabled = !this.checked;
+        });
+
+        // Step 2: Enable Next only if ALL eligibility checkboxes are checked
+        document.querySelectorAll('.elig-check').forEach(cb => {
+            cb.addEventListener('change', function () {
+                const allChecked = document.querySelectorAll('.elig-check:checked').length ===
+                    document.querySelectorAll('.elig-check').length;
+                document.getElementById('step2Next').disabled = !allChecked;
+                this.closest('.elig-item').classList.toggle('checked', this.checked);
+            });
+        });
+
+        // Step 3: Enable button only if pledge is checked
+        document.getElementById('agreePledge').addEventListener('change', function () {
+            document.getElementById('step3Go').disabled = !this.checked;
+        });
+
+        function proceedToForm() {
+            window.location.href = 'form.html';
         }
     </script>
 </body>

@@ -483,6 +483,38 @@
             text-align: center;
         }
 
+        .success-ref {
+            margin: 20px 0 16px;
+            padding: 16px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px dashed rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .success-ref .ref-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .success-ref .ref-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .success-ref .ref-note {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
         .success-btn-row {
             display: flex;
             gap: 12px;
@@ -557,7 +589,13 @@
                 <div class="success-overlay" id="successOverlay">
                     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
                     <h2>Enrollment Submitted!</h2>
-                    <p>Your enrollment form has been generated. Download or print the form below and submit it to the NSS Department.</p>
+                    <p>Your enrollment details have been saved. Use the registration code below for further process.</p>
+
+                    <div class="success-ref">
+                        <div class="ref-label">Registration Code</div>
+                        <div class="ref-code" id="regCodeDisplay"></div>
+                        <div class="ref-note">📋 Visit the NSS Programme Officer with your registration code for enrollment confirmation.</div>
+                    </div>
 
                     <div class="success-btn-row">
                         <button class="btn btn-success" id="downloadPdfBtn">
@@ -1036,7 +1074,8 @@
                     registrations.push(formData);
                     localStorage.setItem('nss_registrations', JSON.stringify(registrations));
 
-                    const refId = 'SRH-NSS-' + formData.AcademicYear.split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
+                    formData.refCode = 'SRH-NSS-' + formData.AcademicYear.split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
+                    const refId = formData.refCode;
                     const formattedDate = new Date().toLocaleDateString('en-IN', {
                         day: '2-digit', month: '2-digit', year: 'numeric'
                     });
@@ -1106,7 +1145,7 @@
                         const aadharDisplay = d.AadharNo.replace(/\s/g, '').replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3');
                         const dobDisplay = new Date(d.DOB).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
                         const dateDisplay = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                        const refId = 'SRH-NSS-' + d.AcademicYear.split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
+                        const refId = d.refCode;
 
                         const html = `<!DOCTYPE html>
 <html>
@@ -1219,6 +1258,7 @@ td { border: 1px solid #cbd5e1; padding: 2px 5px; font-size: 7.5pt; vertical-ali
                         setTimeout(() => document.body.removeChild(iframe), 1000);
                     };
 
+                    document.getElementById('regCodeDisplay').textContent = refId;
                     document.getElementById('successOverlay').classList.add('active');
                     enrollmentForm.reset();
 

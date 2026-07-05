@@ -502,6 +502,14 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+            .navbar, .nav-overlay, .form-page, .success-overlay { display: none !important; }
+            .printable-form { display: block !important; }
+            .print-form-container { width: 210mm !important; padding: 6mm 12mm 8mm !important; }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -1064,6 +1072,8 @@
                     document.getElementById('pfTshirt').textContent = formData.TShirtSize;
                     document.getElementById('pfMedical').textContent = formData.Medical;
 
+                    const printStyles = document.querySelector('style').textContent;
+
                     document.getElementById('downloadPdfBtn').onclick = () => {
                         const container = document.getElementById('printFormContainer');
                         const printable = document.getElementById('printableForm');
@@ -1092,9 +1102,106 @@
                     };
 
                     document.getElementById('printFormBtn').onclick = () => {
-                        const container = document.getElementById('printFormContainer');
-                        const printable = document.getElementById('printableForm');
-                        printable.style.display = 'block';
+                        const d = formData;
+                        const aadharDisplay = d.AadharNo.replace(/\s/g, '').replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3');
+                        const dobDisplay = new Date(d.DOB).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+                        const dateDisplay = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const refId = 'SRH-NSS-' + d.AcademicYear.split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
+
+                        const html = `<!DOCTYPE html>
+<html>
+<head><title>NSS Enrollment Form - ${d.Name}</title>
+<style>
+@page { size: A4; margin: 0; }
+body { margin: 0; padding: 0; font-family: 'Times New Roman', serif; font-size: 8pt; line-height: 1.25; color: #0f172a; }
+.wrap { width: 210mm; padding: 6mm 12mm 8mm; box-sizing: border-box; }
+.lh { text-align: center; border-bottom: 2px double #1e3a5f; padding-bottom: 4px; margin-bottom: 3px; }
+.lh .c { font-size: 10pt; font-weight: 700; color: #1e3a5f; text-transform: uppercase; letter-spacing: 0.5px; }
+.lh .a { font-size: 7pt; color: #64748b; margin-top: 1px; }
+.lh .t { font-size: 11pt; font-weight: 700; color: #b45309; margin-top: 3px; text-transform: uppercase; letter-spacing: 1px; }
+.lh .s { font-size: 7pt; color: #64748b; }
+.ref { display: flex; justify-content: space-between; font-size: 7.5pt; color: #475569; padding: 3px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 4px; }
+.st { background: #1e3a5f; color: #fff; padding: 2px 8px; font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin: 5px 0 0 0; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+td { border: 1px solid #cbd5e1; padding: 2px 5px; font-size: 7.5pt; vertical-align: top; }
+.lbl { background: #f1f5f9; font-weight: 700; color: #334155; width: 30%; font-size: 7pt; }
+.hr { display: flex; gap: 0; }
+.hi { flex: 1; }
+.ph { width: 24mm; height: 30mm; border: 1.5px solid #1e3a5f; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 3px; font-size: 6.5pt; color: #94a3b8; text-align: center; }
+.dec { margin-top: 6px; padding: 4px 8px; border: 1px solid #cbd5e1; font-size: 7pt; line-height: 1.3; color: #334155; }
+.sig { display: flex; justify-content: space-between; margin-top: 10px; }
+.sb { text-align: center; width: 40%; }
+.sl { border-top: 1px solid #334155; margin-top: 20px; padding-top: 2px; font-size: 7.5pt; font-weight: 700; color: #334155; }
+.ss { font-size: 6.5pt; color: #64748b; }
+.ou { margin-top: 8px; border: 1.5px solid #1e3a5f; }
+.oc { padding: 4px 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 7pt; color: #475569; }
+.of { border-bottom: 1px dotted #94a3b8; padding-bottom: 8px; }
+.fn { margin-top: 6px; padding: 4px 10px; background: #fffbeb; border: 1px dashed #b45309; font-size: 7.5pt; font-weight: 700; color: #92400e; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="lh">
+<div class="c">Sarhad College of Arts, Commerce & Science</div>
+<div class="a">Affiliated to Savitribai Phule Pune University (SPPU) | Katraj, Pune – 411046</div>
+<div class="t">NSS Volunteer Enrollment Form</div>
+<div class="s">National Service Scheme &mdash; "Not Me But You"</div>
+</div>
+<div class="ref">
+<span>Application Ref: <strong>${refId}</strong></span>
+<span>Academic Year: <strong>${d.AcademicYear}</strong></span>
+<span>Date: <strong>${dateDisplay}</strong></span>
+</div>
+<div class="hr">
+<div class="hi">
+<div class="st">A. Personal Details</div>
+<table>
+<tr><td class="lbl">Full Name</td><td>${d.Name}</td></tr>
+<tr><td class="lbl">Parent / Guardian Name</td><td>${d.ParentName}</td></tr>
+<tr><td class="lbl">Date of Birth</td><td>${dobDisplay}</td></tr>
+<tr><td class="lbl">Gender</td><td>${d.Gender}</td></tr>
+<tr><td class="lbl">Blood Group</td><td>${d.BloodGroup}</td></tr>
+<tr><td class="lbl">Caste / Category</td><td>${d.Cast}</td></tr>
+<tr><td class="lbl">Aadhar Number</td><td>${aadharDisplay}</td></tr>
+</table>
+</div>
+<div class="ph">Paste<br>Passport<br>Photo<br>Here</div>
+</div>
+<div class="st">B. Academic Details</div>
+<table>
+<tr><td class="lbl">Department</td><td>${d.Department}</td><td class="lbl">Class</td><td>${d.Class}</td></tr>
+<tr><td class="lbl">Roll Number</td><td>${d.RollNo}</td><td class="lbl">Eligibility / PRN No.</td><td>${d.Eligibility}</td></tr>
+</table>
+<div class="st">C. Contact Information</div>
+<table>
+<tr><td class="lbl">Email Address</td><td colspan="3">${d.Email}</td></tr>
+<tr><td class="lbl">Mobile Number</td><td>${d.MobileNo}</td><td class="lbl">Emergency Contact</td><td>${d.EmergencyNo} (${d.EmergencyRelation})</td></tr>
+<tr><td class="lbl">Residential Address</td><td colspan="3">${d.Address}</td></tr>
+</table>
+<div class="st">D. NSS Details</div>
+<table>
+<tr><td class="lbl">Area of Interest</td><td colspan="3">${d.Interest}</td></tr>
+<tr><td class="lbl">Previous NSS Experience</td><td>${d.PrevNSS}</td><td class="lbl">T-Shirt Size</td><td>${d.TShirtSize}</td></tr>
+<tr><td class="lbl">Medical Conditions</td><td colspan="3">${d.Medical}</td></tr>
+</table>
+<div class="dec"><strong>Declaration:</strong> I hereby declare that the information provided above is true and correct to the best of my knowledge. I understand that NSS activities involve physical participation and I am voluntarily enrolling. I agree to follow the NSS code of conduct and participate in a minimum of <strong>120 hours</strong> of community service as per the NSS guidelines.</div>
+<div class="sig">
+<div class="sb"><div class="sl">Signature of Student</div><div class="ss">( Applicant )</div></div>
+<div class="sb"><div class="sl">Signature of Parent / Guardian</div><div class="ss">( With Date )</div></div>
+</div>
+<div class="ou">
+<div class="st" style="margin:0">For Office Use Only</div>
+<div class="oc">
+<div class="of">NSS Unit No.: _______________</div>
+<div class="of">NSS Volunteer ID: _______________</div>
+<div class="of">Verified By: _______________</div>
+<div class="of">Date of Approval: _______________</div>
+</div>
+</div>
+<div class="fn">★ Print this form, paste your passport-size photo, sign it, and submit to the NSS Department / Programme Officer to complete your enrollment. ★</div>
+</div>
+</body>
+</html>`;
 
                         const iframe = document.createElement('iframe');
                         iframe.style.position = 'fixed';
@@ -1104,36 +1211,12 @@
                         iframe.style.height = '0';
                         iframe.style.border = '0';
                         document.body.appendChild(iframe);
-
                         const doc = iframe.contentWindow.document;
-                        doc.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>NSS Enrollment Form - ${formData.Name}</title>
-                                <style>
-                                    @page { size: A4; margin: 0; }
-                                    body { margin: 0; padding: 0; }
-                                    ${document.querySelector('style').textContent}
-                                    .printable-form { display: block !important; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="printable-form" style="display:block">
-                                    ${container.outerHTML}
-                                </div>
-                            </body>
-                            </html>
-                        `);
+                        doc.write(html);
                         doc.close();
                         iframe.contentWindow.focus();
-                        iframe.contentWindow.onload = () => {
-                            iframe.contentWindow.print();
-                            setTimeout(() => {
-                                document.body.removeChild(iframe);
-                                printable.style.display = 'none';
-                            }, 500);
-                        };
+                        iframe.contentWindow.print();
+                        setTimeout(() => document.body.removeChild(iframe), 1000);
                     };
 
                     document.getElementById('successOverlay').classList.add('active');

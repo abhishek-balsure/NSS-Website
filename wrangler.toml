@@ -1,0 +1,7 @@
+name = "sarhad-nss-website"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+# Local dev only. In production, set these as Environment Variables / Secrets
+# in the Cloudflare Pages dashboard: Settings > Environment variables.
+# Actual values go in a local ".dev.vars" file (gitignored) — see .dev.vars.example.

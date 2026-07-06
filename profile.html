@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your NSS volunteer profile — track your participation and hours.">
+    <title>My Profile — Sarhad NSS</title>
+    <meta property="og:title" content="My Profile — Sarhad NSS">
+    <meta property="og:description" content="Your NSS volunteer profile — track your participation, view total hours completed, and manage your enrollment at Sarhad College.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://YOUR-DOMAIN.pages.dev/profile.html">
+    <meta property="og:image" content="https://YOUR-DOMAIN.pages.dev/logos/nss.jpg">
+    <meta property="og:site_name" content="Sarhad NSS">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <style>
+        .profile-page {
+            min-height: 100vh;
+            padding: calc(var(--nav-height) + 40px) 24px 80px;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-header-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .profile-header-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 16px;
+        }
+
+        .profile-header-card h1 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .profile-header-card .profile-email {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .profile-header-card .profile-ref {
+            display: inline-block;
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        .profile-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-section-title i { color: var(--accent); }
+
+        .enrollment-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .enrollment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+
+        .enrollment-field .field-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .enrollment-field .field-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .hours-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hours-table th {
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .hours-table td {
+            padding: 12px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .hours-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .hours-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .hours-empty i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        .hours-empty p {
+            font-size: 0.95rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .profile-actions .btn {
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-signout {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.2) !important;
+        }
+        .btn-signout:hover {
+            background: rgba(220, 38, 38, 0.06);
+            border-color: var(--danger) !important;
+        }
+
+        .btn-home-profile {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-home-profile:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .loading-state i {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .loading-state p {
+            font-size: 1rem;
+        }
+
+        .not-logged-in {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .not-logged-in i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            opacity: 0.3;
+            margin-bottom: 16px;
+        }
+        .not-logged-in h2 {
+            margin-bottom: 8px;
+        }
+        .not-logged-in p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-stats { grid-template-columns: 1fr; }
+            .enrollment-grid { grid-template-columns: 1fr; }
+            .hours-table { font-size: 0.82rem; }
+            .profile-header-card { padding: 24px; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="quiz.html">Quiz</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="profile-page">
+            <div class="profile-container" id="profileContainer">
+
+                <!-- Loading state -->
+                <div class="loading-state" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading your profile...</p>
+                </div>
+
+                <!-- Not logged in state -->
+                <div class="not-logged-in" id="notLoggedIn" style="display:none">
+                    <i class="fas fa-user-lock"></i>
+                    <h2>Not Signed In</h2>
+                    <p>Please sign in to view your NSS volunteer profile.</p>
+                    <a href="login.html" class="btn btn-success" style="display:inline-flex;gap:8px;padding:14px 28px;text-decoration:none;">
+                        <i class="fas fa-arrow-right"></i> Go to Login
+                    </a>
+                </div>
+
+                <!-- Profile content (hidden until loaded) -->
+                <div id="profileContent" style="display:none">
+
+                    <!-- Header -->
+                    <div class="profile-header-card">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h1 id="displayName"></h1>
+                        <p class="profile-email" id="displayEmail"></p>
+                        <span class="profile-ref" id="displayRefCode"></span>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                            <div class="stat-number" id="totalHours">0</div>
+                            <div class="stat-label">Total Hours</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div class="stat-number" id="totalActivities">0</div>
+                            <div class="stat-label">Activities</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-star"></i></div>
+                            <div class="stat-number" id="avgHours">0</div>
+                            <div class="stat-label">Avg Hours / Activity</div>
+                        </div>
+                    </div>
+
+                    <!-- Enrollment Details -->
+                    <h2 class="profile-section-title"><i class="fas fa-clipboard-list"></i> Enrollment Details</h2>
+                    <div class="enrollment-card">
+                        <div class="enrollment-grid" id="enrollmentDetails"></div>
+                    </div>
+
+                    <!-- Participation Hours -->
+                    <h2 class="profile-section-title"><i class="fas fa-chart-line"></i> Participation History</h2>
+                    <div class="hours-card" id="hoursContainer">
+                        <div class="hours-empty" id="hoursEmpty">
+                            <i class="fas fa-hourglass-half"></i>
+                            <p>No participation hours logged yet. Check back after your first NSS activity!</p>
+                        </div>
+                        <table class="hours-table" id="hoursTable" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Activity</th>
+                                    <th>Hours</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hoursBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="profile-actions">
+                        <a href="index.html" class="btn btn-home-profile">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                        <button class="btn btn-signout" id="signoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                        Sarhad <span>NSS</span>
+                    </div>
+                    <p>National Service Scheme<br>Sarhad College of Arts, Commerce &amp; Science<br>Katraj, Pune — 411046</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Register as Volunteer</a>
+                    <a href="activities.html">View Activities</a>
+                    <a href="contactus.html">Get in Touch</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Katraj, Pune — 411046</p>
+                    <p><i class="fas fa-phone"></i> +91 9850XXXXXX</p>
+                    <p><i class="fas fa-envelope"></i> nss@sarhadcollege.edu</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Sarhad NSS. All rights reserved.</p>
+                <p><a href="#">Privacy Policy</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        // ─── DOM refs ───
+        const loadingEl = document.getElementById('loadingState')
+        const notLoggedInEl = document.getElementById('notLoggedIn')
+        const profileContent = document.getElementById('profileContent')
+
+        const displayName = document.getElementById('displayName')
+        const displayEmail = document.getElementById('displayEmail')
+        const displayRefCode = document.getElementById('displayRefCode')
+        const enrollmentDetails = document.getElementById('enrollmentDetails')
+        const totalHoursEl = document.getElementById('totalHours')
+        const totalActivitiesEl = document.getElementById('totalActivities')
+        const avgHoursEl = document.getElementById('avgHours')
+        const hoursBody = document.getElementById('hoursBody')
+        const hoursTable = document.getElementById('hoursTable')
+        const hoursEmpty = document.getElementById('hoursEmpty')
+
+        // ─── Helpers ───
+        function showLoading() {
+            loadingEl.style.display = 'block'
+            notLoggedInEl.style.display = 'none'
+            profileContent.style.display = 'none'
+        }
+
+        function showNotLoggedIn() {
+            loadingEl.style.display = 'none'
+            notLoggedInEl.style.display = 'block'
+            profileContent.style.display = 'none'
+        }
+
+        function showProfile() {
+            loadingEl.style.display = 'none'
+            notLoggedInEl.style.display = 'none'
+            profileContent.style.display = 'block'
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '—'
+            const d = new Date(dateStr)
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+        }
+
+        // ─── Load user data ───
+        async function loadProfile() {
+            showLoading()
+
+            const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
+
+            if (authError || !user) {
+                console.log('No authenticated user')
+                showNotLoggedIn()
+                return
+            }
+
+            // Fetch profile
+            const { data: profile, error: profileError } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .maybeSingle()
+
+            if (profileError || !profile) {
+                console.error('Profile error:', profileError)
+                showNotLoggedIn()
+                return
+            }
+
+            // Fetch enrollment
+            const { data: enrollment, error: enrollError } = await supabaseClient
+                .from('enrollments')
+                .select('*')
+                .eq('ref_code', profile.ref_code)
+                .maybeSingle()
+
+            if (enrollError) {
+                console.error('Enrollment fetch error:', enrollError)
+            }
+
+            // Fetch participation hours
+            const { data: hours, error: hoursError } = await supabaseClient
+                .from('participation_hours')
+                .select('*')
+                .eq('ref_code', profile.ref_code)
+                .order('activity_date', { ascending: false })
+
+            if (hoursError) {
+                console.error('Hours fetch error:', hoursError)
+            }
+
+            // ── Render profile header ──
+            displayName.textContent = profile.full_name
+            displayEmail.textContent = profile.email
+            displayRefCode.textContent = profile.ref_code
+
+            // ── Render enrollment details ──
+            if (enrollment) {
+                const fields = [
+                    { label: 'Full Name', value: enrollment.name },
+                    { label: 'Parent / Guardian', value: enrollment.parent_name },
+                    { label: 'Date of Birth', value: formatDate(enrollment.dob) },
+                    { label: 'Gender', value: enrollment.gender },
+                    { label: 'Blood Group', value: enrollment.blood_group },
+                    { label: 'Category', value: enrollment.cast_category },
+                    { label: 'Department', value: enrollment.department },
+                    { label: 'Class', value: enrollment.class },
+                    { label: 'Roll No', value: enrollment.roll_no },
+                    { label: 'Academic Year', value: enrollment.academic_year },
+                    { label: 'Email', value: enrollment.email },
+                    { label: 'Mobile', value: enrollment.mobile_no },
+                    { label: 'Address', value: enrollment.address },
+                    { label: 'Area of Interest', value: enrollment.interest_area },
+                    { label: 'T-Shirt Size', value: enrollment.tshirt_size },
+                ]
+
+                enrollmentDetails.innerHTML = fields.map(f => `
+                    <div class="enrollment-field">
+                        <div class="field-label">${f.label}</div>
+                        <div class="field-value">${f.value || '—'}</div>
+                    </div>
+                `).join('')
+            } else {
+                enrollmentDetails.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;">Enrollment details not found. Contact the NSS officer.</p>'
+            }
+
+            // ── Render participation hours ──
+            if (hours && hours.length > 0) {
+                hoursEmpty.style.display = 'none'
+                hoursTable.style.display = ''
+
+                const totalHours = hours.reduce((sum, h) => sum + Number(h.hours), 0)
+                totalHoursEl.textContent = totalHours.toFixed(1)
+                totalActivitiesEl.textContent = hours.length
+                avgHoursEl.textContent = (totalHours / hours.length).toFixed(1)
+
+                hoursBody.innerHTML = hours.map(h => `
+                    <tr>
+                        <td>${formatDate(h.activity_date)}</td>
+                        <td><strong>${h.activity_name}</strong></td>
+                        <td>${h.hours}h</td>
+                        <td style="color:var(--text-secondary);font-size:0.85rem;">${h.description || '—'}</td>
+                    </tr>
+                `).join('')
+            } else {
+                totalHoursEl.textContent = '0'
+                totalActivitiesEl.textContent = '0'
+                avgHoursEl.textContent = '0'
+                hoursTable.style.display = 'none'
+                hoursEmpty.style.display = 'block'
+            }
+
+            showProfile()
+        }
+
+        // ─── Auth state listener ───
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                loadProfile()
+            } else if (event === 'SIGNED_OUT') {
+                showNotLoggedIn()
+            }
+        })
+
+        // ─── Sign Out ───
+        document.getElementById('signoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut()
+            showNotLoggedIn()
+        })
+
+        // ─── Init ───
+        loadProfile()
+    </script>
+</body>
+
+</html>

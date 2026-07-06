@@ -1,0 +1,16 @@
+{
+  "name": "sarhad-nss-website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "dev": "npm run build && wrangler pages dev --local"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241001.0",
+    "wrangler": "^3.80.0"
+  }
+}

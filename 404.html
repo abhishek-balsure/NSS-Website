@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page not found — Sarhad NSS">
+    <title>404 — Page Not Found | Sarhad NSS</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--nav-height) + 40px) 24px 80px;
+        }
+
+        .error-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 60px 48px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--danger));
+        }
+
+        .error-code {
+            font-size: 7rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -3px;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .error-card h1 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .error-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .error-actions .btn {
+            padding: 14px 28px;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-home {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-home:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-contact {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass) !important;
+        }
+        .btn-contact:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-primary);
+            border-color: var(--accent) !important;
+        }
+
+        .error-suggestion {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .error-suggestion p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: color var(--transition-fast);
+        }
+        .quick-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            .error-card {
+                padding: 40px 24px;
+            }
+            .error-code {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="quiz.html">Quiz</a>
+                <a href="contactus.html">Contact</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="error-page">
+            <div class="error-card">
+                <div class="error-icon">
+                    <i class="fas fa-map-signs"></i>
+                </div>
+                <div class="error-code">404</div>
+                <h1>Oops! Page Not Found</h1>
+                <p>The page you're looking for doesn't exist, has been moved, or is temporarily unavailable. Let's get you back on track.</p>
+                <div class="error-actions">
+                    <a href="index.html" class="btn btn-home">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="contactus.html" class="btn btn-contact">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </div>
+                <div class="error-suggestion">
+                    <p>Try these pages instead:</p>
+                    <div class="quick-links">
+                        <a href="aboutus.html">About</a>
+                        <a href="activities.html">Activities</a>
+                        <a href="events.html">Events</a>
+                        <a href="register.html">Join NSS</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                        Sarhad <span>NSS</span>
+                    </div>
+                    <p>National Service Scheme<br>Sarhad College of Arts, Commerce &amp; Science<br>Katraj, Pune &mdash; 411046</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Register as Volunteer</a>
+                    <a href="activities.html">View Activities</a>
+                    <a href="contactus.html">Get in Touch</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Katraj, Pune &mdash; 411046</p>
+                    <p><i class="fas fa-phone"></i> +91 9850XXXXXX</p>
+                    <p><i class="fas fa-envelope"></i> nss@sarhadcollege.edu</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Sarhad NSS. All rights reserved.</p>
+                <p><a href="#">Privacy Policy</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+</body>
+
+</html>

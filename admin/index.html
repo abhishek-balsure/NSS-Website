@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NSS Admin Dashboard — manage enrollments and view volunteer data.">
+    <title>Admin — Sarhad NSS</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .admin-page {
+            min-height: 100vh;
+            padding: calc(var(--nav-height) + 32px) 24px 80px;
+        }
+
+        .admin-header {
+            max-width: 1200px;
+            margin: 0 auto 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .admin-header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-header h1 i {
+            color: var(--accent);
+        }
+
+        .admin-header .admin-badge {
+            font-size: 0.7rem;
+            background: var(--danger);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-actions .btn {
+            padding: 10px 20px;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition-fast);
+        }
+
+        .admin-actions .btn-outline-sm {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass) !important;
+        }
+        .admin-actions .btn-outline-sm:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-primary);
+        }
+
+        .admin-actions .btn-danger-sm {
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.15) !important;
+        }
+        .admin-actions .btn-danger-sm:hover {
+            background: rgba(220, 38, 38, 0.15);
+        }
+
+        /* Stats */
+        .admin-stats {
+            max-width: 1200px;
+            margin: 0 auto 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+
+        .admin-stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .admin-stat-card .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .admin-stat-card .stat-icon.orange { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
+        .admin-stat-card .stat-icon.blue { background: rgba(37, 99, 235, 0.1); color: var(--info); }
+        .admin-stat-card .stat-icon.green { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+
+        .admin-stat-card .stat-info .stat-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        .admin-stat-card .stat-info .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Search & Filters */
+        .admin-controls {
+            max-width: 1200px;
+            margin: 0 auto 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .admin-search {
+            flex: 1;
+            min-width: 220px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 0 14px;
+            transition: all var(--transition-fast);
+        }
+
+        .admin-search:focus-within {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+        }
+
+        .admin-search i {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .admin-search input {
+            border: none;
+            background: transparent;
+            padding: 12px 10px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            outline: none;
+            width: 100%;
+        }
+
+        .admin-controls .count-badge {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Table */
+        .admin-table-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .admin-table thead {
+            background: rgba(15, 23, 42, 0.03);
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-glass);
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .admin-table th:hover {
+            color: var(--text-primary);
+        }
+
+        .admin-table th i {
+            font-size: 0.65rem;
+            margin-left: 4px;
+            opacity: 0.5;
+        }
+
+        .admin-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .admin-table tr:hover td {
+            background: rgba(245, 158, 11, 0.03);
+        }
+
+        .admin-table .ref-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .admin-table .cell-muted {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        .admin-table .cell-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .admin-table .actions-cell {
+            display: flex;
+            gap: 6px;
+        }
+
+        .admin-table .actions-cell button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+        }
+
+        .admin-table .actions-cell .view-btn:hover { color: var(--info); background: rgba(37, 99, 235, 0.08); }
+        .admin-table .actions-cell .delete-btn:hover { color: var(--danger); background: rgba(220, 38, 38, 0.08); }
+
+        /* Empty state */
+        .admin-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .admin-empty i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+
+        .admin-empty p {
+            font-size: 1rem;
+        }
+
+        /* Loading */
+        .admin-loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .admin-loading i {
+            font-size: 2rem;
+            opacity: 0.5;
+            margin-bottom: 12px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .modal-box .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-box .modal-close:hover { color: var(--text-primary); }
+
+        .modal-box h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 24px;
+        }
+
+        .modal-detail-grid .detail-field {
+            padding: 6px 0;
+        }
+
+        .modal-detail-grid .detail-field .dl {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .modal-detail-grid .detail-field .dv {
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .modal-detail-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-header { flex-direction: column; align-items: stretch; text-align: center; }
+            .admin-actions { justify-content: center; }
+            .modal-detail-grid { grid-template-columns: 1fr; }
+            .admin-table { font-size: 0.8rem; }
+            .admin-table th, .admin-table td { padding: 10px 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="../index.html" class="nav-logo">
+                <div class="logo-icon"><img src="../logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="../logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="../logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="../index.html">Home</a>
+                <a href="../aboutus.html">About</a>
+                <a href="../activities.html">Activities</a>
+                <a href="../events.html">Events</a>
+                <a href="../contactus.html">Contact</a>
+                <a href="index.html" class="active" style="color:var(--accent);font-weight:700;">Admin</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="admin-page">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Dashboard
+                    <span class="admin-badge">NSS Officer</span>
+                </h1>
+                <div class="admin-actions">
+                    <a href="../index.html" class="btn btn-outline-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Site
+                    </a>
+                    <a href="/cdn-cgi/access/logout" class="btn btn-danger-sm" id="logoutLink">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="admin-stats" id="statsContainer">
+                <div class="admin-stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statTotal">—</div>
+                        <div class="stat-label">Total Enrollments</div>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statDepts">—</div>
+                        <div class="stat-label">Departments</div>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon green"><i class="fas fa-calendar-week"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statToday">—</div>
+                        <div class="stat-label">Enrolled Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="admin-controls">
+                <div class="admin-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name, email, ref code, department..." autocomplete="off">
+                </div>
+                <span class="count-badge" id="countBadge">0 results</span>
+            </div>
+
+            <!-- Table -->
+            <div class="admin-table-wrap">
+                <div class="admin-loading" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading enrollments...</p>
+                </div>
+
+                <table class="admin-table" id="dataTable" style="display:none">
+                    <thead>
+                        <tr>
+                            <th data-sort="ref_code">Ref Code <i class="fas fa-sort"></i></th>
+                            <th data-sort="name">Name <i class="fas fa-sort"></i></th>
+                            <th data-sort="email">Email <i class="fas fa-sort"></i></th>
+                            <th data-sort="department">Department <i class="fas fa-sort"></i></th>
+                            <th data-sort="class">Class <i class="fas fa-sort"></i></th>
+                            <th data-sort="mobile_no">Mobile <i class="fas fa-sort"></i></th>
+                            <th data-sort="created_at">Date <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+
+                <div class="admin-empty" id="emptyState" style="display:none">
+                    <i class="fas fa-inbox"></i>
+                    <p>No enrollments found.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2><i class="fas fa-user" style="color:var(--accent);margin-right:8px;"></i>Enrollment Details</h2>
+            <div class="modal-detail-grid" id="detailGrid"></div>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script>
+        // ─── State ───
+        let allData = []
+        let filteredData = []
+        let sortKey = 'created_at'
+        let sortDir = 'desc'
+
+        const API = '/admin/api/enrollments'
+
+        // ─── DOM refs ───
+        const loadingEl = document.getElementById('loadingState')
+        const dataTable = document.getElementById('dataTable')
+        const emptyState = document.getElementById('emptyState')
+        const tableBody = document.getElementById('tableBody')
+        const searchInput = document.getElementById('searchInput')
+        const countBadge = document.getElementById('countBadge')
+
+        const statTotal = document.getElementById('statTotal')
+        const statDepts = document.getElementById('statDepts')
+        const statToday = document.getElementById('statToday')
+
+        // ─── Formatting helpers ───
+        function fmtDate(iso) {
+            if (!iso) return '—'
+            const d = new Date(iso)
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+        }
+
+        function fmtDateTime(iso) {
+            if (!iso) return '—'
+            const d = new Date(iso)
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '—'
+            const d = document.createElement('div')
+            d.textContent = text
+            return d.innerHTML
+        }
+
+        // ─── Fetch ───
+        async function fetchData() {
+            loadingEl.style.display = 'block'
+            dataTable.style.display = 'none'
+            emptyState.style.display = 'none'
+
+            try {
+                const res = await fetch(API + '?limit=500')
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}))
+                    throw new Error(err.error || `HTTP ${res.status}`)
+                }
+                const result = await res.json()
+                allData = result.data || []
+
+                // Stats
+                statTotal.textContent = allData.length
+                const deptSet = new Set(allData.map(r => r.department).filter(Boolean))
+                statDepts.textContent = deptSet.size
+
+                const today = new Date().toISOString().slice(0, 10)
+                statToday.textContent = allData.filter(r =>
+                    r.created_at && r.created_at.slice(0, 10) === today
+                ).length
+
+                applyFilters()
+            } catch (err) {
+                console.error('Fetch error:', err)
+                loadingEl.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color:var(--danger);opacity:1;"></i>
+                    <p style="color:var(--danger);">Failed to load: ${escapeHtml(err.message)}</p>
+                    <button onclick="location.reload()" style="margin-top:12px;padding:10px 24px;border:1px solid var(--border-glass);border-radius:8px;background:transparent;cursor:pointer;font-family:inherit;font-size:0.9rem;">Retry</button>
+                `
+                loadingEl.style.display = 'block'
+            }
+        }
+
+        // ─── Filter & Sort ───
+        function applyFilters() {
+            const q = searchInput.value.toLowerCase().trim()
+
+            filteredData = allData.filter(r => {
+                if (!q) return true
+                const searchable = [
+                    r.ref_code, r.name, r.email, r.department, r.mobile_no,
+                    r.class, r.academic_year, r.parent_name
+                ].filter(Boolean).map(s => s.toLowerCase())
+                return searchable.some(s => s.includes(q))
+            })
+
+            sortData()
+        }
+
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let va = (a[sortKey] || '').toString().toLowerCase()
+                let vb = (b[sortKey] || '').toString().toLowerCase()
+
+                if (sortKey === 'created_at') {
+                    va = a.created_at || ''
+                    vb = b.created_at || ''
+                }
+
+                if (va < vb) return sortDir === 'asc' ? -1 : 1
+                if (va > vb) return sortDir === 'asc' ? 1 : -1
+                return 0
+            })
+
+            render()
+        }
+
+        // ─── Render ───
+        function render() {
+            loadingEl.style.display = 'none'
+            countBadge.textContent = `${filteredData.length} result${filteredData.length !== 1 ? 's' : ''}`
+
+            if (filteredData.length === 0) {
+                dataTable.style.display = 'none'
+                emptyState.style.display = 'block'
+                return
+            }
+
+            emptyState.style.display = 'none'
+            dataTable.style.display = ''
+
+            tableBody.innerHTML = filteredData.map(r => `
+                <tr>
+                    <td><span class="ref-code">${escapeHtml(r.ref_code)}</span></td>
+                    <td><strong>${escapeHtml(r.name)}</strong></td>
+                    <td class="cell-muted">${escapeHtml(r.email)}</td>
+                    <td>${escapeHtml(r.department)}</td>
+                    <td>${escapeHtml(r.class)}</td>
+                    <td class="cell-muted">${escapeHtml(r.mobile_no)}</td>
+                    <td class="cell-date">${fmtDate(r.created_at)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="view-btn" onclick="showDetail('${r.ref_code}')" title="View details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('')
+        }
+
+        // ─── Detail modal ───
+        function showDetail(refCode) {
+            const r = allData.find(d => d.ref_code === refCode)
+            if (!r) return
+
+            const fields = [
+                { label: 'Ref Code', value: r.ref_code, full: false },
+                { label: 'Full Name', value: r.name, full: false },
+                { label: 'Parent / Guardian', value: r.parent_name, full: false },
+                { label: 'Date of Birth', value: fmtDate(r.dob), full: false },
+                { label: 'Gender', value: r.gender, full: false },
+                { label: 'Blood Group', value: r.blood_group, full: false },
+                { label: 'Category', value: r.cast_category, full: false },
+                { label: 'Aadhar No', value: r.aadhar_no, full: false },
+                { label: 'Department', value: r.department, full: false },
+                { label: 'Class', value: r.class, full: false },
+                { label: 'Roll No', value: r.roll_no, full: false },
+                { label: 'Academic Year', value: r.academic_year, full: false },
+                { label: 'Eligibility / PRN', value: r.eligibility, full: false },
+                { label: 'Email', value: r.email, full: false },
+                { label: 'Mobile', value: r.mobile_no, full: false },
+                { label: 'Emergency', value: r.emergency_no + ' (' + (r.emergency_rel || '') + ')', full: false },
+                { label: 'Address', value: r.address, full: true },
+                { label: 'Area of Interest', value: r.interest_area, full: false },
+                { label: 'Previous NSS', value: r.prev_nss, full: false },
+                { label: 'T-Shirt Size', value: r.tshirt_size, full: false },
+                { label: 'Medical Conditions', value: r.medical, full: false },
+                { label: 'Submitted At', value: fmtDateTime(r.created_at), full: false },
+            ]
+
+            document.getElementById('detailGrid').innerHTML = fields.map(f =>
+                `<div class="detail-field${f.full ? ' full-width' : ''}">
+                    <div class="dl">${f.label}</div>
+                    <div class="dv">${escapeHtml(f.value)}</div>
+                </div>`
+            ).join('')
+
+            document.getElementById('detailModal').classList.add('active')
+        }
+
+        // ─── Modal controls ───
+        document.getElementById('modalClose').onclick = () =>
+            document.getElementById('detailModal').classList.remove('active')
+
+        document.getElementById('detailModal').onclick = (e) => {
+            if (e.target === e.currentTarget)
+                document.getElementById('detailModal').classList.remove('active')
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape')
+                document.getElementById('detailModal').classList.remove('active')
+        })
+
+        // ─── Search with debounce ───
+        let searchTimer
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer)
+            searchTimer = setTimeout(applyFilters, 250)
+        })
+
+        // ─── Sorting ───
+        document.querySelectorAll('[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const key = th.dataset.sort
+                if (key === sortKey) {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc'
+                } else {
+                    sortKey = key
+                    sortDir = 'asc'
+                }
+                sortData()
+            })
+        })
+
+        // ─── Init ───
+        fetchData()
+    </script>
+</body>
+
+</html>

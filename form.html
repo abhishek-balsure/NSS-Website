@@ -327,6 +327,155 @@
             flex-wrap: wrap;
         }
 
+        /* ── Toast Notification ── */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            max-width: 480px;
+            width: 90%;
+        }
+
+        .toast {
+            pointer-events: auto;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.15);
+            animation: toastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid transparent;
+        }
+
+        .toast.toast-out {
+            animation: toastOut 0.3s ease-in forwards;
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .toast-success i { color: var(--success); }
+
+        .toast-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .toast-error i { color: var(--danger); }
+
+        .toast-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+        .toast-info i { color: var(--info); }
+
+        @keyframes toastIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-20px); opacity: 0; }
+        }
+
+        /* ── Full-page Loading Spinner ── */
+        .form-spinner {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 20;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-xl);
+        }
+
+        .form-spinner.active {
+            display: flex;
+        }
+
+        .form-spinner .spinner-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 5px solid rgba(245, 158, 11, 0.15);
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-spinner .spinner-text {
+            margin-top: 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-spinner .spinner-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Per-field validation states ── */
+        .form-group.success input,
+        .form-group.success select,
+        .form-group.success textarea {
+            border-color: var(--success);
+        }
+
+        .form-group .success-text {
+            display: none;
+            color: var(--success);
+            font-size: 0.78rem;
+            margin-top: 4px;
+        }
+        .form-group .success-text i { margin-right: 4px; }
+
+        .form-group.success .success-text { display: flex; align-items: center; gap: 2px; }
+        .form-group.success .error-text { display: none !important; }
+
+        .form-group .hint-text {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .char-count {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .form-group { position: relative; }
+
         @media (max-width: 600px) {
             .enrollment-card {
                 padding: 32px 20px;
@@ -361,6 +510,7 @@
                 <a href="events.html">Events</a>
                 <a href="quiz.html">Quiz</a>
                 <a href="contactus.html">Contact</a>
+                <a href="login.html">Login</a>
                 <a href="register.html" class="nav-cta">Join NSS</a>
             </div>
             <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
@@ -371,6 +521,8 @@
         </div>
     </nav>
     <div class="nav-overlay" id="navOverlay"></div>
+
+    <div class="toast-container" id="toastContainer"></div>
 
     <main>
         <section class="form-page">
@@ -394,6 +546,9 @@
                     </div>
 
                     <div class="success-btn-row">
+                        <a class="btn btn-success" id="createAccountLink" href="login.html">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </a>
                         <button class="btn btn-outline" onclick="location.reload()">
                             <i class="fas fa-redo"></i> Fill Another
                         </button>
@@ -651,129 +806,270 @@
                         </button>
                     </div>
                 </form>
+
+                <!-- Loading Spinner -->
+                <div class="form-spinner" id="formSpinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-text">Submitting your enrollment...</div>
+                    <div class="spinner-sub">Please wait a moment</div>
+                </div>
             </div>
         </section>
     </main>
 
     <script src="shared.js"></script>
     <script>
+        // ─── Config ───
         const API_ENDPOINT = '/api/enroll'
-        const enrollmentForm = document.getElementById('enrollmentForm');
+        const enrollmentForm = document.getElementById('enrollmentForm')
+        const spinner = document.getElementById('formSpinner')
 
-        enrollmentForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            try {
+        // ─── Toast System ───
+        const toastContainer = document.getElementById('toastContainer')
 
-            let isValid = true;
+        function showToast(message, type = 'success', duration = 5000) {
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' }
+            const toast = document.createElement('div')
+            toast.className = `toast toast-${type}`
+            toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`
+            toastContainer.appendChild(toast)
 
-            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+            setTimeout(() => {
+                toast.classList.add('toast-out')
+                setTimeout(() => toast.remove(), 300)
+            }, duration)
+        }
 
-            const requiredFields = [
-                'Name', 'ParentName', 'DOB', 'Gender', 'BloodGroup', 'Cast', 'AadharNo',
-                'Department', 'AcademicYear', 'Class', 'RollNo', 'Eligibility',
-                'Email', 'MobileNo', 'EmergencyNo', 'EmergencyRelation', 'Address',
-                'Interest', 'PrevNSS', 'TShirtSize'
-            ];
+        // ─── Per-field validation rules ───
+        const VALIDATORS = {
+            Name: {
+                test: (v) => v.length >= 2,
+                error: 'Enter at least 2 characters',
+                hint: 'As per your college records'
+            },
+            ParentName: {
+                test: (v) => v.length >= 2,
+                error: 'Enter parent or guardian name',
+                hint: 'Father, Mother, or Legal Guardian'
+            },
+            DOB: {
+                test: (v) => {
+                    if (!v) return false
+                    const date = new Date(v)
+                    const now = new Date()
+                    const age = (now - date) / (365.25 * 24 * 60 * 60 * 1000)
+                    return !isNaN(date.getTime()) && age >= 15 && age <= 30
+                },
+                error: 'You must be 15–30 years old to join NSS',
+                hint: 'You must be between 15 and 30 years old'
+            },
+            Gender: { test: (v) => v !== '', error: 'Select your gender' },
+            BloodGroup: { test: (v) => v !== '', error: 'Select your blood group' },
+            Cast: { test: (v) => v !== '', error: 'Select your category' },
+            AadharNo: {
+                test: (v) => /^\d{12}$/.test(v.replace(/\s/g, '')),
+                error: 'Enter a valid 12-digit Aadhar number',
+                hint: '12-digit number without spaces'
+            },
+            Department: { test: (v) => v !== '', error: 'Select your department' },
+            AcademicYear: { test: (v) => v !== '', error: 'Select academic year' },
+            Class: {
+                test: (v) => v.length >= 2,
+                error: 'Enter your class (e.g. FY BCS)',
+                hint: 'e.g. FY BCS, SY BBA, TY B.Com'
+            },
+            RollNo: {
+                test: (v) => v.length >= 1,
+                error: 'Enter your roll number'
+            },
+            Eligibility: {
+                test: (v) => v.length >= 5,
+                error: 'Enter a valid PRN / Eligibility number',
+                hint: 'Your permanent registration number (min. 5 digits)'
+            },
+            Email: {
+                test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+                error: 'Enter a valid email address',
+                hint: 'e.g. student@gmail.com'
+            },
+            MobileNo: {
+                test: (v) => /^\d{10}$/.test(v),
+                error: 'Enter a valid 10-digit mobile number',
+                hint: '10-digit number starting with 6/7/8/9'
+            },
+            EmergencyNo: {
+                test: (v) => /^\d{10}$/.test(v),
+                error: 'Enter a valid 10-digit number',
+                hint: 'Parent or guardian 10-digit number'
+            },
+            EmergencyRelation: { test: (v) => v !== '', error: 'Select relation with emergency contact' },
+            Address: {
+                test: (v) => v.length >= 10,
+                error: 'Enter your full address (min. 10 characters)',
+                hint: 'Include house number, street, area, pincode'
+            },
+            Interest: { test: (v) => v !== '', error: 'Select your area of interest' },
+            PrevNSS: { test: (v) => v !== '', error: 'Select your previous NSS experience' },
+            TShirtSize: { test: (v) => v !== '', error: 'Select your T-shirt size' }
+        }
 
-            const formData = {};
+        // ─── Validate a single field ───
+        function validateField(id) {
+            const el = document.getElementById(id)
+            const group = el.closest('.form-group')
+            const val = el.value.trim()
+            const rule = VALIDATORS[id]
 
-            requiredFields.forEach(id => {
-                const el = document.getElementById(id);
-                const val = el.value.trim();
-                formData[id] = val;
+            group.classList.remove('error', 'success')
 
-                if (val === '') {
-                    el.closest('.form-group').classList.add('error');
-                    isValid = false;
-                }
-            });
+            if (!rule) return true
 
-            if (formData.MobileNo && !/^\d{10}$/.test(formData.MobileNo)) {
-                document.getElementById('MobileNo').closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            if (formData.EmergencyNo && !/^\d{10}$/.test(formData.EmergencyNo)) {
-                document.getElementById('EmergencyNo').closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            const aadharClean = formData.AadharNo.replace(/\s/g, '');
-            if (!/^\d{12}$/.test(aadharClean)) {
-                document.getElementById('AadharNo').closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            if (formData.Email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.Email)) {
-                document.getElementById('Email').closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            const declCheck = document.getElementById('Declaration');
-            if (!declCheck.checked) {
-                declCheck.closest('.form-group').classList.add('error');
-                isValid = false;
-            }
-
-            if (isValid) {
-                const submitBtn = document.querySelector('button[name="Register"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-                formData.Medical = document.getElementById('Medical').value.trim() || 'None';
-                formData.timestamp = new Date().toISOString();
-
-                try {
-                    const res = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    })
-
-                    const result = await res.json()
-
-                    if (!res.ok) {
-                        throw new Error(result.error || 'Server error')
-                    }
-
-                    const refId = result.refCode
-                    formData.refCode = refId
-
-                    const registrations = JSON.parse(localStorage.getItem('nss_registrations') || '[]');
-                    registrations.push(formData);
-                    localStorage.setItem('nss_registrations', JSON.stringify(registrations));
-
-                    document.getElementById('regCodeDisplay').textContent = refId;
-                    document.getElementById('successOverlay').classList.add('active');
-                    enrollmentForm.reset();
-
-                    console.log('Enrollment saved:', formData);
-                } catch (e) {
-                    console.error('Submit error:', e);
-                    alert('Failed to submit: ' + e.message + '\n\nPlease try again or contact the NSS officer.');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Enrollment';
-                }
+            if (rule.test(val)) {
+                group.classList.add('success')
+                const successText = group.querySelector('.success-text')
+                if (successText) successText.innerHTML = '<i class="fas fa-check-circle"></i> Looks good'
+                return true
             } else {
-                const firstError = document.querySelector('.form-group.error');
-                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                group.classList.add('error')
+                const errorText = group.querySelector('.error-text')
+                if (errorText) errorText.textContent = rule.error
+                return false
             }
+        }
+
+        // ─── Validate all fields ───
+        function validateAll() {
+            let allValid = true
+            Object.keys(VALIDATORS).forEach(id => {
+                if (!validateField(id)) allValid = false
+            })
+
+            const decl = document.getElementById('Declaration')
+            const declGroup = decl.closest('.form-group')
+            declGroup.classList.remove('error', 'success')
+            if (!decl.checked) {
+                declGroup.classList.add('error')
+                allValid = false
+            } else {
+                declGroup.classList.add('success')
+            }
+
+            return allValid
+        }
+
+        // ─── Scroll to first error ───
+        function scrollToFirstError() {
+            const firstError = document.querySelector('.form-group.error')
+            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+
+        // ─── Submission ───
+        enrollmentForm.addEventListener('submit', async function (event) {
+            event.preventDefault()
+
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('success'))
+
+            if (!validateAll()) {
+                scrollToFirstError()
+                showToast('Please fix the highlighted errors before submitting.', 'error')
+                return
+            }
+
+            const formData = {}
+            Object.keys(VALIDATORS).forEach(id => {
+                formData[id] = document.getElementById(id).value.trim()
+            })
+            formData.Medical = document.getElementById('Medical').value.trim() || 'None'
+            formData.timestamp = new Date().toISOString()
+
+            spinner.classList.add('active')
+
+            try {
+                const res = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                })
+
+                const result = await res.json()
+
+                if (!res.ok) {
+                    throw new Error(result.error || 'Server error')
+                }
+
+                const refId = result.refCode
+                formData.refCode = refId
+
+                const registrations = JSON.parse(localStorage.getItem('nss_registrations') || '[]')
+                registrations.push(formData)
+                localStorage.setItem('nss_registrations', JSON.stringify(registrations))
+
+                spinner.classList.remove('active')
+
+                document.getElementById('regCodeDisplay').textContent = refId
+                document.getElementById('createAccountLink').href = 'login.html?ref=' + encodeURIComponent(refId)
+                document.getElementById('successOverlay').classList.add('active')
+                enrollmentForm.reset()
+                document.querySelectorAll('.form-group').forEach(g => g.classList.remove('success'))
+
+                showToast(`Enrollment submitted! Ref: ${refId}`, 'success', 6000)
             } catch (e) {
-                console.error('Submit error:', e);
-                alert('There was an error. Please try again.\n' + e.message);
+                spinner.classList.remove('active')
+                console.error('Submit error:', e)
+                showToast(e.message || 'Failed to submit. Please try again.', 'error', 6000)
             }
-        });
+        })
 
-        document.querySelectorAll('.form-group input, .form-group select, .form-group textarea').forEach(el => {
-            el.addEventListener('input', () => el.closest('.form-group').classList.remove('error'));
-            el.addEventListener('change', () => el.closest('.form-group').classList.remove('error'));
-        });
+        // ─── Real-time validation on blur ───
+        Object.keys(VALIDATORS).forEach(id => {
+            const el = document.getElementById(id)
+            if (!el) return
 
+            el.addEventListener('blur', () => validateField(id))
+            el.addEventListener('input', () => {
+                const group = el.closest('.form-group')
+                if (group.classList.contains('error') || group.classList.contains('success')) {
+                    validateField(id)
+                }
+            })
+            el.addEventListener('change', () => {
+                const group = el.closest('.form-group')
+                if (group.classList.contains('error') || group.classList.contains('success')) {
+                    validateField(id)
+                }
+            })
+        })
+
+        // ─── Declaration checkbox real-time ───
+        document.getElementById('Declaration').addEventListener('change', function () {
+            const group = this.closest('.form-group')
+            group.classList.remove('error', 'success')
+            if (this.checked) group.classList.add('success')
+        })
+
+        // ─── Aadhar auto-format ───
         document.getElementById('AadharNo').addEventListener('input', function () {
-            let val = this.value.replace(/\D/g, '').slice(0, 12);
-            this.value = val.replace(/(\d{4})(?=\d)/g, '$1 ');
-        });
+            let val = this.value.replace(/\D/g, '').slice(0, 12)
+            this.value = val.replace(/(\d{4})(?=\d)/g, '$1 ')
+        })
+
+        // ─── Mobile: digits only, max 10 ───
+        document.getElementById('MobileNo').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10)
+        })
+
+        document.getElementById('EmergencyNo').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10)
+        })
+
+        // ─── Name fields: block numbers ───
+        document.getElementById('Name').addEventListener('input', function () {
+            this.value = this.value.replace(/[0-9]/g, '')
+        })
+
+        document.getElementById('ParentName').addEventListener('input', function () {
+            this.value = this.value.replace(/[0-9]/g, '')
+        })
     </script>
 </body>
 

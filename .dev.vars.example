@@ -1,0 +1,13 @@
+# Copy this file to ".dev.vars" for local `npm run dev` — .dev.vars is gitignored.
+# In production, set the SAME names in Cloudflare Pages > Settings > Environment variables.
+
+# ── Supabase (used by /api/enroll, /admin/api/*) ──
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_KEY=your-service-role-key-here
+
+# ── Custom admin login (only needed if you're NOT using Cloudflare Access) ──
+# Pick a strong password and a long random secret. Generate the secret with:
+#   openssl rand -hex 32
+ADMIN_PASSWORD=change-me-to-something-strong
+ADMIN_SESSION_SECRET=change-me-to-a-long-random-string

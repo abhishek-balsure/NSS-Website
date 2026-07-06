@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "wrangler pages dev --local"
+    "build": "node build.js",
+    "dev": "npm run build && wrangler pages dev --local"
   },
   "dependencies": {
     "hono": "^4.6.0"

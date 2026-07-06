@@ -444,7 +444,7 @@
                     <a href="../index.html" class="btn btn-outline-sm">
                         <i class="fas fa-arrow-left"></i> Back to Site
                     </a>
-                    <a href="/cdn-cgi/access/logout" class="btn btn-danger-sm" id="logoutLink">
+                    <a href="#" class="btn btn-danger-sm" id="logoutLink">
                         <i class="fas fa-sign-out-alt"></i> Sign Out
                     </a>
                 </div>
@@ -533,6 +533,18 @@
         let sortDir = 'desc'
 
         const API = '/admin/api/enrollments'
+
+        // ─── Sign out ───
+        // Works with the custom password login (functions/admin/api/logout.ts).
+        // If you're using Cloudflare Access instead, this call 404s harmlessly —
+        // swap the href back to /cdn-cgi/access/logout in that case.
+        document.getElementById('logoutLink').addEventListener('click', async (e) => {
+            e.preventDefault()
+            try {
+                await fetch('/admin/api/logout', { method: 'POST' })
+            } catch (err) { /* ignore */ }
+            window.location.href = '/admin/login.html'
+        })
 
         // ─── DOM refs ───
         const loadingEl = document.getElementById('loadingState')

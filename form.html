@@ -657,9 +657,10 @@
 
     <script src="shared.js"></script>
     <script>
+        const API_ENDPOINT = '/api/enroll'
         const enrollmentForm = document.getElementById('enrollmentForm');
 
-        enrollmentForm.addEventListener('submit', function (event) {
+        enrollmentForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             try {
 
@@ -715,16 +716,32 @@
             }
 
             if (isValid) {
+                const submitBtn = document.querySelector('button[name="Register"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+                formData.Medical = document.getElementById('Medical').value.trim() || 'None';
+                formData.timestamp = new Date().toISOString();
+
                 try {
-                    formData.Medical = document.getElementById('Medical').value.trim() || 'None';
+                    const res = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    })
+
+                    const result = await res.json()
+
+                    if (!res.ok) {
+                        throw new Error(result.error || 'Server error')
+                    }
+
+                    const refId = result.refCode
+                    formData.refCode = refId
 
                     const registrations = JSON.parse(localStorage.getItem('nss_registrations') || '[]');
-                    formData.timestamp = new Date().toISOString();
                     registrations.push(formData);
                     localStorage.setItem('nss_registrations', JSON.stringify(registrations));
-
-                    formData.refCode = 'SRH-NSS-' + formData.AcademicYear.split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
-                    const refId = formData.refCode;
 
                     document.getElementById('regCodeDisplay').textContent = refId;
                     document.getElementById('successOverlay').classList.add('active');
@@ -732,8 +749,11 @@
 
                     console.log('Enrollment saved:', formData);
                 } catch (e) {
-                    console.error('Error:', e);
-                    alert('There was an error. Please try again.');
+                    console.error('Submit error:', e);
+                    alert('Failed to submit: ' + e.message + '\n\nPlease try again or contact the NSS officer.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Enrollment';
                 }
             } else {
                 const firstError = document.querySelector('.form-group.error');

@@ -954,3 +954,11 @@ h6 {
         display: none;
     }
 }
+/* Admin nav link — intentionally understated, not a primary CTA */
+.nav-admin {
+  opacity: 0.6;
+  font-size: 0.9em;
+}
+.nav-admin:hover {
+  opacity: 1;
+}

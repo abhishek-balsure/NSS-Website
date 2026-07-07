@@ -137,7 +137,8 @@
     (async function() {
       try {
         const res = await fetch('/api/volunteer/me');
-        if (!res.ok) throw new Error('Not authenticated');
+        if (res.status === 401) { window.location.href = '/volunteer-login.html'; return; }
+        if (!res.ok) throw new Error('Failed to load profile (status ' + res.status + ')');
         const { user } = await res.json();
 
         document.getElementById('userBadge').innerHTML = `
@@ -185,7 +186,13 @@
         document.getElementById('loading').style.display = 'none';
         document.getElementById('dashContent').style.display = 'block';
       } catch (e) {
-        window.location.href = '/volunteer-login.html';
+        console.error('Dashboard load error:', e);
+        document.getElementById('loading').innerHTML =
+          '<div style="color:#ff6b6b;text-align:center;max-width:500px">' +
+          '<i class="fas fa-triangle-exclamation" style="font-size:2rem"></i>' +
+          '<p style="margin-top:12px">' + e.message + '</p>' +
+          '<a href="/volunteer-login.html" style="color:var(--accent)">Back to login</a>' +
+          '</div>';
       }
     })();
 

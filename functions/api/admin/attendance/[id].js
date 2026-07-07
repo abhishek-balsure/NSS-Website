@@ -1,7 +1,7 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
-  const { request, env, params, admin } = context;
+  const { request, env, params, data: ctxData } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'PUT') return errorResponse('Method not allowed', 405);
@@ -21,7 +21,7 @@ export async function onRequest(context) {
 
   const update = {
     status,
-    marked_by: admin.userId,
+    marked_by: ctxData.admin.userId,
     remarks: remarks || '',
   };
   if (status === 'present') update.hours_attended = hours_attended;

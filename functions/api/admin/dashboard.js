@@ -1,7 +1,7 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../_utils.js';
 
 export async function onRequest(context) {
-  const { request, env } = context;
+  const { request, env, data } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'GET') return errorResponse('Method not allowed', 405);
@@ -24,6 +24,6 @@ export async function onRequest(context) {
       total_activities: aCount ?? 0,
       total_attendance: tCount ?? 0,
     },
-    admin: context.admin,
+    admin: data.admin,
   });
 }

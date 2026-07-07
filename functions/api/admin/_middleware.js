@@ -16,8 +16,9 @@ export async function onRequest(context) {
     return jsonResponse({ error: 'Unauthorized — login required' }, 401);
   }
 
-  // Attach admin info so downstream handlers can use context.admin
-  context.admin = session;
+  // Attach admin info via context.data — the officially supported way to
+  // pass values from middleware to the next handler in Pages Functions.
+  context.data.admin = session;
 
   return next();
 }

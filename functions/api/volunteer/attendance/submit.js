@@ -1,7 +1,7 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
-  const { request, env, volunteer } = context;
+  const { request, env, data: ctxData } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
@@ -24,7 +24,7 @@ export async function onRequest(context) {
     }
 
     const supabase = createSupabaseAdmin(env);
-    const vid = volunteer.volunteerId;
+    const vid = ctxData.volunteer.volunteerId;
 
     // Check volunteer exists and is approved
     const { data: v, error: vErr } = await supabase

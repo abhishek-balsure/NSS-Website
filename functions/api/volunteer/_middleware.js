@@ -15,6 +15,6 @@ export async function onRequest(context) {
     return jsonResponse({ error: 'Unauthorized — please log in' }, 401);
   }
 
-  context.volunteer = session;
+  context.data.volunteer = session;
   return next();
 }

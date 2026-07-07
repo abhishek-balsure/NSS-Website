@@ -1,7 +1,7 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../_utils.js';
 
 export async function onRequest(context) {
-  const { request, env, volunteer } = context;
+  const { request, env, data: ctxData } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'GET') return errorResponse('Method not allowed', 405);
@@ -11,7 +11,7 @@ export async function onRequest(context) {
   const { data, error } = await supabase
     .from('volunteers')
     .select('*')
-    .eq('id', volunteer.volunteerId)
+    .eq('id', ctxData.volunteer.volunteerId)
     .single();
 
   if (error || !data) return errorResponse('Volunteer not found', 404);

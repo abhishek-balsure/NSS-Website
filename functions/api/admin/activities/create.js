@@ -1,7 +1,7 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
-  const { request, env, admin } = context;
+  const { request, env, data: ctxData } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
@@ -24,7 +24,7 @@ export async function onRequest(context) {
       activity_type,
       max_volunteers: max_volunteers || null,
       status: status || 'upcoming',
-      created_by: admin.userId,
+      created_by: ctxData.admin.userId,
     }).select().single();
 
     if (error) return errorResponse(error.message, 400);

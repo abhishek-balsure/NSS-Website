@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your NSS volunteer dashboard">
+  <title>My Dashboard — Sarhad NSS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .dash-page {
+      min-height: 100vh;
+      padding: calc(var(--nav-height) + 40px) 24px 80px;
+    }
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .dash-header h1 { font-size: 1.5rem; }
+    .dash-header .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+    }
+    .dash-header .user-badge .avatar {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      display: flex;
+      align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 1.1rem;
+    }
+    .dash-header .user-badge .info .name { font-weight: 600; font-size: 0.95rem; }
+    .dash-header .user-badge .info .meta { font-size: 0.8rem; color: var(--text-muted); }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .profile-section {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 28px;
+    }
+    .profile-section.full { grid-column: 1 / -1; }
+    .profile-section h3 {
+      font-size: 0.85rem; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text-muted);
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.9rem;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-row .label { color: var(--text-secondary); font-weight: 500; }
+    .field-row .value { color: var(--text-primary); font-weight: 600; text-align: right; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-badge.pending { background: rgba(245,158,11,0.12); color: var(--accent); }
+    .status-badge.approved { background: rgba(5,150,105,0.12); color: var(--success); }
+    .status-badge.rejected { background: rgba(220,38,38,0.12); color: var(--danger); }
+    .loading-overlay {
+      display: flex;
+      align-items: center; justify-content: center;
+      min-height: 60vh;
+      flex-direction: column; gap: 16px;
+      color: var(--text-secondary);
+    }
+    .loading-overlay .spinner { font-size: 2rem; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        Sarhad<span>NSS</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="volunteer-dashboard.html" class="active"><i class="fas fa-user"></i> Dashboard</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
+        <a href="index.html">Home</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main class="dash-page">
+    <div class="loading-overlay" id="loading">
+      <i class="fas fa-circle-notch spinner"></i>
+      <span>Loading your profile...</span>
+    </div>
+
+    <div id="dashContent" style="display:none">
+      <div class="dash-header">
+        <h1><i class="fas fa-user" style="color:var(--accent)"></i> My Dashboard</h1>
+        <div class="user-badge" id="userBadge"></div>
+      </div>
+
+      <div class="profile-grid" id="profileContent"></div>
+    </div>
+  </main>
+
+  <script src="shared.js"></script>
+  <script>
+    (async function() {
+      try {
+        const res = await fetch('/api/volunteer/me');
+        if (!res.ok) throw new Error('Not authenticated');
+        const { user } = await res.json();
+
+        document.getElementById('userBadge').innerHTML = `
+          <div class="avatar">${(user.name || 'V').charAt(0).toUpperCase()}</div>
+          <div class="info">
+            <div class="name">${user.name || 'Volunteer'}</div>
+            <div class="meta">${user.ref_code || 'No ref code'} &middot; <span class="status-badge ${user.status || 'pending'}">${user.status || 'pending'}</span></div>
+          </div>
+        `;
+
+        const fields = [
+          { label: 'Email', value: user.email, section: 'contact' },
+          { label: 'Mobile', value: user.mobile_no || '—', section: 'contact' },
+          { label: 'Department', value: user.department || '—', section: 'academic' },
+          { label: 'Class', value: user.class || '—', section: 'academic' },
+          { label: 'Academic Year', value: user.academic_year || '—', section: 'academic' },
+          { label: 'Roll No', value: user.roll_no || '—', section: 'academic' },
+          { label: 'Date of Birth', value: user.dob || '—', section: 'personal' },
+          { label: 'Gender', value: user.gender || '—', section: 'personal' },
+          { label: 'Blood Group', value: user.blood_group || '—', section: 'personal' },
+          { label: 'Category', value: user.cast || '—', section: 'personal' },
+          { label: 'Area of Interest', value: user.interest || '—', section: 'nss' },
+          { label: 'T-Shirt Size', value: user.tshirt_size || '—', section: 'nss' },
+          { label: 'Medical', value: user.medical || '—', section: 'nss' },
+        ];
+
+        const sections = {
+          personal: { icon: 'fa-user', title: 'Personal Information' },
+          contact: { icon: 'fa-phone', title: 'Contact Details' },
+          academic: { icon: 'fa-graduation-cap', title: 'Academic Details' },
+          nss: { icon: 'fa-hands-helping', title: 'NSS Details' },
+        };
+
+        let html = '';
+        Object.entries(sections).forEach(([key, section]) => {
+          const sectionFields = fields.filter(f => f.section === key);
+          if (sectionFields.length === 0) return;
+          html += `<div class="profile-section ${sectionFields.length > 3 ? 'full' : ''}">
+            <h3><i class="fas ${section.icon}" style="color:var(--accent);margin-right:8px"></i>${section.title}</h3>
+            ${sectionFields.map(f => `<div class="field-row"><span class="label">${f.label}</span><span class="value">${f.value}</span></div>`).join('')}
+          </div>`;
+        });
+
+        document.getElementById('profileContent').innerHTML = html;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dashContent').style.display = 'block';
+      } catch (e) {
+        window.location.href = '/volunteer-login.html';
+      }
+    })();
+
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/volunteer/logout', { method: 'POST' });
+      window.location.href = '/volunteer-login.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NSS Admin Panel">
+  <title>Admin Panel — Sarhad NSS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .panel-page { min-height: 100vh; padding: calc(var(--nav-height) + 40px) 24px 80px; }
+    .panel-page .container { max-width: var(--max-width); margin: 0 auto; }
+
+    /* tabs */
+    .tab-bar {
+      display: flex; gap: 4px;
+      margin-bottom: 32px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1; padding: 12px 24px;
+      border: none; background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text-primary); background: rgba(15,23,42,0.04); }
+    .tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+    }
+    .tab-btn i { margin-right: 8px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* attendance cards */
+    .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+    .att-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--transition-normal);
+    }
+    .att-card:hover { box-shadow: var(--shadow-md); }
+    .att-card .att-photo {
+      width: 100%; height: 180px;
+      object-fit: cover;
+      cursor: pointer;
+      background: var(--bg-body);
+      display: block;
+    }
+    .att-card .att-body { padding: 20px; }
+    .att-card .att-body .vol-name {
+      font-weight: 700; font-size: 1rem;
+      margin-bottom: 2px;
+    }
+    .att-card .att-body .vol-dept {
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .att-card .att-body .att-meta { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .att-card .att-body .att-meta i { width: 18px; color: var(--accent); }
+    .att-card .att-body .att-notes {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(15,23,42,0.03);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem; color: var(--text-secondary);
+      font-style: italic;
+    }
+    .att-card .att-actions {
+      display: flex; gap: 8px; padding: 0 20px 20px;
+    }
+    .att-card .att-actions .btn { flex: 1; justify-content: center; padding: 10px; font-size: 0.85rem; }
+    .att-card.rejected { opacity: 0.6; }
+    .att-card.rejected .att-photo { filter: grayscale(1); }
+    .rej-badge {
+      display: inline-block;
+      padding: 2px 10px; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 600;
+      background: rgba(220,38,38,0.1); color: var(--danger);
+      margin-left: 8px;
+    }
+
+    /* empty state */
+    .empty-state {
+      text-align: center; padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+    .empty-state p { font-size: 1rem; }
+
+    /* activity table */
+    .act-toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+    }
+    .act-toolbar h2 { font-size: 1.2rem; }
+    .act-table-wrap {
+      overflow-x: auto;
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+    }
+    .act-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .act-table th {
+      text-align: left; padding: 14px 16px;
+      font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(15,23,42,0.02);
+    }
+    .act-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); }
+    .act-table tr:last-child td { border-bottom: none; }
+    .act-table tr:hover td { background: rgba(15,23,42,0.02); }
+    .act-status {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+    }
+    .act-status.upcoming { background: rgba(37,99,235,0.1); color: var(--info); }
+    .act-status.ongoing { background: rgba(5,150,105,0.1); color: var(--success); }
+    .act-status.completed { background: rgba(100,116,139,0.1); color: var(--text-muted); }
+    .act-status.cancelled { background: rgba(220,38,38,0.1); color: var(--danger); }
+    .act-actions { display: flex; gap: 6px; }
+    .act-actions button {
+      border: none; background: transparent;
+      cursor: pointer; padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem; color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .act-actions .edit-btn:hover { background: rgba(37,99,235,0.1); color: var(--info); }
+    .act-actions .del-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+
+    /* modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 520px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(15,23,42,0.2);
+      animation: modalIn 0.2s ease-out;
+    }
+    .modal-wide { max-width: 640px; }
+    .modal-photo { max-width: 700px; }
+    .modal-photo .modal-body { padding: 0; }
+    .modal-photo img { width: 100%; display: block; border-radius: var(--radius-sm); }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h3 { font-size: 1.15rem; }
+    .modal-close {
+      border: none; background: transparent;
+      font-size: 1.5rem; cursor: pointer;
+      color: var(--text-muted); padding: 4px;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text-primary); }
+    .modal-body .form-group { margin-bottom: 16px; }
+    .modal-body .form-group label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: var(--text-secondary); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .modal-body .form-group input,
+    .modal-body .form-group select,
+    .modal-body .form-group textarea {
+      width: 100%; padding: 12px 14px;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem; font-family: 'Inter', sans-serif;
+      color: var(--text-primary); outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    .modal-body .form-group input:focus,
+    .modal-body .form-group select:focus,
+    .modal-body .form-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+    }
+    .modal-body .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-footer {
+      display: flex; gap: 10px; justify-content: flex-end;
+      margin-top: 24px; padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .modal-footer .btn { padding: 10px 24px; font-size: 0.88rem; }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 3000;
+      padding: 14px 24px;
+      border-radius: var(--radius-sm);
+      color: #fff; font-size: 0.9rem; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(15,23,42,0.15);
+      animation: toastIn 0.3s ease-out;
+      display: none;
+    }
+    .toast.show { display: block; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    @keyframes toastIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    .spinner { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-section {
+      text-align: center; padding: 80px 20px;
+      color: var(--text-secondary);
+    }
+    .loading-section i { font-size: 2rem; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .att-grid { grid-template-columns: 1fr; }
+      .modal-body .form-row { grid-template-columns: 1fr; }
+      .modal { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        NSS<span>Admin</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="admin-dashboard.html"><i class="fas fa-gauge-high"></i> Dashboard</a>
+        <a href="admin-panel.html" class="active"><i class="fas fa-table-cells-large"></i> Panel</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main class="panel-page">
+    <div class="container">
+      <div class="loading-section" id="loading">
+        <i class="fas fa-circle-notch spinner"></i>
+        <p>Loading admin panel...</p>
+      </div>
+
+      <div id="panelContent" style="display:none">
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="attendance"><i class="fas fa-clock"></i> Attendance Review</button>
+          <button class="tab-btn" data-tab="activities"><i class="fas fa-calendar"></i> Manage Activities</button>
+        </div>
+
+        <!-- ══ Attendance Tab ══ -->
+        <div class="tab-panel active" id="tabAttendance">
+          <div class="att-grid" id="attGrid"></div>
+        </div>
+
+        <!-- ══ Activities Tab ══ -->
+        <div class="tab-panel" id="tabActivities">
+          <div class="act-toolbar">
+            <h2>All Activities</h2>
+            <button class="btn btn-primary" id="newActivityBtn"><i class="fas fa-plus"></i> New Activity</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th style="width:100px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="actTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="actEmpty" style="display:none">
+            <i class="fas fa-calendar-plus"></i>
+            <p>No activities yet. Create one!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══ Photo Lightbox Modal ══ -->
+  <div class="modal-overlay" id="photoModal">
+    <div class="modal modal-photo">
+      <div class="modal-header">
+        <h3>Photo Preview</h3>
+        <button class="modal-close" onclick="closeModal('photoModal')">&times;</button>
+      </div>
+      <div class="modal-body"><img id="photoModalImg" src="" alt="Attendance photo"></div>
+    </div>
+  </div>
+
+  <!-- ══ Approve Modal ══ -->
+  <div class="modal-overlay" id="approveModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-check-circle" style="color:var(--success)"></i> Approve Attendance</h3>
+        <button class="modal-close" onclick="closeModal('approveModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="approveInfo" style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:16px"></p>
+        <div class="form-group">
+          <label for="approveHours">Hours Attended</label>
+          <input type="number" id="approveHours" min="0.5" max="24" step="0.5" value="2" placeholder="e.g. 4">
+        </div>
+        <div class="form-group">
+          <label for="approveRemarks">Admin Remarks <span style="text-transform:none;font-weight:400;color:var(--text-muted)">(optional)</span></label>
+          <textarea id="approveRemarks" rows="2" placeholder="Any notes about this approval..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('approveModal')">Cancel</button>
+        <button class="btn btn-success" id="confirmApproveBtn"><i class="fas fa-check"></i> Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Activity Form Modal ══ -->
+  <div class="modal-overlay" id="activityModal">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3 id="activityModalTitle">New Activity</h3>
+        <button class="modal-close" onclick="closeModal('activityModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="activityForm">
+          <div class="form-group">
+            <label for="actTitle">Title <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="actTitle" placeholder="Activity name" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="actDate">Date <span style="color:var(--danger)">*</span></label>
+              <input type="date" id="actDate" required>
+            </div>
+            <div class="form-group">
+              <label for="actType">Type <span style="color:var(--danger)">*</span></label>
+              <select id="actType" required>
+                <option value="">Select</option>
+                <option value="camp">Camp</option>
+                <option value="drive">Drive</option>
+                <option value="event">Event</option>
+                <option value="workshop">Workshop</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="actLocation">Location</label>
+              <input type="text" id="actLocation" placeholder="Venue or area">
+            </div>
+            <div class="form-group">
+              <label for="actMaxVol">Max Volunteers</label>
+              <input type="number" id="actMaxVol" min="0" placeholder="Unlimited if empty">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="actStatus">Status</label>
+            <select id="actStatus">
+              <option value="upcoming">Upcoming</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actDesc">Description</label>
+            <textarea id="actDesc" rows="3" placeholder="Description of the activity..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('activityModal')">Cancel</button>
+        <button class="btn btn-success" id="saveActivityBtn"><i class="fas fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Delete Confirm Modal ══ -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:400px">
+      <div class="modal-header">
+        <h3 style="color:var(--danger)"><i class="fas fa-trash-can"></i> Delete Activity?</h3>
+        <button class="modal-close" onclick="closeModal('deleteModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteInfo" style="font-size:0.9rem;color:var(--text-secondary)"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash-can"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Toast ══ -->
+  <div class="toast" id="toast"></div>
+
+  <script src="shared.js"></script>
+  <script>
+    let adminData = null;
+    let pendingAttachments = [];
+    let activities = [];
+    let editingActivityId = null;
+    let deletingActivityId = null;
+    let approvingId = null;
+
+    // ── Init ──
+    (async function() {
+      try {
+        const r = await fetch('/api/admin/me');
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        adminData = d.user;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('panelContent').style.display = 'block';
+        loadAttendance();
+        loadActivities();
+      } catch { window.location.href = '/admin-login.html'; }
+    })();
+
+    // ── Tab switching ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.add('active');
+      });
+    });
+
+    // ── Toast ──
+    function toast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast ' + type + ' show';
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // ── Modal helpers ──
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
+    });
+
+    // =============================================
+    // ══ ATTENDANCE ══
+    // =============================================
+    async function loadAttendance() {
+      try {
+        const res = await fetch('/api/admin/attendance/pending');
+        if (!res.ok) throw new Error('Failed to load');
+        const { attendance } = await res.json();
+        pendingAttachments = attendance || [];
+        renderAttendance();
+      } catch (e) {
+        document.getElementById('attGrid').innerHTML =
+          '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Failed to load attendance records.</p></div>';
+      }
+    }
+
+    function renderAttendance() {
+      const grid = document.getElementById('attGrid');
+      if (!pendingAttachments.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success);opacity:0.4"></i><p>No pending attendance submissions.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = pendingAttachments.map(a => {
+        const v = a.volunteer || {};
+        const act = a.activity || {};
+        const isRejected = a.status === 'rejected';
+        return `<div class="att-card ${isRejected ? 'rejected' : ''}">
+          <img class="att-photo" src="${a.photo_url || ''}" alt="Attendance photo"
+               onclick="openPhoto('${a.photo_url || ''}')"
+               onerror="this.style.display='none'">
+          <div class="att-body">
+            <div class="vol-name">${esc(v.name || 'Unknown')} ${isRejected ? '<span class="rej-badge">Rejected</span>' : ''}</div>
+            <div class="vol-dept">${esc(v.department || '')} &middot; ${esc(v.ref_code || '')}</div>
+            <div class="att-meta"><i class="fas fa-calendar"></i> ${esc(act.title || '')} — ${fmtDate(act.activity_date)}</div>
+            <div class="att-meta"><i class="fas fa-envelope"></i> ${esc(v.email || '')}</div>
+            <div class="att-meta"><i class="fas fa-phone"></i> ${esc(v.mobile_no || '—')}</div>
+            ${a.notes ? `<div class="att-notes">"${esc(a.notes)}"</div>` : ''}
+            ${isRejected && a.remarks ? `<div class="att-notes" style="color:var(--danger)">Admin: ${esc(a.remarks)}</div>` : ''}
+          </div>
+          ${!isRejected ? `<div class="att-actions">
+            <button class="btn btn-success" onclick="openApprove('${a.id}','${esc(v.name)}','${esc(act.title)}')"><i class="fas fa-check"></i> Approve</button>
+            <button class="btn btn-danger" onclick="rejectAttendance('${a.id}')"><i class="fas fa-times"></i> Reject</button>
+          </div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function openPhoto(url) {
+      if (!url) return;
+      document.getElementById('photoModalImg').src = url;
+      openModal('photoModal');
+    }
+
+    let approveCallback = null;
+
+    function openApprove(id, vName, actTitle) {
+      approvingId = id;
+      document.getElementById('approveInfo').textContent = `Approve ${vName}'s attendance for "${actTitle}"`;
+      document.getElementById('approveHours').value = 2;
+      document.getElementById('approveRemarks').value = '';
+      openModal('approveModal');
+    }
+
+    document.getElementById('confirmApproveBtn').addEventListener('click', async () => {
+      if (!approvingId) return;
+      const hours = parseFloat(document.getElementById('approveHours').value);
+      if (!hours || hours <= 0) { toast('Enter valid hours', 'error'); return; }
+      const remarks = document.getElementById('approveRemarks').value.trim();
+
+      const btn = document.getElementById('confirmApproveBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+
+      try {
+        const res = await fetch(`/api/admin/attendance/${approvingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'present', hours_attended: hours, remarks }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Attendance approved!');
+        closeModal('approveModal');
+        approvingId = null;
+        loadAttendance();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Approve'; }
+    });
+
+    async function rejectAttendance(id) {
+      if (!confirm('Reject this attendance submission?')) return;
+      try {
+        const res = await fetch(`/api/admin/attendance/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'absent', remarks: 'Rejected by admin' }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Attendance rejected');
+        loadAttendance();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    // =============================================
+    // ══ ACTIVITIES ══
+    // =============================================
+    async function loadActivities() {
+      try {
+        const res = await fetch('/api/admin/activities/list');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        activities = data.activities || [];
+        renderActivities();
+      } catch (e) {
+        document.getElementById('actTableBody').innerHTML = '';
+        document.getElementById('actEmpty').style.display = 'block';
+      }
+    }
+
+    function renderActivities() {
+      const tbody = document.getElementById('actTableBody');
+      const empty = document.getElementById('actEmpty');
+      if (!activities.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = activities.map(a => `<tr>
+        <td><strong>${esc(a.title)}</strong></td>
+        <td>${fmtDate(a.activity_date)}</td>
+        <td style="text-transform:capitalize">${esc(a.activity_type)}</td>
+        <td>${esc(a.location || '—')}</td>
+        <td><span class="act-status ${esc(a.status)}">${esc(a.status)}</span></td>
+        <td>
+          <div class="act-actions">
+            <button class="edit-btn" onclick="editActivity('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+            <button class="del-btn" onclick="confirmDelete('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    // ── Create / Edit ──
+    document.getElementById('newActivityBtn').addEventListener('click', () => {
+      editingActivityId = null;
+      document.getElementById('activityModalTitle').textContent = 'New Activity';
+      document.getElementById('activityForm').reset();
+      document.getElementById('actDate').value = new Date().toISOString().split('T')[0];
+      openModal('activityModal');
+    });
+
+    function editActivity(id) {
+      const a = activities.find(x => x.id === id);
+      if (!a) return;
+      editingActivityId = id;
+      document.getElementById('activityModalTitle').textContent = 'Edit Activity';
+      document.getElementById('actTitle').value = a.title || '';
+      document.getElementById('actDate').value = a.activity_date || '';
+      document.getElementById('actType').value = a.activity_type || '';
+      document.getElementById('actLocation').value = a.location || '';
+      document.getElementById('actMaxVol').value = a.max_volunteers || '';
+      document.getElementById('actStatus').value = a.status || 'upcoming';
+      document.getElementById('actDesc').value = a.description || '';
+      openModal('activityModal');
+    }
+
+    document.getElementById('saveActivityBtn').addEventListener('click', async () => {
+      const title = document.getElementById('actTitle').value.trim();
+      const activity_date = document.getElementById('actDate').value;
+      const activity_type = document.getElementById('actType').value;
+
+      if (!title || !activity_date || !activity_type) {
+        toast('Fill required fields (Title, Date, Type)', 'error'); return;
+      }
+
+      const body = {
+        title,
+        activity_date,
+        activity_type,
+        location: document.getElementById('actLocation').value.trim(),
+        max_volunteers: parseInt(document.getElementById('actMaxVol').value) || null,
+        status: document.getElementById('actStatus').value,
+        description: document.getElementById('actDesc').value.trim(),
+      };
+
+      const btn = document.getElementById('saveActivityBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+
+      try {
+        let res;
+        if (editingActivityId) {
+          res = await fetch(`/api/admin/activities/${editingActivityId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        } else {
+          res = await fetch('/api/admin/activities/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        }
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast(editingActivityId ? 'Activity updated!' : 'Activity created!');
+        closeModal('activityModal');
+        editingActivityId = null;
+        loadActivities();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save'; }
+    });
+
+    // ── Delete ──
+    function confirmDelete(id, title) {
+      deletingActivityId = id;
+      document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
+      openModal('deleteModal');
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+      if (!deletingActivityId) return;
+      const btn = document.getElementById('confirmDeleteBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+
+      try {
+        const res = await fetch(`/api/admin/activities/${deletingActivityId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Activity deleted');
+        closeModal('deleteModal');
+        deletingActivityId = null;
+        loadActivities();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash-can"></i> Delete'; }
+    });
+
+    // ── Logout ──
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/admin-login.html';
+    });
+
+    // ── Utils ──
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
+  </script>
+</body>
+</html>

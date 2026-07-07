@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Submit your NSS activity attendance">
+  <title>Submit Attendance — Sarhad NSS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .att-page {
+      min-height: 100vh;
+      padding: calc(var(--nav-height) + 40px) 24px 80px;
+    }
+    .att-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-xl);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .att-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+    }
+    .att-header { text-align: center; margin-bottom: 32px; }
+    .att-header .att-icon {
+      width: 64px; height: 64px;
+      border-radius: var(--radius-md);
+      background: rgba(245,158,11,0.1);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 1.6rem; color: var(--accent);
+    }
+    .att-header h1 { font-size: 1.4rem; margin-bottom: 6px; }
+    .att-header p { color: var(--text-secondary); font-size: 0.88rem; }
+
+    .form-group { margin-bottom: 22px; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      outline: none;
+      transition: all var(--transition-fast);
+      appearance: none;
+      cursor: pointer;
+    }
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 16px) center;
+    }
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group.error select,
+    .form-group.error textarea { border-color: var(--danger); }
+    .form-group .error-text { display: none; font-size: 0.8rem; color: var(--danger); margin-top: 6px; }
+    .form-group.error .error-text { display: block; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: rgba(255,255,255,0.4);
+      position: relative;
+    }
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(245,158,11,0.05);
+    }
+    .drop-zone.has-file {
+      border-color: var(--success);
+      border-style: solid;
+      background: rgba(5,150,105,0.04);
+      padding: 16px;
+    }
+    .drop-zone .dz-placeholder i { font-size: 2.4rem; color: var(--text-muted); margin-bottom: 12px; }
+    .drop-zone .dz-placeholder p { color: var(--text-secondary); font-size: 0.9rem; }
+    .drop-zone .dz-placeholder p strong { color: var(--accent); cursor: pointer; }
+    .drop-zone .dz-placeholder .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+    .drop-zone .dz-preview { display: none; }
+    .drop-zone.has-file .dz-placeholder { display: none; }
+    .drop-zone.has-file .dz-preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .drop-zone .dz-preview img {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+    }
+    .drop-zone .dz-preview .file-info { flex: 1; text-align: left; }
+    .drop-zone .dz-preview .file-info .fname {
+      font-weight: 600; font-size: 0.9rem;
+      word-break: break-all;
+    }
+    .drop-zone .dz-preview .file-info .fsize {
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+    .drop-zone .dz-preview .remove-file {
+      color: var(--danger); cursor: pointer;
+      font-size: 1.2rem; padding: 4px;
+      transition: transform var(--transition-fast);
+    }
+    .drop-zone .dz-preview .remove-file:hover { transform: scale(1.2); }
+    .form-group .drop-zone.error + .error-text { display: block; }
+
+    .att-btn { width: 100%; justify-content: center; padding: 16px; font-size: 1rem; }
+    .att-error {
+      display: none; padding: 12px 16px;
+      background: rgba(220,38,38,0.08);
+      border: 1px solid rgba(220,38,38,0.2);
+      border-radius: var(--radius-sm);
+      color: var(--danger); font-size: 0.88rem;
+      margin-bottom: 20px; text-align: center;
+    }
+    .att-error.visible { display: block; }
+
+    /* Success state */
+    .success-state { display: none; text-align: center; }
+    .success-state.active { display: block; }
+    .success-state .check {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(5,150,105,0.1);
+      color: var(--success);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .success-state h2 { margin-bottom: 8px; }
+    .success-state p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; }
+    .success-state .preview-photo {
+      margin: 16px auto;
+      max-width: 280px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-glass);
+      overflow: hidden;
+    }
+    .success-state .preview-photo img { width: 100%; display: block; }
+    .success-state .status-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(245,158,11,0.12);
+      color: var(--accent);
+    }
+
+    .spinner { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes scaleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Submit state toggle */
+    .form-state { display: block; }
+    .form-state.hidden { display: none; }
+
+    @media (max-width: 480px) { .att-card { padding: 32px 24px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        Sarhad<span>NSS</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="volunteer-dashboard.html"><i class="fas fa-user"></i> Dashboard</a>
+        <a href="volunteer-attendance.html" class="active"><i class="fas fa-camera"></i> Attendance</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main class="att-page">
+    <div class="att-card">
+
+      <!-- ══ Loader ══ -->
+      <div class="loading-overlay" id="loading" style="text-align:center;padding:40px 0">
+        <i class="fas fa-circle-notch spinner" style="font-size:2rem;color:var(--text-muted)"></i>
+        <p style="margin-top:12px;color:var(--text-secondary)">Loading...</p>
+      </div>
+
+      <!-- ══ Form ══ -->
+      <div class="form-state" id="formState">
+        <div class="att-header">
+          <div class="att-icon"><i class="fas fa-camera"></i></div>
+          <h1>Submit <span class="gradient-text">Attendance</span></h1>
+          <p>Select an activity, upload a photo as proof, and submit for admin approval</p>
+        </div>
+
+        <div class="att-error" id="attError"></div>
+
+        <form id="attForm">
+          <div class="form-group" id="activityGroup">
+            <label for="activity">Activity</label>
+            <select id="activity" required>
+              <option value="">— Select an activity —</option>
+            </select>
+            <span class="error-text">Please select an activity</span>
+          </div>
+
+          <div class="form-group" id="photoGroup">
+            <label>Upload Photo <span style="text-transform:none;font-weight:400;color:var(--text-muted)">(JPEG, PNG, WebP — max 5 MB)</span></label>
+            <div class="drop-zone" id="dropZone">
+              <div class="dz-placeholder">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <p>Drag &amp; drop your photo here, or <strong>browse</strong></p>
+                <p class="hint">Show yourself at the activity venue</p>
+              </div>
+              <div class="dz-preview">
+                <img id="previewImg" alt="Preview">
+                <div class="file-info">
+                  <div class="fname" id="fileName"></div>
+                  <div class="fsize" id="fileSize"></div>
+                </div>
+                <span class="remove-file" id="removeFile">&times;</span>
+              </div>
+            </div>
+            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp,image/heic" style="display:none">
+            <span class="error-text">Please upload a photo</span>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes <span style="text-transform:none;font-weight:400;color:var(--text-muted)">(optional)</span></label>
+            <textarea id="notes" placeholder="Any additional details about your participation..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-success att-btn" id="submitBtn">
+            <i class="fas fa-paper-plane"></i> <span>Submit Attendance</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ══ Success ══ -->
+      <div class="success-state" id="successState">
+        <div class="check"><i class="fas fa-check"></i></div>
+        <h2>Attendance Submitted!</h2>
+        <p>Your attendance has been recorded and is awaiting admin approval.</p>
+        <div class="preview-photo" id="successPhoto"></div>
+        <p><span class="status-badge"><i class="fas fa-clock"></i> Pending Approval</span></p>
+        <br>
+        <a href="volunteer-attendance.html" class="btn btn-outline" style="justify-content:center">
+          <i class="fas fa-redo"></i> Submit Another
+        </a>
+        <a href="volunteer-dashboard.html" class="btn btn-primary" style="justify-content:center;margin-top:8px">
+          <i class="fas fa-user"></i> Go to Dashboard
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script src="shared.js"></script>
+  <script>
+    (async function init() {
+      // ── Auth check ──
+      let user;
+      try {
+        const r = await fetch('/api/volunteer/me');
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        user = d.user;
+      } catch {
+        return window.location.href = '/volunteer-login.html';
+      }
+
+      // ── Load activities ──
+      try {
+        const res = await fetch('/api/activities/list?status=upcoming,ongoing');
+        const { activities } = await res.json();
+        const sel = document.getElementById('activity');
+        (activities || []).forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          const d = new Date(a.activity_date).toLocaleDateString('en-IN');
+          opt.textContent = `${a.title} — ${d}`;
+          sel.appendChild(opt);
+        });
+        document.getElementById('loading').style.display = 'none';
+      } catch (e) {
+        document.getElementById('attError').textContent = 'Failed to load activities.';
+        document.getElementById('attError').classList.add('visible');
+        document.getElementById('loading').style.display = 'none';
+      }
+    })();
+
+    // ── File upload handling ──
+    const dropZone = document.getElementById('dropZone');
+    const photoInput = document.getElementById('photoInput');
+    const previewImg = document.getElementById('previewImg');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeBtn = document.getElementById('removeFile');
+
+    let selectedFile = null;
+
+    dropZone.addEventListener('click', () => photoInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length) handleFile(files[0]);
+    });
+
+    photoInput.addEventListener('change', () => {
+      if (photoInput.files.length) handleFile(photoInput.files[0]);
+    });
+
+    function handleFile(file) {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+      if (!allowed.includes(file.type)) {
+        alert('Please upload a JPEG, PNG, WebP, or HEIC image.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Photo must be under 5 MB.');
+        return;
+      }
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+        dropZone.classList.add('has-file');
+        document.getElementById('photoGroup').classList.remove('error');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedFile = null;
+      photoInput.value = '';
+      dropZone.classList.remove('has-file');
+    });
+
+    // ── Form submit ──
+    const form = document.getElementById('attForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const attError = document.getElementById('attError');
+
+    document.getElementById('activity').addEventListener('change', () => {
+      document.getElementById('activityGroup').classList.remove('error');
+      attError.classList.remove('visible');
+    });
+    document.getElementById('notes').addEventListener('input', () => {
+      attError.classList.remove('visible');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      attError.classList.remove('visible');
+      let valid = true;
+
+      const activityEl = document.getElementById('activity');
+      if (!activityEl.value) {
+        document.getElementById('activityGroup').classList.add('error');
+        valid = false;
+      }
+      if (!selectedFile) {
+        document.getElementById('photoGroup').classList.add('error');
+        valid = false;
+      }
+      if (!valid) return;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Submitting...';
+
+      try {
+        const fd = new FormData();
+        fd.append('activity_id', activityEl.value);
+        fd.append('photo', selectedFile);
+        fd.append('notes', document.getElementById('notes').value.trim());
+
+        const res = await fetch('/api/volunteer/attendance/submit', {
+          method: 'POST',
+          body: fd,
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+        // Show success
+        document.getElementById('formState').style.display = 'none';
+        const successEl = document.getElementById('successState');
+        document.getElementById('successPhoto').innerHTML = `<img src="${data.photo_url}" alt="Uploaded photo">`;
+        successEl.classList.add('active');
+      } catch (err) {
+        attError.textContent = err.message;
+        attError.classList.add('visible');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Submit Attendance</span>';
+      }
+    });
+
+    // ── Logout ──
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/volunteer/logout', { method: 'POST' });
+      window.location.href = '/volunteer-login.html';
+    });
+  </script>
+</body>
+</html>

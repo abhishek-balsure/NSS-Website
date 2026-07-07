@@ -144,6 +144,15 @@
       <div class="auth-error" id="authError"></div>
 
       <form id="signupForm" autocomplete="off">
+        <div class="form-group" id="refCodeGroup">
+          <label for="refCode">Registration Reference Code</label>
+          <div class="input-wrap">
+            <i class="fas fa-id-card"></i>
+            <input type="text" id="refCode" placeholder="e.g. SRH-NSS-2026-1234" required autocomplete="off">
+          </div>
+          <span class="error-text">Enter the reference code you got after registering (form.html). Haven't registered yet? <a href="form.html">Register here first</a>.</span>
+        </div>
+
         <div class="form-group" id="nameGroup">
           <label for="name">Full Name</label>
           <div class="input-wrap">
@@ -203,6 +212,7 @@
   <script src="shared.js"></script>
   <script>
     const form = document.getElementById('signupForm');
+    const refCodeInput = document.getElementById('refCode');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const mobileInput = document.getElementById('mobile');
@@ -211,7 +221,7 @@
     const errorEl = document.getElementById('authError');
     const btn = document.getElementById('signupBtn');
 
-    [nameInput, emailInput, mobileInput, passInput, confirmInput].forEach(el => {
+    [refCodeInput, nameInput, emailInput, mobileInput, passInput, confirmInput].forEach(el => {
       el.addEventListener('input', () => { el.closest('.form-group').classList.remove('error'); errorEl.classList.remove('visible'); });
     });
 
@@ -224,6 +234,7 @@
       errorEl.classList.remove('visible');
       let valid = true;
 
+      if (!refCodeInput.value.trim()) { document.getElementById('refCodeGroup').classList.add('error'); valid = false; }
       if (!nameInput.value.trim()) { document.getElementById('nameGroup').classList.add('error'); valid = false; }
       if (!emailInput.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
         document.getElementById('emailGroup').classList.add('error'); valid = false;
@@ -247,6 +258,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            ref_code: refCodeInput.value.trim(),
             name: nameInput.value.trim(),
             email: emailInput.value.trim(),
             mobile_no: mobileInput.value.trim(),

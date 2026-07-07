@@ -1,4 +1,4 @@
-import { createSupabase, corsHeaders, jsonResponse, errorResponse } from '../../_utils.js';
+import { createSupabaseAdmin, corsHeaders, jsonResponse, errorResponse } from '../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -7,7 +7,7 @@ export async function onRequest(context) {
   if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
 
   try {
-    const supabase = createSupabase(env);
+    const supabase = createSupabaseAdmin(env);
     const body = await request.json();
 
     body.aadhar_no = body.aadhar_no.replace(/\s/g, '');

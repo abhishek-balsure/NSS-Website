@@ -1,4 +1,4 @@
-import { createSupabase, createSupabaseAdmin, jsonResponse, errorResponse, signSessionPayload, setVolunteerCookieHeaders } from '../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse, signSessionPayload, setVolunteerCookieHeaders } from '../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -13,11 +13,10 @@ export async function onRequest(context) {
       return errorResponse('Name, email, and password are required');
     }
 
-    const supabase = createSupabase(env);
     const adminClient = createSupabaseAdmin(env);
 
     // Check duplicate email
-    const { data: existing } = await supabase.from('volunteers').select('id').eq('email', email).maybeSingle();
+    const { data: existing } = await adminClient.from('volunteers').select('id').eq('email', email).maybeSingle();
     if (existing) return errorResponse('An account with this email already exists', 409);
 
     // Create auth user (auto-confirms — requires SUPABASE_SERVICE_KEY)
@@ -31,7 +30,7 @@ export async function onRequest(context) {
     if (authErr) return errorResponse(authErr.message, 400);
 
     // Create volunteer record linked to auth user
-    const { data: volunteer, error: volErr } = await supabase.from('volunteers').insert({
+    const { data: volunteer, error: volErr } = await adminClient.from('volunteers').insert({
       auth_user_id: authData.user.id,
       name,
       email,

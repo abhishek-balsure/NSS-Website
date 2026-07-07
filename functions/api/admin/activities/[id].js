@@ -1,11 +1,11 @@
-import { createSupabase, jsonResponse, errorResponse } from '../../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env, params } = context;
 
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
 
-  const supabase = createSupabase(env);
+  const supabase = createSupabaseAdmin(env);
   const { id } = params;
 
   // PUT — update activity

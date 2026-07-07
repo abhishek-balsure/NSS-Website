@@ -1,4 +1,4 @@
-import { createSupabase, jsonResponse, errorResponse } from '../../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env, volunteer } = context;
@@ -23,7 +23,7 @@ export async function onRequest(context) {
       return errorResponse('Photo must be under 5 MB');
     }
 
-    const supabase = createSupabase(env);
+    const supabase = createSupabaseAdmin(env);
     const vid = volunteer.volunteerId;
 
     // Check volunteer exists and is approved

@@ -1,4 +1,4 @@
-import { createSupabase, jsonResponse, errorResponse } from '../../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env, params, admin } = context;
@@ -6,7 +6,7 @@ export async function onRequest(context) {
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);
   if (request.method !== 'PUT') return errorResponse('Method not allowed', 405);
 
-  const supabase = createSupabase(env);
+  const supabase = createSupabaseAdmin(env);
   const { id } = params;
 
   const body = await request.json();

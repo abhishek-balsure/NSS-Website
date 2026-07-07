@@ -15,15 +15,5 @@ export async function onRequest(context) {
     return jsonResponse(data);
   }
 
-  if (request.method === 'PUT') {
-    const user = await getUser(supabase, request);
-    if (!user) return errorResponse('Unauthorized', 401);
-
-    const body = await request.json();
-    const { data, error } = await supabase.from('activities').update(body).eq('id', id).select().single();
-    if (error) return errorResponse(error.message, 400);
-    return jsonResponse(data);
-  }
-
   return errorResponse('Method not allowed', 405);
 }

@@ -57,15 +57,15 @@ export async function onRequest(context) {
 
     if (upErr) return errorResponse('Photo upload failed: ' + upErr.message, 500);
 
-    const { data: pubUrl } = supabase.storage.from('attendance-photos').getPublicUrl(filePath);
-    const photoUrl = pubUrl?.publicUrl || '';
+    // Store the storage PATH, not a public URL — bucket is private,
+    // admin panel requests a short-lived signed URL when it needs to display it.
 
     // Create attendance record (pending — awaiting admin approval)
     const { data: attendance, error: attErr } = await supabase.from('attendance').insert({
       volunteer_id: vid,
       activity_id,
       status: 'pending',
-      photo_url: photoUrl,
+      photo_url: filePath,
       notes,
       submitted_by: vid,
       hours_attended: 0,
@@ -79,7 +79,7 @@ export async function onRequest(context) {
 
     return jsonResponse({
       attendance,
-      photo_url: photoUrl,
+      photo_url: filePath,
       message: 'Attendance submitted! Awaiting admin approval.',
     }, 201);
   } catch (e) {

@@ -12,12 +12,26 @@ export function createSupabaseAdmin(env) {
   return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
 }
 
-export function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
+// Replace 'https://your-real-domain.com' with your actual production
+// domain (custom domain if you have one, otherwise your *.pages.dev URL).
+// Preview deployments (*.nss-website.pages.dev) are allowed automatically
+// so branch testing still works.
+const ALLOWED_ORIGIN_SUFFIXES = ['.nss-website.pages.dev'];
+const ALLOWED_ORIGINS = ['https://your-real-domain.com'];
+
+export function corsHeaders(request) {
+  const origin = request?.headers?.get('Origin') || '';
+  const isAllowed =
+    ALLOWED_ORIGINS.includes(origin) ||
+    ALLOWED_ORIGIN_SUFFIXES.some(suffix => origin.endsWith(suffix));
+
+  const headers = {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
   };
+  if (isAllowed) headers['Access-Control-Allow-Origin'] = origin;
+  return headers;
 }
 
 export function jsonResponse(data, status = 200) {

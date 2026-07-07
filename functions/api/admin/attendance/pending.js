@@ -19,5 +19,16 @@ export async function onRequest(context) {
     .order('created_at', { ascending: false });
 
   if (error) return errorResponse(error.message, 400);
-  return jsonResponse({ attendance: data });
+
+  // photo_url column stores a private storage PATH, not a public URL —
+  // mint a short-lived signed URL for each row just for this response.
+  const withSignedUrls = await Promise.all((data || []).map(async (row) => {
+    if (!row.photo_url) return row;
+    const { data: signed } = await supabase.storage
+      .from('attendance-photos')
+      .createSignedUrl(row.photo_url, 300); // 5 minutes
+    return { ...row, photo_url: signed?.signedUrl || null };
+  }));
+
+  return jsonResponse({ attendance: withSignedUrls });
 }

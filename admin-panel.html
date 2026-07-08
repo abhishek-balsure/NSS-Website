@@ -594,7 +594,7 @@
         const res = await fetch(`/api/admin/attendance/${approvingId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'present', hours_attended: hours, remarks }),
+          body: JSON.stringify({ status: 'approved', hours_attended: hours, remarks }),
         });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
         toast('Attendance approved!');
@@ -611,7 +611,7 @@
         const res = await fetch(`/api/admin/attendance/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'absent', remarks: 'Rejected by admin' }),
+          body: JSON.stringify({ status: 'rejected', remarks: 'Rejected by admin' }),
         });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
         toast('Attendance rejected');

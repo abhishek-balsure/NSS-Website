@@ -12,19 +12,20 @@ export async function onRequest(context) {
   const body = await request.json();
   const { status, hours_attended, remarks } = body;
 
-  if (!status || !['present', 'absent'].includes(status)) {
-    return errorResponse('Status must be "present" or "absent"');
+  if (!status || !['approved', 'rejected'].includes(status)) {
+    return errorResponse('Status must be "approved" or "rejected"');
   }
-  if (status === 'present' && (hours_attended === undefined || hours_attended === null)) {
+  if (status === 'approved' && (hours_attended === undefined || hours_attended === null)) {
     return errorResponse('hours_attended is required when approving');
   }
 
   const update = {
     status,
-    marked_by: ctxData.admin.userId,
+    approved_by: ctxData.admin.userId,
+    approved_at: new Date().toISOString(),
     remarks: remarks || '',
   };
-  if (status === 'present') update.hours_attended = hours_attended;
+  if (status === 'approved') update.hours_attended = hours_attended;
 
   const { data, error } = await supabase
     .from('attendance')

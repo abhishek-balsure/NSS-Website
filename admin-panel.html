@@ -554,7 +554,7 @@
             <div class="att-meta"><i class="fas fa-calendar"></i> ${esc(act.title || '')} — ${fmtDate(act.activity_date)}</div>
             <div class="att-meta"><i class="fas fa-envelope"></i> ${esc(v.email || '')}</div>
             <div class="att-meta"><i class="fas fa-phone"></i> ${esc(v.mobile_no || '—')}</div>
-            ${a.notes ? `<div class="att-notes">"${esc(a.notes)}"</div>` : ''}
+            ${a.remarks ? `<div class="att-notes">"${esc(a.remarks)}"</div>` : ''}
             ${isRejected && a.remarks ? `<div class="att-notes" style="color:var(--danger)">Admin: ${esc(a.remarks)}</div>` : ''}
           </div>
           ${!isRejected ? `<div class="att-actions">

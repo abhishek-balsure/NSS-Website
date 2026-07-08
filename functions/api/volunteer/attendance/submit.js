@@ -10,7 +10,7 @@ export async function onRequest(context) {
     const formData = await request.formData();
     const activity_id = formData.get('activity_id');
     const photo = formData.get('photo');
-    const notes = formData.get('notes') || '';
+    const remarks = formData.get('notes') || '';
 
     if (!activity_id) return errorResponse('activity_id is required');
     if (!photo || !(photo instanceof File)) return errorResponse('photo file is required');
@@ -66,8 +66,7 @@ export async function onRequest(context) {
       activity_id,
       status: 'pending',
       photo_url: filePath,
-      notes,
-      submitted_by: vid,
+      remarks,
       hours_attended: 0,
     }).select().single();
 

@@ -95,6 +95,41 @@
     @media (max-width: 768px) {
       .profile-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Upcoming activities + RSVP ── */
+    .section-block { margin-bottom: 32px; }
+    .section-block h2 {
+      font-size: 1.1rem; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .activity-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .activity-card .act-info .title { font-weight: 600; margin-bottom: 4px; }
+    .activity-card .act-info .meta { font-size: 0.82rem; color: var(--text-muted); }
+    .rsvp-btns { display: flex; gap: 8px; }
+    .rsvp-btn {
+      padding: 8px 16px; border-radius: var(--radius-sm, 8px);
+      border: 1px solid var(--border-glass); background: transparent;
+      cursor: pointer; font-weight: 600; font-size: 0.85rem;
+      color: var(--text-secondary); transition: all 0.15s;
+    }
+    .rsvp-btn.yes.active { background: var(--success); color: #fff; border-color: var(--success); }
+    .rsvp-btn.no.active { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .rsvp-btn:hover { opacity: 0.85; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .history-table th, .history-table td {
+      padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-subtle);
+    }
+    .history-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+    .empty-note { color: var(--text-muted); font-size: 0.88rem; padding: 12px 0; }
   </style>
 </head>
 <body>
@@ -106,6 +141,7 @@
       </a>
       <div class="nav-links" id="navLinks">
         <a href="volunteer-dashboard.html" class="active"><i class="fas fa-user"></i> Dashboard</a>
+        <a href="volunteer-attendance.html"><i class="fas fa-camera"></i> Submit Attendance</a>
         <a href="#" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
         <a href="index.html">Home</a>
       </div>
@@ -128,7 +164,23 @@
         <div class="user-badge" id="userBadge"></div>
       </div>
 
+      <div class="section-block">
+        <h2><i class="fas fa-calendar-check" style="color:var(--accent)"></i> Upcoming Activities</h2>
+        <div id="upcomingActivities"><p class="empty-note">Loading...</p></div>
+      </div>
+
       <div class="profile-grid" id="profileContent"></div>
+
+      <div class="section-block">
+        <h2><i class="fas fa-clipboard-list" style="color:var(--accent)"></i> My Attendance History</h2>
+        <div style="overflow-x:auto">
+          <table class="history-table" id="historyTable" style="display:none">
+            <thead><tr><th>Activity</th><th>Date</th><th>Status</th><th>Hours</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-note" id="historyEmpty" style="display:none">No attendance submissions yet.</p>
+      </div>
     </div>
   </main>
 
@@ -185,6 +237,9 @@
         document.getElementById('profileContent').innerHTML = html;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('dashContent').style.display = 'block';
+
+        loadUpcomingActivities();
+        loadHistory();
       } catch (e) {
         console.error('Dashboard load error:', e);
         document.getElementById('loading').innerHTML =
@@ -195,6 +250,90 @@
           '</div>';
       }
     })();
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+    function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+    async function loadUpcomingActivities() {
+      const el = document.getElementById('upcomingActivities');
+      try {
+        const res = await fetch('/api/volunteer/activities');
+        if (!res.ok) throw new Error();
+        const { activities } = await res.json();
+        if (!activities || !activities.length) {
+          el.innerHTML = '<p class="empty-note">No upcoming activities right now — check back soon.</p>';
+          return;
+        }
+        el.innerHTML = activities.map(a => `
+          <div class="activity-card" data-activity-id="${esc(a.id)}">
+            <div class="act-info">
+              <div class="title">${esc(a.title)}</div>
+              <div class="meta">${fmtDate(a.activity_date)} &middot; ${esc(a.location || 'TBA')}</div>
+            </div>
+            <div class="rsvp-btns">
+              <button class="rsvp-btn yes ${a.my_rsvp === 'yes' ? 'active' : ''}" data-response="yes">
+                <i class="fas fa-check"></i> Attending
+              </button>
+              <button class="rsvp-btn no ${a.my_rsvp === 'no' ? 'active' : ''}" data-response="no">
+                <i class="fas fa-xmark"></i> Can't make it
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        el.querySelectorAll('.rsvp-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const card = btn.closest('.activity-card');
+            const activityId = card.dataset.activityId;
+            const response = btn.dataset.response;
+            btn.disabled = true;
+            try {
+              const r = await fetch('/api/volunteer/rsvp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activity_id: activityId, response }),
+              });
+              if (!r.ok) throw new Error();
+              card.querySelectorAll('.rsvp-btn').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+            } catch (e) {
+              alert('Could not save your response, please try again.');
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        });
+      } catch (e) {
+        el.innerHTML = '<p class="empty-note">Could not load upcoming activities.</p>';
+      }
+    }
+
+    async function loadHistory() {
+      const table = document.getElementById('historyTable');
+      const body = document.getElementById('historyBody');
+      const empty = document.getElementById('historyEmpty');
+      try {
+        const res = await fetch('/api/volunteer/attendance/history');
+        if (!res.ok) throw new Error();
+        const { attendance } = await res.json();
+        if (!attendance || !attendance.length) {
+          empty.style.display = 'block';
+          return;
+        }
+        body.innerHTML = attendance.map(a => `
+          <tr>
+            <td>${esc(a.activity ? a.activity.title : 'Unknown activity')}</td>
+            <td>${fmtDate(a.activity ? a.activity.activity_date : null)}</td>
+            <td><span class="status-badge ${esc(a.status)}">${esc(a.status)}</span></td>
+            <td>${a.hours_attended ?? '—'}</td>
+          </tr>
+        `).join('');
+        table.style.display = 'table';
+      } catch (e) {
+        empty.textContent = 'Could not load attendance history.';
+        empty.style.display = 'block';
+      }
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
       e.preventDefault();

@@ -134,6 +134,10 @@
     .act-status.ongoing { background: rgba(5,150,105,0.1); color: var(--success); }
     .act-status.completed { background: rgba(100,116,139,0.1); color: var(--text-muted); }
     .act-status.cancelled { background: rgba(220,38,38,0.1); color: var(--danger); }
+    .vol-status { display:inline-block; padding:4px 10px; border-radius:100px; font-size:0.75rem; font-weight:600; text-transform:capitalize; }
+    .vol-status.pending { background: rgba(245,158,11,0.12); color: var(--accent); }
+    .vol-status.approved { background: rgba(5,150,105,0.12); color: var(--success); }
+    .vol-status.rejected { background: rgba(220,38,38,0.12); color: var(--danger); }
     .act-actions { display: flex; gap: 6px; }
     .act-actions button {
       border: none; background: transparent;
@@ -271,6 +275,7 @@
         <div class="tab-bar">
           <button class="tab-btn active" data-tab="attendance"><i class="fas fa-clock"></i> Attendance Review</button>
           <button class="tab-btn" data-tab="activities"><i class="fas fa-calendar"></i> Manage Activities</button>
+          <button class="tab-btn" data-tab="volunteers"><i class="fas fa-users"></i> Volunteers</button>
         </div>
 
         <!-- ══ Attendance Tab ══ -->
@@ -302,6 +307,43 @@
           <div class="empty-state" id="actEmpty" style="display:none">
             <i class="fas fa-calendar-plus"></i>
             <p>No activities yet. Create one!</p>
+          </div>
+        </div>
+
+        <!-- ══ Volunteers Tab ══ -->
+        <div class="tab-panel" id="tabVolunteers">
+          <div class="act-toolbar">
+            <h2>All Volunteers</h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <input type="text" id="volSearch" placeholder="Search name, email, ref code..."
+                style="padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-glass);font-family:inherit;min-width:220px">
+              <select id="volStatusFilter" style="padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-glass);font-family:inherit">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn btn-outline" id="exportCsvBtn"><i class="fas fa-download"></i> Export CSV</button>
+            </div>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Ref Code</th>
+                  <th>Department</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th style="width:160px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="volTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="volEmpty" style="display:none">
+            <i class="fas fa-users"></i>
+            <p>No volunteers match your search.</p>
           </div>
         </div>
       </div>
@@ -430,6 +472,7 @@
     let adminData = null;
     let pendingAttachments = [];
     let activities = [];
+    let volunteers = [];
     let editingActivityId = null;
     let deletingActivityId = null;
     let approvingId = null;
@@ -445,6 +488,7 @@
         document.getElementById('panelContent').style.display = 'block';
         loadAttendance();
         loadActivities();
+        loadVolunteers();
       } catch { window.location.href = '/admin-login.html'; }
     })();
 
@@ -713,6 +757,107 @@
       e.preventDefault();
       await fetch('/api/admin/logout', { method: 'POST' });
       window.location.href = '/admin-login.html';
+    });
+
+    // =============================================
+    // ══ VOLUNTEERS ══
+    // =============================================
+    async function loadVolunteers() {
+      try {
+        const res = await fetch('/api/admin/volunteers/list');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        volunteers = data.volunteers || [];
+        renderVolunteers();
+      } catch (e) {
+        document.getElementById('volTableBody').innerHTML = '';
+        document.getElementById('volEmpty').style.display = 'block';
+      }
+    }
+
+    function getFilteredVolunteers() {
+      const q = (document.getElementById('volSearch').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('volStatusFilter').value;
+      return volunteers.filter(v => {
+        if (statusFilter && v.status !== statusFilter) return false;
+        if (!q) return true;
+        return (v.name || '').toLowerCase().includes(q)
+          || (v.email || '').toLowerCase().includes(q)
+          || (v.ref_code || '').toLowerCase().includes(q);
+      });
+    }
+
+    function renderVolunteers() {
+      const tbody = document.getElementById('volTableBody');
+      const empty = document.getElementById('volEmpty');
+      const filtered = getFilteredVolunteers();
+      if (!filtered.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = filtered.map(v => `<tr>
+        <td><strong>${esc(v.name)}</strong></td>
+        <td>${esc(v.ref_code)}</td>
+        <td>${esc(v.department || '—')}</td>
+        <td>${esc(v.email)}</td>
+        <td><span class="vol-status ${esc(v.status)}">${esc(v.status)}</span></td>
+        <td>
+          <div class="act-actions">
+            ${v.status !== 'approved' ? `<button class="edit-btn" title="Approve" data-vol-action="approved" data-vol-id="${esc(v.id)}"><i class="fas fa-check"></i></button>` : ''}
+            ${v.status !== 'rejected' ? `<button class="del-btn" title="Reject" data-vol-action="rejected" data-vol-id="${esc(v.id)}"><i class="fas fa-xmark"></i></button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+
+      tbody.querySelectorAll('[data-vol-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.volId;
+          const status = btn.dataset.volAction;
+          btn.disabled = true;
+          try {
+            const res = await fetch(`/api/admin/volunteers/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status }),
+            });
+            if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+            toast(`Volunteer ${status}`);
+            await loadVolunteers();
+          } catch (e) {
+            toast(e.message, 'error');
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
+    document.getElementById('volSearch').addEventListener('input', renderVolunteers);
+    document.getElementById('volStatusFilter').addEventListener('change', renderVolunteers);
+
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      const rows = getFilteredVolunteers();
+      if (!rows.length) { toast('Nothing to export', 'error'); return; }
+
+      const cols = ['ref_code', 'name', 'email', 'mobile_no', 'department', 'academic_year', 'class', 'roll_no', 'status', 'created_at'];
+      const csvEscape = (val) => {
+        const s = (val ?? '').toString();
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      };
+      const header = cols.join(',');
+      const lines = rows.map(v => cols.map(c => csvEscape(v[c])).join(','));
+      const csv = [header, ...lines].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'nss_volunteers_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     });
 
     // ── Utils ──

@@ -28,6 +28,7 @@
             padding: 48px;
             max-width: 640px;
             width: 100%;
+            min-height: 480px;
             position: relative;
             overflow: hidden;
         }
@@ -240,6 +241,7 @@
             display: none;
             position: absolute;
             inset: 0;
+            min-height: 480px;
             background: var(--bg-body);
             z-index: 10;
             flex-direction: column;
@@ -848,10 +850,11 @@
                     document.getElementById('downloadPdfBtn').onclick = function () {
                         var container = document.getElementById('printFormContainer');
                         var printable = document.getElementById('printableForm');
+                        container.style.display = 'block';
                         printable.style.display = 'block';
                         if (typeof html2pdf === 'undefined') {
                             alert('PDF library not loaded. Use Print and choose "Save as PDF".');
-                            printable.style.display = 'none';
+                            container.style.display = 'none';
                             return;
                         }
                         html2pdf().set({
@@ -860,17 +863,16 @@
                             image: { type: 'jpeg', quality: 0.98 },
                             html2canvas: { scale: 2, useCORS: true },
                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                        }).from(container).save()
-                        .then(function () { printable.style.display = 'none'; })
+                        }).from(printable).save()
+                        .then(function () { container.style.display = 'none'; })
                         .catch(function () {
                             alert('PDF generation failed. Use the Print button instead.');
-                            printable.style.display = 'none';
+                            container.style.display = 'none';
                         });
                     };
 
                     // Set up Print
                     document.getElementById('printFormBtn').onclick = function () {
-                        var container = document.getElementById('printFormContainer');
                         var printable = document.getElementById('printableForm');
                         printable.style.display = 'block';
                         var styleContent = '@page { size: A4; margin: 10mm; } body { margin: 0; padding: 0; }';
@@ -884,9 +886,9 @@
                             '<!DOCTYPE html><html><head><meta charset="UTF-8">',
                             '<title>NSS Enrollment - ' + formData.Name + '</title>',
                             '<style>' + styleContent + '.printable-form { display: block !important; }</style>',
-                            '</head><body><div class="printable-form" style="display:block">',
-                            container.outerHTML,
-                            '</div></body></html>'
+                            '</head><body>',
+                            printable.outerHTML,
+                            '</body></html>'
                         ].join('\n');
                         var blob = new Blob([htmlContent], { type: 'text/html' });
                         var blobUrl = URL.createObjectURL(blob);
@@ -907,6 +909,7 @@
 
                     // Show success
                     document.getElementById('regCodeDisplay').textContent = refId;
+                    enrollmentForm.style.display = 'none';
                     document.getElementById('successOverlay').classList.add('active');
                     enrollmentForm.reset();
                     console.log('Enrollment saved:', data);

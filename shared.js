@@ -123,4 +123,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // ── Session-aware navbar (volunteer) ──
+    // Public pages (index, activities, etc.) always render "Sign In / Join NSS"
+    // in their HTML by default. This checks the actual session and swaps in
+    // an account link / hides "Join NSS" if the visitor is already logged in.
+    // Skipped automatically on pages without this nav pattern (dashboards,
+    // login/signup pages, admin pages already handle their own nav).
+    (async function checkVolunteerSession() {
+        const nav = document.getElementById('navLinks');
+        if (!nav) return;
+        const signInLink = nav.querySelector('a[href="volunteer-login.html"]');
+        const joinLink = nav.querySelector('a[href="form.html"].nav-cta');
+        if (!signInLink && !joinLink) return; // not the public nav pattern
+
+        try {
+            const res = await fetch('/api/volunteer/me');
+            if (!res.ok) return; // not logged in — leave nav as-is
+            const { user } = await res.json();
+            if (!user) return;
+
+            if (signInLink) {
+                const firstName = (user.name || 'Account').split(' ')[0];
+                const accountLink = document.createElement('a');
+                accountLink.href = 'volunteer-dashboard.html';
+                accountLink.className = 'nav-account';
+                accountLink.innerHTML = `<span class="account-emoji">👤</span> ${firstName}`;
+                signInLink.replaceWith(accountLink);
+            }
+            if (joinLink) joinLink.remove(); // already a volunteer, hide registration CTA
+        } catch (e) {
+            // Not logged in or a network hiccup — leave the public nav untouched
+        }
+    })();
 });

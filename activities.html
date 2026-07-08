@@ -11,6 +11,35 @@
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
+        .activity-marquee {
+            overflow: hidden;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-glass);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 14px 0;
+            white-space: nowrap;
+        }
+        .activity-marquee .marquee-track {
+            display: inline-flex;
+            align-items: center;
+            animation: marquee-scroll 30s linear infinite;
+        }
+        .activity-marquee:hover .marquee-track { animation-play-state: paused; }
+        .activity-marquee .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 48px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .activity-marquee .marquee-item i { color: var(--accent); }
+        .activity-marquee .marquee-item .m-date { color: var(--text-muted); font-weight: 500; }
+        @keyframes marquee-scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
         /* ── Activities page styles ── */
         .page-header {
             padding: calc(var(--nav-height) + 60px) 0 40px;
@@ -513,6 +542,10 @@
                     national pride, social awareness, and community service.</p>
             </div>
         </section>
+
+        <div class="activity-marquee" id="activityMarquee" style="display:none">
+            <div class="marquee-track" id="marqueeTrack"></div>
+        </div>
 
         <section class="section-padding" style="padding-top: 0;">
             <div class="container">
@@ -1285,6 +1318,34 @@
 
     <script src="shared.js"></script>
     <script>
+        // ── Upcoming activities marquee ──
+        (async function loadMarquee() {
+            const banner = document.getElementById('activityMarquee');
+            const track = document.getElementById('marqueeTrack');
+            try {
+                const res = await fetch('/api/activities/list?status=upcoming');
+                if (!res.ok) throw new Error();
+                const { activities } = await res.json();
+                if (!activities || !activities.length) return; // stays hidden
+
+                const fmt = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+                const esc = (s) => { const div = document.createElement('div'); div.textContent = s ?? ''; return div.innerHTML; };
+
+                const itemsHtml = activities.map(a => `
+                    <span class="marquee-item">
+                        <i class="fas fa-star"></i> ${esc(a.title)}
+                        <span class="m-date">— ${fmt(a.activity_date)}${a.location ? ' · ' + esc(a.location) : ''}</span>
+                    </span>
+                `).join('');
+
+                // Duplicate content so the -50% translateX loop is seamless
+                track.innerHTML = itemsHtml + itemsHtml;
+                banner.style.display = 'block';
+            } catch (e) {
+                // Silently leave the marquee hidden if activities can't be loaded
+            }
+        })();
+
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         const grid = document.getElementById('activitiesGrid');

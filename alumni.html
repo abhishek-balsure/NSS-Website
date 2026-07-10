@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Alumni success stories from Sarhad College NSS unit — inspiring journeys of former volunteers.">
+  <title>Alumni — Sarhad NSS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .page-header {
+      padding: calc(var(--nav-height) + 60px) 0 40px;
+      text-align: center;
+    }
+    .page-header h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
+    .page-header p { color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+
+    .alumni-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding-bottom: 80px;
+    }
+    .alumni-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 32px 24px !important;
+    }
+    .alumni-card .alumni-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+      margin-bottom: 16px;
+      border: 3px solid var(--accent-light);
+      background: var(--bg-card-hover);
+    }
+    .alumni-card .alumni-photo-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--radius-full);
+      margin-bottom: 16px;
+      border: 3px solid var(--border-glass);
+      background: var(--bg-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: var(--text-muted);
+    }
+    .alumni-card h3 { font-size: 1.15rem; margin-bottom: 4px; }
+    .alumni-card .profession {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    .alumni-card .company {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .alumni-card .grad-year {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .alumni-card .btn-read {
+      padding: 8px 22px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-top: auto;
+    }
+    .alumni-card .btn-read:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 36px 32px;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-content .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+    .modal-content .modal-close:hover { color: var(--text-primary); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .modal-header img {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+      border: 2px solid var(--accent-light);
+    }
+    .modal-header .modal-placeholder {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      background: var(--bg-glass);
+      border: 2px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .modal-header .modal-title h2 { font-size: 1.3rem; margin-bottom: 2px; }
+    .modal-header .modal-title .subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+    .modal-body { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
+    .modal-body p { margin-bottom: 16px; }
+    .modal-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .modal-footer .btn-linkedin {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      background: #0a66c2;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .modal-footer .btn-linkedin:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .loading-state i { font-size: 2rem; margin-bottom: 16px; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 16px; }
+
+    @media (max-width: 600px) {
+      .alumni-grid { grid-template-columns: 1fr; }
+      .modal-content { padding: 24px 20px; }
+      .modal-header { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        Sarhad<span>NSS</span>
+      </a>
+      <div class="nav-logos-strip">
+        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+        <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="activities.html">Activities</a>
+        <a href="events.html">Events</a>
+        <a href="resources.html">Resources</a>
+        <a href="alumni.html" class="active">Alumni</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="contactus.html">Contact</a>
+        <a href="volunteer-login.html">Sign In</a>
+        <a href="form.html" class="nav-cta">Join NSS</a>
+        <a href="admin-login.html" class="nav-admin">Admin</a>
+      </div>
+      <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <section class="page-header">
+    <div class="container">
+      <h1>Alumni Success Stories</h1>
+      <p>Inspiring journeys of former NSS volunteers making a difference.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="alumni-grid" id="alumniGrid">
+        <div class="loading-state" id="loadingState">
+          <i class="fas fa-circle-notch fa-spin"></i>
+          <p>Loading alumni stories…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="storyModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      <div class="modal-header" id="modalHeader"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Sarhad<span>NSS</span></h3>
+          <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          </div>
+          <div class="footer-logos-strip">
+            <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+            <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+            <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="aboutus.html">About Us</a>
+          <a href="activities.html">Activities</a>
+          <a href="events.html">Events</a>
+          <a href="resources.html">Resources</a>
+          <a href="alumni.html">Alumni</a>
+          <a href="quiz.html">NSS Quiz</a>
+          <a href="contactus.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Get Involved</h4>
+          <a href="form.html">Join NSS</a>
+          <a href="activities.html">Our Activities</a>
+          <a href="contactus.html">Volunteer</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <p>+91 9850XXXXXX</p>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script>
+    (async function loadAlumni() {
+      const grid = document.getElementById('alumniGrid');
+      const loading = document.getElementById('loadingState');
+      const modal = document.getElementById('storyModal');
+      const modalClose = document.getElementById('modalClose');
+      const modalHeader = document.getElementById('modalHeader');
+      const modalBody = document.getElementById('modalBody');
+      const modalFooter = document.getElementById('modalFooter');
+
+      modalClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.classList.remove('active'); });
+
+      try {
+        const res = await fetch('/api/alumni/list');
+        const data = await res.json();
+
+        if (!data.alumni || data.alumni.length === 0) {
+          loading.innerHTML = '<i class="fas fa-users"></i><p>No alumni stories yet. Check back soon!</p>';
+          return;
+        }
+
+        loading.remove();
+
+        data.alumni.forEach(a => {
+          const card = document.createElement('div');
+          card.className = 'alumni-card glass-card';
+
+          if (a.photo_url) {
+            const img = document.createElement('img');
+            img.className = 'alumni-photo';
+            img.src = a.photo_url;
+            img.alt = a.name;
+            img.loading = 'lazy';
+            card.appendChild(img);
+          } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'alumni-photo-placeholder';
+            placeholder.innerHTML = '<i class="fas fa-user-graduate"></i>';
+            card.appendChild(placeholder);
+          }
+
+          const name = document.createElement('h3');
+          name.textContent = a.name;
+          card.appendChild(name);
+
+          const prof = document.createElement('div');
+          prof.className = 'profession';
+          prof.textContent = a.profession;
+          card.appendChild(prof);
+
+          if (a.company) {
+            const comp = document.createElement('div');
+            comp.className = 'company';
+            comp.textContent = a.company;
+            card.appendChild(comp);
+          }
+
+          const year = document.createElement('div');
+          year.className = 'grad-year';
+          year.textContent = a.graduation_year ? `Class of ${a.graduation_year}` : '';
+          card.appendChild(year);
+
+          const btn = document.createElement('button');
+          btn.className = 'btn-read';
+          btn.textContent = 'Read More';
+          btn.addEventListener('click', () => {
+            modalHeader.innerHTML = `
+              ${a.photo_url ? `<img src="${a.photo_url}" alt="${a.name}">` : '<div class="modal-placeholder"><i class="fas fa-user-graduate"></i></div>'}
+              <div class="modal-title">
+                <h2>${a.name}</h2>
+                <div class="subtitle">${a.profession}${a.company ? ' at ' + a.company : ''}${a.graduation_year ? ' · Class of ' + a.graduation_year : ''}</div>
+              </div>
+            `;
+            modalBody.innerHTML = a.story_content ? `<p>${a.story_content.replace(/\n/g, '</p><p>')}</p>` : '<p>No story content available.</p>';
+            modalFooter.innerHTML = a.linkedin_url
+              ? `<a href="${a.linkedin_url}" target="_blank" rel="noopener" class="btn-linkedin"><i class="fab fa-linkedin-in"></i> View LinkedIn</a>`
+              : '';
+            modal.classList.add('active');
+          });
+          card.appendChild(btn);
+
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        loading.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Failed to load alumni stories. Please try again later.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

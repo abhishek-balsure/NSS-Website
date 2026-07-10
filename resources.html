@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Download NSS resources — annual reports, posters, forms, guidelines and more from Sarhad College NSS unit.">
+  <title>Resources — Sarhad NSS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .page-header {
+      padding: calc(var(--nav-height) + 60px) 0 40px;
+      text-align: center;
+    }
+    .page-header h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
+    .page-header p { color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      padding-bottom: 80px;
+    }
+    .resource-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .resource-card .card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .resource-card .card-body p {
+      flex: 1;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin: 12px 0 16px;
+      line-height: 1.6;
+    }
+    .resource-card .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      width: fit-content;
+      margin-bottom: 8px;
+    }
+    .resource-card .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: auto;
+    }
+    .resource-card .card-footer .date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .resource-card .card-footer .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .resource-card .card-footer .btn-download:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      padding: 16px 20px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+    }
+    .filter-bar label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+    .filter-bar select {
+      padding: 8px 14px;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      cursor: pointer;
+    }
+    .filter-bar select:focus { border-color: var(--accent); }
+
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .loading-state i { font-size: 2rem; margin-bottom: 16px; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 16px; color: var(--text-muted); }
+
+    @media (max-width: 600px) {
+      .resources-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        Sarhad<span>NSS</span>
+      </a>
+      <div class="nav-logos-strip">
+        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+        <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="activities.html">Activities</a>
+        <a href="events.html">Events</a>
+        <a href="resources.html" class="active">Resources</a>
+        <a href="alumni.html">Alumni</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="contactus.html">Contact</a>
+        <a href="volunteer-login.html">Sign In</a>
+        <a href="form.html" class="nav-cta">Join NSS</a>
+        <a href="admin-login.html" class="nav-admin">Admin</a>
+      </div>
+      <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <section class="page-header">
+    <div class="container">
+      <h1>Resource Hub</h1>
+      <p>Download reports, posters, forms, and other NSS resources.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="filter-bar">
+        <label for="categoryFilter"><i class="fas fa-filter"></i> Category</label>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      <div class="resources-grid" id="resourcesGrid">
+        <div class="loading-state" id="loadingState">
+          <i class="fas fa-circle-notch fa-spin"></i>
+          <p>Loading resources…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Sarhad<span>NSS</span></h3>
+          <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          </div>
+          <div class="footer-logos-strip">
+            <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+            <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+            <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="aboutus.html">About Us</a>
+          <a href="activities.html">Activities</a>
+          <a href="events.html">Events</a>
+          <a href="resources.html">Resources</a>
+          <a href="alumni.html">Alumni</a>
+          <a href="quiz.html">NSS Quiz</a>
+          <a href="contactus.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Get Involved</h4>
+          <a href="form.html">Join NSS</a>
+          <a href="activities.html">Our Activities</a>
+          <a href="contactus.html">Volunteer</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <p>+91 9850XXXXXX</p>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script>
+    (async function loadResources() {
+      const grid = document.getElementById('resourcesGrid');
+      const loading = document.getElementById('loadingState');
+      const filter = document.getElementById('categoryFilter');
+
+      try {
+        const res = await fetch('/api/resources/list');
+        const data = await res.json();
+
+        if (!data.resources || data.resources.length === 0) {
+          loading.innerHTML = '<i class="fas fa-folder-open"></i><p>No resources available yet.</p>';
+          return;
+        }
+
+        loading.remove();
+
+        const categories = [...new Set(data.resources.map(r => r.category).filter(Boolean))];
+        categories.sort().forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          filter.appendChild(opt);
+        });
+
+        function render(category) {
+          const items = category ? data.resources.filter(r => r.category === category) : data.resources;
+          grid.innerHTML = items.map(r => {
+            const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+            return `
+              <div class="resource-card glass-card">
+                <div class="card-body">
+                  ${r.category ? `<span class="category-badge"><i class="fas fa-tag"></i> ${r.category}</span>` : ''}
+                  <h3>${r.title}</h3>
+                  ${r.description ? `<p>${r.description}</p>` : ''}
+                </div>
+                <div class="card-footer">
+                  <span class="date"><i class="far fa-calendar-alt"></i> ${date}</span>
+                  <a href="${r.file_url}" target="_blank" rel="noopener" class="btn-download">
+                    <i class="fas fa-download"></i> Download
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('');
+          if (!items.length) {
+            grid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>No resources in this category.</p></div>';
+          }
+        }
+
+        filter.addEventListener('change', () => render(filter.value));
+        render('');
+      } catch (e) {
+        loading.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Failed to load resources. Please try again later.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

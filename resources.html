@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Download NSS resources — annual reports, posters, forms, guidelines and more from Sarhad College NSS unit.">
+  <meta name="description" content="Download NSS resources — reports, guides, calendars, posters and more.">
   <title>Resources — Sarhad NSS</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="shared.css">
@@ -12,120 +12,79 @@
     .page-header {
       padding: calc(var(--nav-height) + 60px) 0 40px;
       text-align: center;
+      position: relative;
     }
-    .page-header h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
-    .page-header p { color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+    .page-header::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%); width: 100%; max-width: 600px; height: 400px;
+      background: radial-gradient(circle, rgba(37,99,235,0.06), transparent 60%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .page-header h1 { font-size: clamp(2.2rem,5vw,3.2rem); font-weight: 900; margin-bottom: 16px; }
+    .page-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 650px; margin: 0 auto; }
+
+    .resources-toolbar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 20px; border: 1px solid var(--border-glass); border-radius: 100px;
+      background: var(--bg-card); color: var(--text-secondary); font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+      font-family: 'Inter', sans-serif;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
     .resources-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      padding-bottom: 80px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
     }
     .resource-card {
-      display: flex;
-      flex-direction: column;
+      background: var(--bg-glass); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+      padding: 28px 24px 24px; transition: all var(--transition-normal);
+      box-shadow: var(--shadow-sm); display: flex; flex-direction: column;
     }
-    .resource-card .card-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    .resource-card:hover {
+      background: var(--bg-card-hover); transform: translateY(-4px); box-shadow: var(--shadow-md);
     }
-    .resource-card .card-body p {
-      flex: 1;
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-      margin: 12px 0 16px;
-      line-height: 1.6;
+    .resource-card .cat-badge {
+      display: inline-block; align-self: flex-start;
+      padding: 4px 12px; border-radius: 100px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;
     }
-    .resource-card .category-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 4px 12px;
-      border-radius: 100px;
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--accent);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      width: fit-content;
-      margin-bottom: 8px;
+    .cat-badge.reports { background: rgba(37,99,235,0.1); color: #2563eb; }
+    .cat-badge.guides { background: rgba(5,150,105,0.1); color: #059669; }
+    .cat-badge.calendars { background: rgba(245,158,11,0.1); color: #b45309; }
+    .cat-badge.posters { background: rgba(124,58,237,0.1); color: #7c3aed; }
+    .cat-badge.general { background: rgba(100,116,139,0.1); color: var(--text-muted); }
+    .resource-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    .resource-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; flex: 1; margin-bottom: 18px; }
+    .resource-card .btn-download {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600;
+      font-size: 0.85rem; background: var(--accent); color: #fff; border: none;
+      cursor: pointer; transition: all var(--transition-fast); align-self: flex-start;
+      font-family: 'Inter', sans-serif; text-decoration: none;
     }
-    .resource-card .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-subtle);
-      margin-top: auto;
-    }
-    .resource-card .card-footer .date {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .resource-card .card-footer .btn-download {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .resource-card .card-footer .btn-download:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
+    .resource-card .btn-download:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 32px;
-      padding: 16px 20px;
-      background: var(--bg-glass);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-md);
-    }
-    .filter-bar label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
-    .filter-bar select {
-      padding: 8px 14px;
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-sm);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      cursor: pointer;
-    }
-    .filter-bar select:focus { border-color: var(--accent); }
+    .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+    .empty-state i { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 16px; }
+    .empty-state h3 { color: var(--text-secondary); margin-bottom: 8px; }
+    .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
 
-    .loading-state, .empty-state {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--text-muted);
-    }
-    .loading-state i { font-size: 2rem; margin-bottom: 16px; }
-    .empty-state i { font-size: 2.5rem; margin-bottom: 16px; color: var(--text-muted); }
+    #loadingSpinner { text-align: center; padding: 60px 0; grid-column: 1 / -1; }
+    .spinner { animation: spin 0.8s linear infinite; font-size: 2rem; color: var(--accent); }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 600px) {
-      .resources-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 1024px) { .resources-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .resources-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .resources-toolbar { flex-direction: column; align-items: stretch; } }
   </style>
 </head>
 <body>
 
+  <!-- Navigation -->
   <nav class="navbar" id="navbar">
     <div class="container">
       <a href="index.html" class="nav-logo">
@@ -157,45 +116,40 @@
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
 
-  <section class="page-header">
-    <div class="container">
-      <h1>Resource Hub</h1>
-      <p>Download reports, posters, forms, and other NSS resources.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <div class="filter-bar">
-        <label for="categoryFilter"><i class="fas fa-filter"></i> Category</label>
-        <select id="categoryFilter">
-          <option value="">All Categories</option>
-        </select>
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <span class="hero-badge"><i class="fas fa-download"></i> Resource Hub</span>
+        <h1>Downloads &amp; Resources</h1>
+        <p>Access NSS reports, handbooks, calendars, posters and more — all in one place.</p>
       </div>
-      <div class="resources-grid" id="resourcesGrid">
-        <div class="loading-state" id="loadingState">
-          <i class="fas fa-circle-notch fa-spin"></i>
-          <p>Loading resources…</p>
+    </section>
+
+    <section class="section-padding" style="padding-top:0">
+      <div class="container">
+        <div class="resources-toolbar" id="toolbar">
+          <button class="filter-btn active" data-category="all">All</button>
+        </div>
+        <div class="resources-grid" id="resourcesGrid">
+          <div id="loadingSpinner"><i class="fas fa-circle-notch spinner"></i></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
           <h3>Sarhad<span>NSS</span></h3>
-          <p>Empowering youth through community service since 2008. Building a better society, one volunteer at a time.</p>
+          <p>Empowering youth through community service since 2008.</p>
           <div class="footer-social">
             <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
             <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
           </div>
           <div class="footer-logos-strip">
-            <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
-            <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
-            <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+            <img src="logos/nss.jpg" alt="NSS Logo"><img src="logos/clg.jpg" alt="Sarhad College Logo"><img src="logos/sppu.jpg" alt="SPPU Logo">
           </div>
         </div>
         <div class="footer-col">
@@ -217,18 +171,9 @@
         </div>
         <div class="footer-col">
           <h4>Contact</h4>
-          <div class="contact-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
-          </div>
-          <div class="contact-item">
-            <i class="fas fa-phone"></i>
-            <p>+91 9850XXXXXX</p>
-          </div>
-          <div class="contact-item">
-            <i class="fas fa-envelope"></i>
-            <p><a href="mailto:nssposarhad@gmail.com" style="color: var(--accent);">nssposarhad@gmail.com</a></p>
-          </div>
+          <div class="contact-item"><i class="fas fa-map-marker-alt"></i><p>Sarhad College, Katraj, Pune-46</p></div>
+          <div class="contact-item"><i class="fas fa-phone"></i><p>+91 9850XXXXXX</p></div>
+          <div class="contact-item"><i class="fas fa-envelope"></i><p><a href="mailto:nssposarhad@gmail.com" style="color:var(--accent)">nssposarhad@gmail.com</a></p></div>
         </div>
       </div>
       <div class="footer-bottom">
@@ -241,58 +186,62 @@
   <script>
     (async function loadResources() {
       const grid = document.getElementById('resourcesGrid');
-      const loading = document.getElementById('loadingState');
-      const filter = document.getElementById('categoryFilter');
+      const toolbar = document.getElementById('toolbar');
+      let allResources = [];
 
       try {
         const res = await fetch('/api/resources/list');
-        const data = await res.json();
+        if (!res.ok) throw new Error('Failed to load');
+        const json = await res.json();
+        allResources = json.resources || [];
+      } catch (e) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Could not load resources</h3><p>Please try again later.</p></div>';
+        return;
+      }
 
-        if (!data.resources || data.resources.length === 0) {
-          loading.innerHTML = '<i class="fas fa-folder-open"></i><p>No resources available yet.</p>';
+      if (!allResources.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No resources yet</h3><p>Check back soon for updates.</p></div>';
+        return;
+      }
+
+      const categories = [...new Set(allResources.map(r => r.category))];
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.category = cat;
+        btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        toolbar.appendChild(btn);
+      });
+
+      function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+      function render(category) {
+        const filtered = category === 'all' ? allResources : allResources.filter(r => r.category === category);
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><h3>No resources in this category</h3></div>';
           return;
         }
-
-        loading.remove();
-
-        const categories = [...new Set(data.resources.map(r => r.category).filter(Boolean))];
-        categories.sort().forEach(cat => {
-          const opt = document.createElement('option');
-          opt.value = cat;
-          opt.textContent = cat;
-          filter.appendChild(opt);
-        });
-
-        function render(category) {
-          const items = category ? data.resources.filter(r => r.category === category) : data.resources;
-          grid.innerHTML = items.map(r => {
-            const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            return `
-              <div class="resource-card glass-card">
-                <div class="card-body">
-                  ${r.category ? `<span class="category-badge"><i class="fas fa-tag"></i> ${r.category}</span>` : ''}
-                  <h3>${r.title}</h3>
-                  ${r.description ? `<p>${r.description}</p>` : ''}
-                </div>
-                <div class="card-footer">
-                  <span class="date"><i class="far fa-calendar-alt"></i> ${date}</span>
-                  <a href="${r.file_url}" target="_blank" rel="noopener" class="btn-download">
-                    <i class="fas fa-download"></i> Download
-                  </a>
-                </div>
-              </div>
-            `;
-          }).join('');
-          if (!items.length) {
-            grid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>No resources in this category.</p></div>';
-          }
-        }
-
-        filter.addEventListener('change', () => render(filter.value));
-        render('');
-      } catch (e) {
-        loading.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Failed to load resources. Please try again later.</p>';
+        grid.innerHTML = filtered.map(r => `
+          <div class="resource-card">
+            <span class="cat-badge ${esc(r.category)}">${esc(r.category)}</span>
+            <h3>${esc(r.title)}</h3>
+            ${r.description ? `<p>${esc(r.description)}</p>` : '<p style="margin-bottom:18px"></p>'}
+            <a href="${esc(r.file_url)}" class="btn-download" target="_blank" download>
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+        `).join('');
       }
+
+      toolbar.addEventListener('click', e => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        toolbar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        render(btn.dataset.category);
+      });
+
+      render('all');
     })();
   </script>
 </body>

@@ -1,7 +1,3 @@
-/*
-  Requires table: alumni_stories (see /api/resources/list.js for full schema)
-*/
-
 import { createSupabase, jsonResponse, errorResponse } from '../../_utils.js';
 
 export async function onRequest(context) {
@@ -12,11 +8,10 @@ export async function onRequest(context) {
 
   const supabase = createSupabase(env);
 
-  const { data, error } = await supabase
-    .from('alumni_stories')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let query = supabase.from('alumni_stories').select('*', { count: 'exact' });
+  query = query.order('graduation_year', { ascending: false });
 
+  const { data, error, count } = await query;
   if (error) return errorResponse(error.message, 400);
-  return jsonResponse({ alumni: data });
+  return jsonResponse({ stories: data, count });
 }

@@ -126,6 +126,7 @@
         <a href="volunteer-login.html">Sign In</a>
         <a href="volunteer-signup.html" class="nav-cta active">Join NSS</a>
       </div>
+      <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
       <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
       </button>
@@ -184,7 +185,7 @@
           <label for="password">Password</label>
           <div class="input-wrap">
             <i class="fas fa-lock"></i>
-            <input type="password" id="password" placeholder="Min. 6 characters" minlength="6" required autocomplete="new-password">
+            <input type="password" id="password" placeholder="Min. 6 characters" minlength="6" data-validate="password" required autocomplete="new-password">
           </div>
           <span class="error-text">Password must be at least 6 characters</span>
         </div>
@@ -193,7 +194,7 @@
           <label for="confirm">Confirm Password</label>
           <div class="input-wrap">
             <i class="fas fa-lock"></i>
-            <input type="password" id="confirm" placeholder="Repeat password" minlength="6" required autocomplete="new-password">
+            <input type="password" id="confirm" placeholder="Repeat password" minlength="6" data-validate="confirm-password" required autocomplete="new-password">
           </div>
           <span class="error-text">Passwords do not match</span>
         </div>

@@ -396,6 +396,7 @@
                 <a href="form.html" class="nav-cta">Join NSS</a>
                 <a href="admin-login.html" class="nav-admin">Admin</a>
             </div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
             <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
                 <span></span>
                 <span></span>
@@ -621,7 +622,7 @@
                         </div>
                         <div class="form-group">
                             <label for="MobileNo">Mobile Number <span class="required">*</span></label>
-                            <input type="tel" id="MobileNo" name="MobileNo" placeholder="10-digit mobile number" maxlength="10" required>
+                            <input type="tel" id="MobileNo" name="MobileNo" placeholder="10-digit mobile number" maxlength="10" data-validate="phone" required>
                             <span class="error-text">Enter a valid 10-digit number</span>
                         </div>
                     </div>
@@ -629,7 +630,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="EmergencyNo">Emergency Contact No. <span class="required">*</span></label>
-                            <input type="tel" id="EmergencyNo" name="EmergencyNo" placeholder="Parent / guardian number" maxlength="10" required>
+                            <input type="tel" id="EmergencyNo" name="EmergencyNo" placeholder="Parent / guardian number" maxlength="10" data-validate="phone" required>
                             <span class="error-text">Enter a valid emergency number</span>
                         </div>
                         <div class="form-group">

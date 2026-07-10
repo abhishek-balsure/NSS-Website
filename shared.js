@@ -19,6 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
         handleScroll();
     }
 
+    // ── Dark Mode Toggle ──
+    (function initTheme() {
+        const saved = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+
+        const toggleBtn = document.querySelector('.theme-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+            });
+        }
+    })();
+
     // ── Hamburger Menu ──
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -123,6 +139,88 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // ── Real-Time Form Validation ──
+    function validateField(input) {
+        const group = input.closest('.form-group');
+        if (!group) return { valid: true };
+        const errorText = group.querySelector('.error-text');
+        const valType = input.dataset.validate || '';
+        let valid = true;
+        let message = '';
+
+        if (input.hasAttribute('required') && !input.value.trim()) {
+            valid = false;
+            message = 'This field is required';
+        }
+
+        if (valid && input.value.trim()) {
+            if (valType === 'email' || input.type === 'email') {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
+                    valid = false;
+                    message = 'Please enter a valid email address';
+                }
+            } else if (valType === 'phone' || input.name === 'phone' || input.name === 'mobile') {
+                if (input.value.replace(/\D/g, '').length !== 10) {
+                    valid = false;
+                    message = 'Phone number must be 10 digits';
+                }
+            } else if (valType === 'password') {
+                if (input.value.length < 6) {
+                    valid = false;
+                    message = 'Password must be at least 6 characters';
+                }
+            } else if (valType === 'confirm-password') {
+                const pwd = document.getElementById('password') || document.querySelector('[data-validate="password"]');
+                if (pwd && input.value !== pwd.value) {
+                    valid = false;
+                    message = 'Passwords do not match';
+                }
+            }
+        }
+
+        group.classList.remove('valid', 'error');
+        let icon = group.querySelector('.validation-icon');
+
+        if (valid && input.value.trim()) {
+            group.classList.add('valid');
+            if (!icon) {
+                icon = document.createElement('span');
+                icon.className = 'validation-icon';
+                icon.innerHTML = '<i class="fas fa-check"></i>';
+                input.after(icon);
+            } else {
+                icon.className = 'validation-icon icon-check';
+                icon.innerHTML = '<i class="fas fa-check"></i>';
+            }
+        } else if (!valid) {
+            group.classList.add('error');
+            if (!icon) {
+                icon = document.createElement('span');
+                icon.className = 'validation-icon';
+                icon.innerHTML = '<i class="fas fa-times"></i>';
+                input.after(icon);
+            } else {
+                icon.className = 'validation-icon icon-cross';
+                icon.innerHTML = '<i class="fas fa-times"></i>';
+            }
+        } else {
+            if (icon) icon.remove();
+        }
+
+        if (errorText) errorText.textContent = message;
+        return { valid, message };
+    }
+
+    document.querySelectorAll('.form-group input, .form-group select, .form-group textarea').forEach(input => {
+        if (input.hasAttribute('data-validate') || input.hasAttribute('required') || input.type === 'email' || input.type === 'tel' || input.name === 'phone' || input.name === 'mobile') {
+            input.addEventListener('input', () => validateField(input));
+            input.addEventListener('blur', () => validateField(input));
+        }
+    });
+
+    // Expose for inline use
+    window.validateField = validateField;
 
     // ── Session-aware navbar (volunteer) ──
     // Public pages (index, activities, etc.) always render "Sign In / Join NSS"

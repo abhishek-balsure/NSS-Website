@@ -122,13 +122,13 @@ export async function verifyAdminSession(request, env) {
 
 export function setAdminCookieHeaders(token) {
   return {
-    'Set-Cookie': `${ADMIN_SID}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Strict; Path=/api/admin; Max-Age=${SID_MAX_AGE}`,
+    'Set-Cookie': `${ADMIN_SID}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${SID_MAX_AGE}`,
   };
 }
 
 export function clearAdminCookieHeaders() {
   return {
-    'Set-Cookie': `${ADMIN_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api/admin; Max-Age=0`,
+    'Set-Cookie': `${ADMIN_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`,
   };
 }
 
@@ -143,13 +143,13 @@ export async function verifyVolunteerSession(request, env) {
 
 export function setVolunteerCookieHeaders(token) {
   return {
-    'Set-Cookie': `${VOL_SID}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Strict; Path=/api/volunteer; Max-Age=${SID_MAX_AGE}`,
+    'Set-Cookie': `${VOL_SID}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${SID_MAX_AGE}`,
   };
 }
 
 export function clearVolunteerCookieHeaders() {
   return {
-    'Set-Cookie': `${VOL_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api/volunteer; Max-Age=0`,
+    'Set-Cookie': `${VOL_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`,
   };
 }
 

@@ -276,6 +276,7 @@
         <div class="tab-bar">
           <button class="tab-btn active" data-tab="attendance"><i class="fas fa-clock"></i> Attendance Review</button>
           <button class="tab-btn" data-tab="activities"><i class="fas fa-calendar"></i> Manage Activities</button>
+          <button class="tab-btn" data-tab="events"><i class="fas fa-star"></i> Events</button>
           <button class="tab-btn" data-tab="volunteers"><i class="fas fa-users"></i> Volunteers</button>
         </div>
 
@@ -308,6 +309,33 @@
           <div class="empty-state" id="actEmpty" style="display:none">
             <i class="fas fa-calendar-plus"></i>
             <p>No activities yet. Create one!</p>
+          </div>
+        </div>
+
+        <!-- ══ Events Tab ══ -->
+        <div class="tab-panel" id="tabEvents">
+          <div class="act-toolbar">
+            <h2>Events (RSVP & Waitlist)</h2>
+            <button class="btn btn-success" id="newEventBtn"><i class="fas fa-plus"></i> New Event</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Capacity</th>
+                  <th>Waitlist</th>
+                  <th style="width:190px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="eventTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="eventEmpty" style="display:none">
+            <i class="fas fa-star"></i>
+            <p>No events yet. Create one!</p>
           </div>
         </div>
 
@@ -448,6 +476,91 @@
     </div>
   </div>
 
+  <!-- ══ Event Form Modal ══ -->
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3 id="eventModalTitle">New Event</h3>
+        <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="eventForm">
+          <div class="form-group">
+            <label for="evTitle">Title <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="evTitle" placeholder="Event name" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="evDate">Date <span style="color:var(--danger)">*</span></label>
+              <input type="date" id="evDate" required>
+            </div>
+            <div class="form-group">
+              <label for="evTime">Time</label>
+              <input type="text" id="evTime" placeholder="e.g. 09:00 AM">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="evCategory">Category <span style="color:var(--danger)">*</span></label>
+              <select id="evCategory" required>
+                <option value="general">General</option>
+                <option value="camp">Camp</option>
+                <option value="meeting">Meeting</option>
+                <option value="workshop">Workshop</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="evVenue">Venue</label>
+              <input type="text" id="evVenue" placeholder="Location">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="evLeader">Leader / In-charge</label>
+              <input type="text" id="evLeader" placeholder="Name">
+            </div>
+            <div class="form-group">
+              <label for="evCapacity">Max Capacity</label>
+              <input type="number" id="evCapacity" min="0" placeholder="0 = unlimited">
+            </div>
+          </div>
+          <div class="form-row">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:500">
+              <input type="checkbox" id="evWaitlist" style="width:auto"> Enable waitlist when full
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:500">
+              <input type="checkbox" id="evUrgent" style="width:auto"> Mark as urgent
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="evDesc">Description</label>
+            <textarea id="evDesc" rows="3" placeholder="Description of the event..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('eventModal')">Cancel</button>
+        <button class="btn btn-success" id="saveEventBtn"><i class="fas fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Event Registrants Modal ══ -->
+  <div class="modal-overlay" id="registrantsModal">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3 id="registrantsModalTitle">Registrants</h3>
+        <button class="modal-close" onclick="closeModal('registrantsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="registrantsContent"><p class="empty-note">Loading...</p></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('registrantsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ Delete Confirm Modal ══ -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal" style="max-width:400px">
@@ -474,6 +587,9 @@
     let pendingAttachments = [];
     let activities = [];
     let volunteers = [];
+    let events = [];
+    let editingEventId = null;
+    let deletingEventId = null;
     let editingActivityId = null;
     let deletingActivityId = null;
     let approvingId = null;
@@ -490,6 +606,7 @@
         loadAttendance();
         loadActivities();
         loadVolunteers();
+        loadEvents();
       } catch { window.location.href = '/admin-login.html'; }
     })();
 
@@ -759,6 +876,170 @@
       await fetch('/api/admin/logout', { method: 'POST' });
       window.location.href = '/admin-login.html';
     });
+
+    // =============================================
+    // ══ EVENTS ══
+    // =============================================
+    async function loadEvents() {
+      try {
+        const res = await fetch('/api/admin/events/list');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        events = data.events || [];
+        renderEvents();
+      } catch (e) {
+        document.getElementById('eventTableBody').innerHTML = '';
+        document.getElementById('eventEmpty').style.display = 'block';
+      }
+    }
+
+    function renderEvents() {
+      const tbody = document.getElementById('eventTableBody');
+      const empty = document.getElementById('eventEmpty');
+      if (!events.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = events.map(ev => {
+        const capacityText = ev.max_capacity > 0
+          ? `${ev.current_count} / ${ev.max_capacity}`
+          : `${ev.current_count} (unlimited)`;
+        return `<tr>
+          <td><strong>${esc(ev.title)}</strong>${ev.is_urgent ? ' <span style="color:var(--danger)">●</span>' : ''}</td>
+          <td>${fmtDate(ev.event_date)}</td>
+          <td style="text-transform:capitalize">${esc(ev.category)}</td>
+          <td>${capacityText}</td>
+          <td>${ev.is_waitlist_enabled ? 'Enabled' : '—'}</td>
+          <td>
+            <div class="act-actions">
+              <button class="edit-btn" onclick="viewRegistrants('${ev.id}','${esc(ev.title)}')" title="View Registrants"><i class="fas fa-users"></i></button>
+              <button class="edit-btn" onclick="editEvent('${ev.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+              <button class="del-btn" onclick="confirmDeleteEvent('${ev.id}','${esc(ev.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('newEventBtn').addEventListener('click', () => {
+      editingEventId = null;
+      document.getElementById('eventModalTitle').textContent = 'New Event';
+      document.getElementById('eventForm').reset();
+      document.getElementById('evDate').value = new Date().toISOString().split('T')[0];
+      openModal('eventModal');
+    });
+
+    function editEvent(id) {
+      const ev = events.find(x => x.id === id);
+      if (!ev) return;
+      editingEventId = id;
+      document.getElementById('eventModalTitle').textContent = 'Edit Event';
+      document.getElementById('evTitle').value = ev.title || '';
+      document.getElementById('evDate').value = ev.event_date || '';
+      document.getElementById('evTime').value = ev.time || '';
+      document.getElementById('evCategory').value = ev.category || 'general';
+      document.getElementById('evVenue').value = ev.venue || '';
+      document.getElementById('evLeader').value = ev.leader || '';
+      document.getElementById('evCapacity').value = ev.max_capacity || '';
+      document.getElementById('evWaitlist').checked = !!ev.is_waitlist_enabled;
+      document.getElementById('evUrgent').checked = !!ev.is_urgent;
+      document.getElementById('evDesc').value = ev.description || '';
+      openModal('eventModal');
+    }
+
+    document.getElementById('saveEventBtn').addEventListener('click', async () => {
+      const title = document.getElementById('evTitle').value.trim();
+      const event_date = document.getElementById('evDate').value;
+      const category = document.getElementById('evCategory').value;
+
+      if (!title || !event_date || !category) {
+        toast('Fill required fields (Title, Date, Category)', 'error'); return;
+      }
+
+      const body = {
+        title,
+        event_date,
+        category,
+        time: document.getElementById('evTime').value.trim(),
+        venue: document.getElementById('evVenue').value.trim(),
+        leader: document.getElementById('evLeader').value.trim(),
+        max_capacity: parseInt(document.getElementById('evCapacity').value) || 0,
+        is_waitlist_enabled: document.getElementById('evWaitlist').checked,
+        is_urgent: document.getElementById('evUrgent').checked,
+        description: document.getElementById('evDesc').value.trim(),
+      };
+
+      const btn = document.getElementById('saveEventBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+
+      try {
+        let res;
+        if (editingEventId) {
+          res = await fetch(`/api/admin/events/${editingEventId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        } else {
+          res = await fetch('/api/admin/events/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        }
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast(editingEventId ? 'Event updated!' : 'Event created!');
+        closeModal('eventModal');
+        editingEventId = null;
+        loadEvents();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save'; }
+    });
+
+    function confirmDeleteEvent(id, title) {
+      deletingEventId = id;
+      document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This will also remove all registrations for it. This cannot be undone.`;
+      openModal('deleteModal');
+    }
+
+    async function viewRegistrants(eventId, title) {
+      document.getElementById('registrantsModalTitle').textContent = `Registrants — ${title}`;
+      document.getElementById('registrantsContent').innerHTML = '<p class="empty-note">Loading...</p>';
+      openModal('registrantsModal');
+      try {
+        const res = await fetch(`/api/admin/events/${eventId}/registrations`);
+        if (!res.ok) throw new Error('Failed to load');
+        const { registrations } = await res.json();
+        const registered = registrations.filter(r => r.status === 'registered');
+        const waitlisted = registrations.filter(r => r.status === 'waitlisted');
+        const cancelled = registrations.filter(r => r.status === 'cancelled');
+
+        function listGroup(label, rows, badgeClass) {
+          if (!rows.length) return '';
+          return `
+            <h4 style="margin:16px 0 8px">${label} (${rows.length})</h4>
+            <table class="act-table">
+              <thead><tr><th>Name</th><th>Ref Code</th><th>Email</th><th>Mobile</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `<tr>
+                  <td>${esc(r.volunteer?.name || 'Unknown')}</td>
+                  <td>${esc(r.volunteer?.ref_code || '—')}</td>
+                  <td>${esc(r.volunteer?.email || '—')}</td>
+                  <td>${esc(r.volunteer?.mobile_no || '—')}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        const html = listGroup('Registered', registered) + listGroup('Waitlisted', waitlisted) + listGroup('Cancelled', cancelled);
+        document.getElementById('registrantsContent').innerHTML = html || '<p class="empty-note">No registrations yet.</p>';
+      } catch (e) {
+        document.getElementById('registrantsContent').innerHTML = '<p class="empty-note">Could not load registrants.</p>';
+      }
+    }
 
     // =============================================
     // ══ VOLUNTEERS ══

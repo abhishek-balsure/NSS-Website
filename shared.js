@@ -254,4 +254,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Not logged in or a network hiccup — leave the public nav untouched
         }
     })();
+
+    // ── "More" nav dropdown ──
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = toggle.closest('.nav-dropdown');
+            const wasOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+            if (!wasOpen) dropdown.classList.add('open');
+        });
+    });
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+    });
 });

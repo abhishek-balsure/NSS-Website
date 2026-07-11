@@ -163,3 +163,32 @@ export async function getUser(supabase, request) {
   if (error || !data?.user) return null;
   return data.user;
 }
+
+// ── Rate limiting (login brute-force protection) ──
+// Keyed by account (email), not IP — a college campus WiFi puts many
+// students behind the same public IP, so IP-based limiting would lock
+// out everyone on that network after one person mistypes a password.
+// Per-account limiting stops brute-forcing one account without that
+// collateral damage. Requires a KV namespace bound as RATE_LIMIT_KV;
+// if it isn't bound yet, this fails OPEN (allows the request) so login
+// keeps working while you set the binding up.
+export async function checkRateLimit(env, key, maxAttempts = 5, windowSeconds = 300) {
+  if (!env.RATE_LIMIT_KV) return { allowed: true };
+  const now = Date.now();
+  const raw = await env.RATE_LIMIT_KV.get(key);
+  let record = raw ? JSON.parse(raw) : null;
+  if (!record || now > record.resetAt) {
+    record = { count: 0, resetAt: now + windowSeconds * 1000 };
+  }
+  if (record.count >= maxAttempts) {
+    return { allowed: false, retryAfterSeconds: Math.ceil((record.resetAt - now) / 1000) };
+  }
+  record.count += 1;
+  await env.RATE_LIMIT_KV.put(key, JSON.stringify(record), { expirationTtl: windowSeconds });
+  return { allowed: true };
+}
+
+export async function resetRateLimit(env, key) {
+  if (!env.RATE_LIMIT_KV) return;
+  await env.RATE_LIMIT_KV.delete(key);
+}

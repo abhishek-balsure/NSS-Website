@@ -1,4 +1,4 @@
-import { createSupabase, jsonResponse, errorResponse, signSessionPayload, setAdminCookieHeaders } from '../../_utils.js';
+import { createSupabase, jsonResponse, errorResponse, signSessionPayload, setAdminCookieHeaders, checkRateLimit, resetRateLimit } from '../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -12,6 +12,12 @@ export async function onRequest(context) {
 
     if (!email || !password) return errorResponse('Email and password required');
 
+    const rlKey = `login:admin:${email.trim().toLowerCase()}`;
+    const rl = await checkRateLimit(env, rlKey, 5, 300);
+    if (!rl.allowed) {
+      return errorResponse(`Too many failed attempts. Try again in ${rl.retryAfterSeconds} seconds.`, 429);
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return errorResponse('Invalid email or password', 401);
 
@@ -20,6 +26,8 @@ export async function onRequest(context) {
       await supabase.auth.signOut();
       return errorResponse('Not authorized as admin', 403);
     }
+
+    await resetRateLimit(env, rlKey); // successful login clears the counter
 
     const token = await signSessionPayload(
       { userId: admin.id, email: admin.email, name: admin.name, role: admin.role, exp: Math.floor(Date.now() / 1000) + 86400 },

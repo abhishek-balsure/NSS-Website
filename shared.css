@@ -175,8 +175,8 @@ h6 {
 /* ── Glass Card Component ── */
 .glass-card {
     background: var(--bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-lg);
     padding: 32px;
@@ -238,8 +238,8 @@ h6 {
 
 .navbar.scrolled {
     background: var(--bg-navbar);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border-subtle);
     box-shadow: 0 2px 20px rgba(15, 23, 42, 0.06);
 }
@@ -614,7 +614,7 @@ h6 {
     text-align: center;
     padding: 28px 16px;
     background: var(--bg-card);
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(8px);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-md);
     transition: all var(--transition-normal);
@@ -924,7 +924,7 @@ h6 {
         width: 280px;
         height: 100vh;
         background: rgba(255, 255, 255, 0.97);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(8px);
         flex-direction: column;
         align-items: stretch;
         padding: 100px 24px 40px;
@@ -1124,3 +1124,16 @@ h6 {
   font-size: 1.1em;
 }
 
+/* ── Performance: disable blur entirely on small/low-power screens ──
+   backdrop-filter is still one of the most expensive CSS effects even
+   at a reduced radius. Most visitors here are on phones, where blur
+   jank is most noticeable. Setting `none` on every element is safe —
+   elements that never declared a blur simply stay at their existing
+   default (none); only ones that did get overridden, falling back to
+   their existing solid background underneath. */
+@media (max-width: 768px) {
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -682,12 +682,17 @@
                                         <i class="fas fa-user-circle"></i>
                                         <span id="detailsLeader">Leader</span>
                                     </div>
+                                    <div class="details-meta-item">
+                                        <i class="fas fa-users"></i>
+                                        <span id="detailsCapacity">0 / 0</span>
+                                    </div>
                                 </div>
                                 <div class="details-desc" id="detailsDescription">
                                     Description of the event.
                                 </div>
+                                <div id="detailsRegStatus" style="margin-bottom: 12px;font-size:0.85rem;font-weight:600;text-align:center;"></div>
                                 <button class="btn btn-primary" style="width: 100%; justify-content: center;" id="detailsActionBtn">
-                                    <i class="fas fa-edit"></i> Register as Volunteer
+                                    <i class="fas fa-edit"></i> Register
                                 </button>
                             </div>
                         </div>
@@ -710,13 +715,14 @@
                 <div style="margin: 16px 0; color: var(--text-secondary); font-size: 0.9rem;" id="modalMeta">
                     <!-- Meta info -->
                 </div>
+                <div id="modalCapacity" style="margin-bottom:12px;font-size:0.85rem;font-weight:600;"></div>
                 <div id="modalDescription" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
                     Description text.
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" id="modalCloseFooterBtn">Close</button>
-                <button class="btn btn-success" id="modalActionBtn">Sign Up / Participate</button>
+                <button class="btn btn-success" id="modalActionBtn">Register</button>
             </div>
         </div>
     </div>
@@ -780,412 +786,319 @@
     </footer>
 
     <script src="shared.js"></script>
-    <script>
-        // ── Events & Notice Board System Data ──
-        const eventsData = [
-            // June 2026
-            {
-                id: 1,
-                title: "World Environment Day - Tree Plantation Drive",
-                date: "2026-06-05",
-                time: "08:00 AM - 11:30 AM",
-                category: "camp", // matches tag
-                badgeText: "Camps",
-                venue: "Sarhad College Campus & Katraj Lake Area",
-                leader: "Assistant Prof. Rajendra Thorat",
-                description: "On the occasion of World Environment Day, Sarhad NSS unit is organizing a mass tree plantation drive. We aim to plant 100+ native tree saplings. Please wear comfortable shoes and carry water bottles. Light snacks will be provided.",
-                isUrgent: false
-            },
-            {
-                id: 2,
-                title: "Blood Donation Camp & Health Check-up",
-                date: "2026-06-14",
-                time: "09:00 AM - 04:00 PM",
-                category: "urgent",
-                badgeText: "Urgent",
-                venue: "College Seminar Hall (2nd floor)",
-                leader: "Dr. Manauti Sandeep Patil (PO)",
-                description: "In collaboration with Pune Blood Bank, a mega blood donation drive is being scheduled. NSS volunteers will assist in management, registrations, and volunteer service. Donors will receive certificates and appreciation cards. High participation expected.",
-                isUrgent: true
-            },
-            {
-                id: 3,
-                title: "International Yoga Day Demonstration",
-                date: "2026-06-21",
-                time: "07:00 AM - 08:30 AM",
-                category: "general",
-                badgeText: "General",
-                venue: "College Play Ground",
-                leader: "Assistant Prof. Rajendra Thorat",
-                description: "A collective Yoga session guided by certified instructors to promote mental peace, physical health, and community wellness. Open to all students, faculty, and NSS volunteers. Bring your yoga mats.",
-                isUrgent: false
-            },
-            {
-                id: 4,
-                title: "Anti-Drug Abuse Awareness Rally",
-                date: "2026-06-26",
-                time: "09:00 AM - 11:00 AM",
-                category: "camp",
-                badgeText: "Camps",
-                venue: "Katraj Chowk Area, Pune",
-                leader: "Dr. Manauti Sandeep Patil (PO)",
-                description: "An awareness rally with banners, placards, and slogans to educate youth and the public on the hazards of substance abuse. The local police department will also participate. All volunteers must assemble by 8:30 AM in the campus yard.",
-                isUrgent: false
-            },
-            // July 2026
-            {
-                id: 5,
-                title: "NSS Orientation Program & Enrollment Drive",
-                date: "2026-07-01",
-                time: "11:00 AM - 01:00 PM",
-                category: "general",
-                badgeText: "General",
-                venue: "Main Assembly Hall",
-                leader: "Dr. Manauti Sandeep Patil (PO)",
-                description: "Welcome event for newly admitted first-year students to introduce NSS goals, operations, and benefits. Detailed explanation of camp rules, social campaigns, and 120-hour service requirements will be given.",
-                isUrgent: false
-            },
-            {
-                id: 6,
-                title: "Monthly Planning Meeting (NSS Committee)",
-                date: "2026-07-05",
-                time: "02:00 PM - 03:30 PM",
-                category: "meeting",
-                badgeText: "Meetings",
-                venue: "NSS Department Office (Room 102)",
-                leader: "Dr. Manauti Patill & Student Leaders",
-                description: "Official planning meeting for NSS student committee members and group leaders. Discussions will cover upcoming activities, review of registrations, and logistics for cleanliness drives.",
-                isUrgent: false
-            },
-            {
-                id: 7,
-                title: "Cleanliness Drive - Swachh Bharat Abhiyan",
-                date: "2026-07-15",
-                time: "07:30 AM - 10:30 AM",
-                category: "camp",
-                badgeText: "Camps",
-                venue: "Katraj Bus Depot & Nearby Streets",
-                leader: "Assistant Prof. Rajendra Thorat",
-                description: "Cleanliness camp to collect plastic wastes, clean bus stops, and paint walls. Masks, hand gloves, and waste disposal bins will be provided. Attendance is mandatory for all active NSS volunteers.",
-                isUrgent: false
-            },
-            {
-                id: 8,
-                title: "Kargil Vijay Diwas Tribute Ceremony",
-                date: "2026-07-26",
-                time: "10:00 AM - 11:30 AM",
-                category: "general",
-                badgeText: "General",
-                venue: "College Amphitheatre",
-                leader: "Dr. Manauti Sandeep Patil (PO)",
-                description: "A patriotic program to pay homage to the martyrs of the Kargil War. Features national pledge, poetry reading, and addresses by retired army officials.",
-                isUrgent: false
-            },
-            // August 2026
-            {
-                id: 9,
-                title: "International Youth Day Debate",
-                date: "2026-08-12",
-                time: "12:00 PM - 03:00 PM",
-                category: "general",
-                badgeText: "General",
-                venue: "College Conference Room",
-                leader: "Assistant Prof. Rajendra Thorat",
-                description: "Elocution and debate competitions on the topic 'Youth Power in Solving Urban Issues.' Prizes and certificates of appreciation will be awarded to winners.",
-                isUrgent: false
-            },
-            {
-                id: 10,
-                title: "Independence Day Flag Hoisting",
-                date: "2026-08-15",
-                time: "07:15 AM - 10:00 AM",
-                category: "urgent",
-                badgeText: "Urgent",
-                venue: "Main Ground",
-                leader: "Dr. Manauti Sandeep Patil (PO)",
-                description: "Official Independence Day celebrations. NSS volunteers will manage the parade and guard of honor. Patriotic songs and cultural dance performances by the NSS cultural group.",
-                isUrgent: true
-            }
-        ];
-
-        // ── State Management ──
-        let currentDate = new Date(2026, 5, 1); // Start at June 2026 (index 5)
-        let activeFilter = 'all';
+        <script>
+        let allEvents = [];
+        let currentNoticeFilter = 'all';
         let selectedEventId = null;
+        let currentDate = new Date();
+        currentDate.setDate(1);
 
-        // ── DOM Elements ──
-        const calendarTitle = document.getElementById('calendarTitle');
-        const calendarDays = document.getElementById('calendarDays');
-        const prevMonthBtn = document.getElementById('prevMonthBtn');
-        const nextMonthBtn = document.getElementById('nextMonthBtn');
-        const noticesList = document.getElementById('noticesList');
+        const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const WEEKDAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+        // DOM refs
+        const $ = id => document.getElementById(id);
+        const calendarTitle = $('calendarTitle');
+        const calendarDays = $('calendarDays');
+        const prevMonthBtn = $('prevMonthBtn');
+        const nextMonthBtn = $('nextMonthBtn');
+        const noticesList = $('noticesList');
         const filterBtns = document.querySelectorAll('.filter-btn');
+        const detailsEmptyState = $('detailsEmptyState');
+        const detailsContent = $('detailsContent');
+        const eventDetailsCard = $('eventDetailsCard');
+        const detailsBadge = $('detailsBadge');
+        const detailsTitle = $('detailsTitle');
+        const detailsDate = $('detailsDate');
+        const detailsTime = $('detailsTime');
+        const detailsVenue = $('detailsVenue');
+        const detailsLeader = $('detailsLeader');
+        const detailsCapacity = $('detailsCapacity');
+        const detailsRegStatus = $('detailsRegStatus');
+        const detailsDescription = $('detailsDescription');
+        const detailsActionBtn = $('detailsActionBtn');
+        const noticeModal = $('noticeModal');
+        const modalTitle = $('modalTitle');
+        const modalBadge = $('modalBadge');
+        const modalMeta = $('modalMeta');
+        const modalCapacity = $('modalCapacity');
+        const modalDescription = $('modalDescription');
+        const modalCloseBtn = $('modalCloseBtn');
+        const modalCloseFooterBtn = $('modalCloseFooterBtn');
+        const modalActionBtn = $('modalActionBtn');
 
-        const detailsEmptyState = document.getElementById('detailsEmptyState');
-        const detailsContent = document.getElementById('detailsContent');
-        const eventDetailsCard = document.getElementById('eventDetailsCard');
-        
-        const detailsBadge = document.getElementById('detailsBadge');
-        const detailsTitle = document.getElementById('detailsTitle');
-        const detailsDate = document.getElementById('detailsDate');
-        const detailsTime = document.getElementById('detailsTime');
-        const detailsVenue = document.getElementById('detailsVenue');
-        const detailsLeader = document.getElementById('detailsLeader');
-        const detailsDescription = document.getElementById('detailsDescription');
-        const detailsActionBtn = document.getElementById('detailsActionBtn');
+        function getDateKey(d) {
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
 
-        // Modal elements
-        const noticeModal = document.getElementById('noticeModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalBadge = document.getElementById('modalBadge');
-        const modalMeta = document.getElementById('modalMeta');
-        const modalDescription = document.getElementById('modalDescription');
-        const modalCloseBtn = document.getElementById('modalCloseBtn');
-        const modalCloseFooterBtn = document.getElementById('modalCloseFooterBtn');
-        const modalActionBtn = document.getElementById('modalActionBtn');
-
-        // ── Calendar Rendering Function ──
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            // Month Name
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            calendarTitle.textContent = `${monthNames[month]} ${year}`;
-
-            // First day of the month
-            const firstDayIndex = new Date(year, month, 1).getDay();
-
-            // Total days in the month
-            const totalDays = new Date(year, month + 1, 0).getDate();
-
-            // Clear days
-            calendarDays.innerHTML = '';
-
-            // Render empty cells for previous month padding
-            for (let i = 0; i < firstDayIndex; i++) {
-                const emptyDiv = document.createElement('div');
-                emptyDiv.classList.add('calendar-day', 'empty');
-                calendarDays.appendChild(emptyDiv);
-            }
-
-            // Render days
-            for (let day = 1; day <= totalDays; day++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.classList.add('calendar-day');
-                dayDiv.textContent = day;
-
-                // Build date string in local format YYYY-MM-DD
-                const monthStr = String(month + 1).padStart(2, '0');
-                const dayStr = String(day).padStart(2, '0');
-                const dateKey = `${year}-${monthStr}-${dayStr}`;
-
-                // Check if this date is today (simulated or real)
-                const today = new Date();
-                if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day) {
-                    dayDiv.classList.add('today');
-                }
-
-                // Check if date has events
-                const dayEvent = eventsData.find(e => e.date === dateKey);
-                if (dayEvent) {
-                    dayDiv.classList.add('has-event');
-                    dayDiv.setAttribute('title', dayEvent.title);
-                    
-                    if (selectedEventId === dayEvent.id) {
-                        dayDiv.classList.add('selected');
-                    }
-
-                    // Click event to show details
-                    dayDiv.addEventListener('click', () => {
-                        selectEvent(dayEvent.id);
-                    });
-                } else {
-                    dayDiv.addEventListener('click', () => {
-                        clearSelection();
-                    });
-                }
-
-                calendarDays.appendChild(dayDiv);
+        // Load events from API
+        async function loadEvents() {
+            try {
+                const res = await fetch('/api/events/list');
+                if (!res.ok) throw new Error('Failed to load events');
+                const data = await res.json();
+                allEvents = Array.isArray(data) ? data : (data.events || []);
+                renderCalendar();
+                renderNotices();
+            } catch (err) {
+                console.error('loadEvents:', err);
             }
         }
 
-        // ── Notice Board Rendering Function ──
+        // ── Calendar ──
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            calendarTitle.textContent = MONTHS[month] + ' ' + year;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            calendarDays.innerHTML = '';
+
+            for (let i = 0; i < firstDay; i++) {
+                const el = document.createElement('div');
+                el.className = 'calendar-day empty';
+                calendarDays.appendChild(el);
+            }
+
+            const today = new Date();
+            for (let d = 1; d <= totalDays; d++) {
+                const dateKey = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                const el = document.createElement('div');
+                el.className = 'calendar-day';
+                el.textContent = d;
+
+                if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === d) {
+                    el.classList.add('today');
+                }
+
+                const ev = allEvents.find(e => e.event_date && e.event_date.startsWith(dateKey));
+                if (ev) {
+                    el.classList.add('has-event');
+                    el.title = ev.title;
+                    if (selectedEventId === ev.id) el.classList.add('selected');
+                    el.addEventListener('click', () => selectEvent(ev.id));
+                } else {
+                    el.addEventListener('click', clearSelection);
+                }
+                calendarDays.appendChild(el);
+            }
+        }
+
+        // ── Notice Board ──
         function renderNotices() {
             noticesList.innerHTML = '';
-            
-            const filteredEvents = eventsData.filter(event => {
-                if (activeFilter === 'all') return true;
-                if (activeFilter === 'urgent') return event.isUrgent;
-                return event.category === activeFilter;
+            let filtered = allEvents.filter(e => {
+                if (currentNoticeFilter === 'all') return true;
+                if (currentNoticeFilter === 'urgent') return e.is_urgent;
+                return e.category === currentNoticeFilter;
             });
 
-            if (filteredEvents.length === 0) {
-                noticesList.innerHTML = `
-                    <div class="no-notices">
-                        <i class="far fa-folder-open"></i>
-                        <p>No notices found for this category.</p>
-                    </div>
-                `;
+            if (filtered.length === 0) {
+                noticesList.innerHTML = '<div class="no-notices"><i class="far fa-folder-open"></i><p>No notices found.</p></div>';
                 return;
             }
 
-            // Sort by date ascending
-            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            filteredEvents.forEach(event => {
+            filtered.sort((a, b) => (a.event_date || '').localeCompare(b.event_date || ''));
+            filtered.forEach(ev => {
                 const card = document.createElement('div');
-                card.classList.add('notice-card');
-                
-                let badgeClass = 'badge-general';
-                if (event.isUrgent) badgeClass = 'badge-urgent';
-                else if (event.category === 'camp') badgeClass = 'badge-camp';
-                else if (event.category === 'meeting') badgeClass = 'badge-meeting';
+                card.className = 'notice-card';
+                let bc = 'badge-general';
+                if (ev.is_urgent) bc = 'badge-urgent';
+                else if (ev.category === 'camp') bc = 'badge-camp';
+                else if (ev.category === 'meeting') bc = 'badge-meeting';
+                card.classList.add(ev.is_urgent ? 'urgent' : (ev.category || 'general'));
 
-                if (event.isUrgent) card.classList.add('urgent');
-                else card.classList.add(event.category);
+                const fd = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : '';
+                const badgeText = ev.is_urgent ? 'URGENT' : (ev.category ? ev.category.toUpperCase() : 'GENERAL');
 
-                const formatDate = new Date(event.date).toLocaleDateString('en-US', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                });
-
-                card.innerHTML = `
-                    <div class="notice-meta">
-                        <span class="notice-date">${formatDate}</span>
-                        <span class="badge ${badgeClass}">${event.badgeText}</span>
-                    </div>
-                    <h3>${event.title}</h3>
-                    <p>${event.description}</p>
-                `;
+                card.innerHTML = '<div class="notice-meta"><span class="notice-date">' + fd + '</span><span class="badge ' + bc + '">' + badgeText + '</span></div><h3>' + ev.title + '</h3><p>' + (ev.description || '') + '</p>';
 
                 card.addEventListener('click', () => {
-                    // Navigate calendar to this event's month
-                    const eventDateObj = new Date(event.date);
-                    currentDate = new Date(eventDateObj.getFullYear(), eventDateObj.getMonth(), 1);
-                    
-                    // Show in details panel and select day
-                    selectEvent(event.id);
-                    renderCalendar();
-
-                    // Scroll detail panel into view on mobile
-                    if (window.innerWidth <= 1024) {
-                        eventDetailsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (ev.event_date) {
+                        const d = new Date(ev.event_date);
+                        currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
                     }
+                    selectEvent(ev.id);
+                    renderCalendar();
+                    if (window.innerWidth <= 1024) eventDetailsCard.scrollIntoView({ behavior:'smooth', block:'center' });
                 });
-
                 noticesList.appendChild(card);
             });
         }
 
-        // ── Select Event and show Details ──
+        // ── Select / Clear ──
         function selectEvent(eventId) {
             selectedEventId = eventId;
-            const event = eventsData.find(e => e.id === eventId);
-            if (!event) return;
+            const ev = allEvents.find(e => e.id === eventId);
+            if (!ev) return;
 
-            // Highlight in calendar
-            const allDays = calendarDays.querySelectorAll('.calendar-day');
-            allDays.forEach(d => d.classList.remove('selected'));
-            
-            const eventDay = new Date(event.date).getDate();
-            // Find the day element and select it
-            allDays.forEach(dayEl => {
-                if (dayEl.textContent == eventDay && !dayEl.classList.contains('empty') && dayEl.classList.contains('has-event')) {
-                    dayEl.classList.add('selected');
-                }
-            });
+            // Re-render calendar to update selected highlight
+            renderCalendar();
 
-            // Update Panel details
             detailsEmptyState.style.display = 'none';
             detailsContent.style.display = 'block';
             eventDetailsCard.classList.add('has-data');
 
-            // Badge color styling
-            let badgeClass = 'badge-general';
-            if (event.isUrgent) badgeClass = 'badge-urgent';
-            else if (event.category === 'camp') badgeClass = 'badge-camp';
-            else if (event.category === 'meeting') badgeClass = 'badge-meeting';
+            let bc = 'badge-general';
+            if (ev.is_urgent) bc = 'badge-urgent';
+            else if (ev.category === 'camp') bc = 'badge-camp';
+            else if (ev.category === 'meeting') bc = 'badge-meeting';
+            const badgeText = ev.is_urgent ? 'URGENT' : (ev.category ? ev.category.toUpperCase() : 'GENERAL');
 
-            detailsBadge.className = `badge ${badgeClass}`;
-            detailsBadge.textContent = event.badgeText;
-            detailsTitle.textContent = event.title;
-            
-            const formatDate = new Date(event.date).toLocaleDateString('en-US', {
-                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-            });
-            detailsDate.textContent = formatDate;
-            detailsTime.textContent = event.time;
-            detailsVenue.textContent = event.venue;
-            detailsLeader.textContent = event.leader;
-            detailsDescription.textContent = event.description;
+            detailsBadge.className = 'badge ' + bc;
+            detailsBadge.textContent = badgeText;
+            detailsTitle.textContent = ev.title;
 
-            // Update Action Button
-            if (event.category === 'meeting') {
-                detailsActionBtn.innerHTML = '<i class="fas fa-check"></i> Add to Calendar';
-                detailsActionBtn.className = 'btn btn-outline';
-                detailsActionBtn.style.borderColor = 'var(--info)';
-                detailsActionBtn.style.color = 'var(--info)';
+            const fd = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-US', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '';
+            detailsDate.textContent = fd;
+            detailsTime.textContent = ev.time || '';
+            detailsVenue.textContent = ev.venue || '';
+            detailsLeader.textContent = ev.leader || '';
+            detailsDescription.textContent = ev.description || '';
+
+            // Capacity display
+            const maxCap = ev.max_capacity;
+            const curCnt = ev.current_count || 0;
+            if (maxCap) {
+                detailsCapacity.textContent = curCnt + ' / ' + maxCap + ' registered';
             } else {
-                detailsActionBtn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Register as Volunteer';
-                detailsActionBtn.className = 'btn btn-primary';
-                detailsActionBtn.style.borderColor = '';
-                detailsActionBtn.style.color = '';
+                detailsCapacity.parentElement.style.display = (ev.category === 'meeting') ? 'none' : '';
+                detailsCapacity.textContent = curCnt + ' registered';
             }
 
-            // Click listener for details action button
-            detailsActionBtn.onclick = () => {
-                openModal(event);
-            };
+            // Registration status + button
+            updateRegUI(ev);
         }
 
-        // ── Clear Selection ──
         function clearSelection() {
             selectedEventId = null;
-            const allDays = calendarDays.querySelectorAll('.calendar-day');
-            allDays.forEach(d => d.classList.remove('selected'));
-
+            renderCalendar();
             detailsEmptyState.style.display = 'block';
             detailsContent.style.display = 'none';
             eventDetailsCard.classList.remove('has-data');
         }
 
-        // ── Modal Handlers ──
-        function openModal(event) {
-            modalTitle.textContent = event.title;
-            modalDescription.textContent = event.description;
-            
-            let badgeClass = 'badge-general';
-            if (event.isUrgent) badgeClass = 'badge-urgent';
-            else if (event.category === 'camp') badgeClass = 'badge-camp';
-            else if (event.category === 'meeting') badgeClass = 'badge-meeting';
-            
-            modalBadge.className = `badge ${badgeClass}`;
-            modalBadge.textContent = event.badgeText;
+        // ── Registration UI ──
+        function updateRegUI(ev) {
+            const stat = ev.user_registration_status; // 'registered'|'waitlisted'|null
+            const maxCap = ev.max_capacity;
+            const curCnt = ev.current_count || 0;
+            const isFull = maxCap && curCnt >= maxCap;
+            const waitlistOn = ev.is_waitlist_enabled;
 
-            const formatDate = new Date(event.date).toLocaleDateString('en-US', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-            modalMeta.innerHTML = `
-                <div style="margin-bottom: 6px;"><i class="fas fa-calendar-alt"></i> ${formatDate} | ${event.time}</div>
-                <div><i class="fas fa-map-marker-alt"></i> ${event.venue}</div>
-                <div style="margin-top: 6px;"><i class="fas fa-user"></i> Coordinate: <strong>${event.leader}</strong></div>
-            `;
+            detailsRegStatus.style.display = '';
 
-            if (event.category === 'meeting') {
-                modalActionBtn.innerHTML = '<i class="fas fa-calendar-plus"></i> Add to Google Calendar';
-                modalActionBtn.className = 'btn btn-outline';
-                modalActionBtn.style.borderColor = 'var(--info)';
-                modalActionBtn.style.color = 'var(--info)';
-                modalActionBtn.onclick = () => {
-                    alert('Successfully added to your Google Calendar!');
-                    closeModal();
-                };
+            if (stat === 'registered') {
+                detailsRegStatus.innerHTML = '<span style="color:var(--success)">You are registered</span>';
+                detailsActionBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Registration';
+                detailsActionBtn.className = 'btn btn-outline';
+                detailsActionBtn.style.borderColor = 'var(--danger)';
+                detailsActionBtn.style.color = 'var(--danger)';
+                detailsActionBtn.onclick = () => handleRegistration(ev.id, 'cancel');
+            } else if (stat === 'waitlisted') {
+                detailsRegStatus.innerHTML = '<span style="color:var(--accent)">You are on the waitlist</span>';
+                detailsActionBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Waitlist';
+                detailsActionBtn.className = 'btn btn-outline';
+                detailsActionBtn.style.borderColor = 'var(--danger)';
+                detailsActionBtn.style.color = 'var(--danger)';
+                detailsActionBtn.onclick = () => handleRegistration(ev.id, 'cancel');
             } else {
-                modalActionBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register as Volunteer';
-                modalActionBtn.className = 'btn btn-success';
-                modalActionBtn.onclick = () => {
-                    window.location.href = 'form.html';
-                };
+                if (isFull && waitlistOn) {
+                    detailsRegStatus.innerHTML = '<span style="color:var(--accent)">Event is full — join waitlist</span>';
+                    detailsActionBtn.innerHTML = '<i class="fas fa-list"></i> Join Waitlist';
+                    detailsActionBtn.className = 'btn btn-warning';
+                    detailsActionBtn.onclick = () => handleRegistration(ev.id, 'register');
+                } else if (isFull && !waitlistOn) {
+                    detailsRegStatus.innerHTML = '<span style="color:var(--danger)">Event is full</span>';
+                    detailsActionBtn.innerHTML = '<i class="fas fa-ban"></i> Event Full';
+                    detailsActionBtn.className = 'btn btn-outline';
+                    detailsActionBtn.style.borderColor = 'var(--danger)';
+                    detailsActionBtn.style.color = 'var(--danger)';
+                    detailsActionBtn.disabled = true;
+                } else {
+                    detailsRegStatus.innerHTML = '';
+                    detailsActionBtn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Register as Volunteer';
+                    detailsActionBtn.className = 'btn btn-primary';
+                    detailsActionBtn.style.borderColor = '';
+                    detailsActionBtn.style.color = '';
+                    detailsActionBtn.onclick = () => handleRegistration(ev.id, 'register');
+                }
+            }
+        }
+
+        async function handleRegistration(eventId, action) {
+            try {
+                const res = await fetch('/api/events/' + action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event_id: eventId })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Action failed');
+                    if (res.status === 401) window.location.href = 'volunteer-login.html';
+                    return;
+                }
+                alert(data.message || 'Success');
+                // Reload events to reflect new state
+                await loadEvents();
+                // Re-select same event
+                if (selectedEventId) selectEvent(selectedEventId);
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // ── Modal ──
+        function openModal(event) {
+            const ev = event;
+            modalTitle.textContent = ev.title;
+            modalDescription.textContent = ev.description || '';
+
+            let bc = 'badge-general';
+            if (ev.is_urgent) bc = 'badge-urgent';
+            else if (ev.category === 'camp') bc = 'badge-camp';
+            else if (ev.category === 'meeting') bc = 'badge-meeting';
+            const badgeText = ev.is_urgent ? 'URGENT' : (ev.category ? ev.category.toUpperCase() : 'GENERAL');
+            modalBadge.className = 'badge ' + bc;
+            modalBadge.textContent = badgeText;
+
+            const fd = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : '';
+            modalMeta.innerHTML = '<div style="margin-bottom:6px;"><i class="fas fa-calendar-alt"></i> ' + fd + ' | ' + (ev.time||'') + '</div><div><i class="fas fa-map-marker-alt"></i> ' + (ev.venue||'') + '</div><div style="margin-top:6px;"><i class="fas fa-user"></i> Coordinate: <strong>' + (ev.leader||'') + '</strong></div>';
+
+            const maxCap = ev.max_capacity;
+            const curCnt = ev.current_count || 0;
+            if (maxCap) {
+                modalCapacity.textContent = 'Capacity: ' + curCnt + ' / ' + maxCap;
+                modalCapacity.style.display = '';
+            } else {
+                modalCapacity.style.display = 'none';
+            }
+
+            const stat = ev.user_registration_status;
+            if (stat === 'registered') {
+                modalActionBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Registration';
+                modalActionBtn.className = 'btn btn-outline';
+                modalActionBtn.onclick = () => { closeModal(); handleRegistration(ev.id, 'cancel'); };
+            } else if (stat === 'waitlisted') {
+                modalActionBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Waitlist';
+                modalActionBtn.className = 'btn btn-outline';
+                modalActionBtn.onclick = () => { closeModal(); handleRegistration(ev.id, 'cancel'); };
+            } else {
+                const isFull = maxCap && curCnt >= maxCap;
+                if (isFull && ev.is_waitlist_enabled) {
+                    modalActionBtn.innerHTML = '<i class="fas fa-list"></i> Join Waitlist';
+                    modalActionBtn.className = 'btn btn-warning';
+                } else if (isFull && !ev.is_waitlist_enabled) {
+                    modalActionBtn.innerHTML = '<i class="fas fa-ban"></i> Event Full';
+                    modalActionBtn.className = 'btn btn-outline';
+                    modalActionBtn.disabled = true;
+                } else {
+                    modalActionBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register';
+                    modalActionBtn.className = 'btn btn-success';
+                }
+                modalActionBtn.onclick = () => { closeModal(); handleRegistration(ev.id, 'register'); };
             }
 
             noticeModal.classList.add('active');
@@ -1197,42 +1110,26 @@
             document.body.style.overflow = '';
         }
 
-        // Modal Close triggers
-        modalCloseBtn.addEventListener('click', closeModal);
-        modalCloseFooterBtn.addEventListener('click', closeModal);
-        noticeModal.addEventListener('click', (e) => {
-            if (e.target === noticeModal) closeModal();
-        });
-
-        // ── Month Navigation Triggers ──
-        prevMonthBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-            clearSelection();
-        });
-
-        nextMonthBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-            clearSelection();
-        });
-
-        // ── Notice Filter buttons Triggers ──
+        // ── Events Listeners ──
+        prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); clearSelection(); });
+        nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); clearSelection(); });
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                activeFilter = btn.dataset.filter;
+                currentNoticeFilter = btn.dataset.filter;
                 renderNotices();
             });
         });
+        modalCloseBtn.addEventListener('click', closeModal);
+        modalCloseFooterBtn.addEventListener('click', closeModal);
+        noticeModal.addEventListener('click', (e) => { if (e.target === noticeModal) closeModal(); });
 
-        // ── Initialization ──
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCalendar();
-            renderNotices();
-        });
+        // ── Init ──
+        document.addEventListener('DOMContentLoaded', loadEvents);
     </script>
 </body>
 
 </html>
+
+

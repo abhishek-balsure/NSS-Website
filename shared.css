@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    SARHAD NSS — Shared Design System
    Modern, Premium, Responsive
    ============================================ */
@@ -591,6 +591,16 @@ h6 {
     transform: translateY(-2px);
     box-shadow: 0 6px 24px rgba(239, 68, 68, 0.3);
 }
+.btn-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.btn-warning:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
 
 /* ── Stats Section ── */
 .stats-bar {
@@ -1113,3 +1123,4 @@ h6 {
 .account-emoji {
   font-size: 1.1em;
 }
+

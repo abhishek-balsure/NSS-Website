@@ -850,22 +850,31 @@
     // ── Delete ──
     function confirmDelete(id, title) {
       deletingActivityId = id;
+      deletingEventId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-      if (!deletingActivityId) return;
+      if (!deletingActivityId && !deletingEventId) return;
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
       try {
-        const res = await fetch(`/api/admin/activities/${deletingActivityId}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
-        toast('Activity deleted');
+        if (deletingEventId) {
+          const res = await fetch(`/api/admin/events/${deletingEventId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Event deleted');
+          deletingEventId = null;
+          loadEvents();
+        } else {
+          const res = await fetch(`/api/admin/activities/${deletingActivityId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Activity deleted');
+          deletingActivityId = null;
+          loadActivities();
+        }
         closeModal('deleteModal');
-        deletingActivityId = null;
-        loadActivities();
       } catch (e) { toast(e.message, 'error'); }
       finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash-can"></i> Delete'; }
     });
@@ -1000,6 +1009,7 @@
 
     function confirmDeleteEvent(id, title) {
       deletingEventId = id;
+      deletingActivityId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This will also remove all registrations for it. This cannot be undone.`;
       openModal('deleteModal');
     }

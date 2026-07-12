@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Photo gallery of Sarhad NSS activities and events, browsable by year and month.">
+    <title>Gallery — Sarhad NSS</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .page-header {
+            padding: calc(var(--nav-height) + 60px) 0 40px;
+            text-align: center;
+        }
+        .year-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 24px 30px;
+        }
+        .year-tab {
+            padding: 10px 22px;
+            border-radius: 100px;
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .year-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .month-section { margin-bottom: 40px; }
+        .month-section h3 {
+            font-size: 1.2rem;
+            margin: 0 0 16px;
+            padding-left: 24px;
+            border-left: 4px solid var(--accent);
+        }
+        .album-block { margin-bottom: 24px; padding: 0 24px; }
+        .album-block h4 { margin: 0 0 4px; font-size: 1rem; }
+        .album-block .album-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px; }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .photo-grid img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: var(--radius-sm, 8px);
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .photo-grid img:hover { transform: scale(1.03); }
+        .empty-note { text-align: center; color: var(--text-muted); padding: 60px 24px; }
+        .lightbox {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+        .lightbox-close {
+            position: absolute; top: 20px; right: 30px;
+            color: #fff; font-size: 2rem; cursor: pointer; background: none; border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="contactus.html">Contact</a>
+                <div class="nav-dropdown active">
+                    <button type="button" class="nav-dropdown-toggle">More <i class="fas fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu">
+                        <a href="quiz.html">Quiz</a>
+                        <a href="resources.html">Resources</a>
+                        <a href="alumni.html">Alumni</a>
+                        <a href="gallery.html" class="active">Gallery</a>
+                    </div>
+                </div>
+                <a href="volunteer-login.html">Sign In</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+                <a href="admin-login.html" class="nav-admin">Admin</a>
+            </div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-images" style="color:var(--accent)"></i> Photo Gallery</h1>
+            <p>Moments from our activities and events, year by year.</p>
+        </section>
+
+        <div class="year-tabs" id="yearTabs"></div>
+        <div id="galleryContent" style="min-height:300px">
+            <p class="empty-note">Loading gallery...</p>
+        </div>
+    </main>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Sarhad NSS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        let allAlbums = [];
+        let activeYear = null;
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+        async function loadGallery() {
+            try {
+                const res = await fetch('/api/gallery/list');
+                if (!res.ok) throw new Error();
+                const { albums } = await res.json();
+                allAlbums = albums || [];
+
+                if (!allAlbums.length) {
+                    document.getElementById('galleryContent').innerHTML = '<p class="empty-note">No photos added yet — check back soon!</p>';
+                    return;
+                }
+
+                const years = [...new Set(allAlbums.map(a => a.event_year))].sort((a, b) => b - a);
+                document.getElementById('yearTabs').innerHTML = years.map(y =>
+                    `<button class="year-tab" data-year="${y}">${y}</button>`
+                ).join('');
+
+                document.querySelectorAll('.year-tab').forEach(btn => {
+                    btn.addEventListener('click', () => selectYear(parseInt(btn.dataset.year)));
+                });
+
+                selectYear(years[0]);
+            } catch (e) {
+                document.getElementById('galleryContent').innerHTML = '<p class="empty-note">Could not load the gallery right now.</p>';
+            }
+        }
+
+        function selectYear(year) {
+            activeYear = year;
+            document.querySelectorAll('.year-tab').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.year) === year);
+            });
+
+            const albumsThisYear = allAlbums.filter(a => a.event_year === year);
+            const months = [...new Set(albumsThisYear.map(a => a.event_month))].sort((a, b) => b - a);
+
+            const html = months.map(m => {
+                const albumsThisMonth = albumsThisYear.filter(a => a.event_month === m);
+                const albumsHtml = albumsThisMonth.map(album => {
+                    const photos = album.gallery_photos || [];
+                    if (!photos.length) return '';
+                    return `
+                        <div class="album-block">
+                            <h4>${esc(album.title)}</h4>
+                            ${album.description ? `<div class="album-desc">${esc(album.description)}</div>` : ''}
+                            <div class="photo-grid">
+                                ${photos.map(p => `<img src="${esc(p.photo_path)}" alt="${esc(p.caption || album.title)}" loading="lazy" onclick="openLightbox('${esc(p.photo_path)}')">`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                if (!albumsHtml.trim()) return '';
+                return `<div class="month-section"><h3>${MONTH_NAMES[m - 1]}</h3>${albumsHtml}</div>`;
+            }).join('');
+
+            document.getElementById('galleryContent').innerHTML = html.trim()
+                ? html
+                : '<p class="empty-note">No photos for this year yet.</p>';
+        }
+
+        function openLightbox(url) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightbox').classList.add('open');
+        }
+        document.getElementById('lightboxClose').addEventListener('click', () => {
+            document.getElementById('lightbox').classList.remove('open');
+        });
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') document.getElementById('lightbox').classList.remove('open');
+        });
+
+        loadGallery();
+    </script>
+</body>
+</html>

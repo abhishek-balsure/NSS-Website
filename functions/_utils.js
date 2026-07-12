@@ -127,9 +127,15 @@ export function setAdminCookieHeaders(token) {
 }
 
 export function clearAdminCookieHeaders() {
-  return {
-    'Set-Cookie': `${ADMIN_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`,
-  };
+  const headers = new Headers({ 'Content-Type': 'application/json' });
+  // Clear at every path this cookie has ever been set at (current /api, plus
+  // the old /api/admin from before that change) — a plain object can only
+  // hold one Set-Cookie value, which is exactly why old cookies were never
+  // actually being cleared. Headers.append correctly sends multiple.
+  for (const path of ['/api', '/api/admin']) {
+    headers.append('Set-Cookie', `${ADMIN_SID}=; HttpOnly; Secure; SameSite=Strict; Path=${path}; Max-Age=0`);
+  }
+  return headers;
 }
 
 // ── Volunteer session ──
@@ -148,9 +154,11 @@ export function setVolunteerCookieHeaders(token) {
 }
 
 export function clearVolunteerCookieHeaders() {
-  return {
-    'Set-Cookie': `${VOL_SID}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`,
-  };
+  const headers = new Headers({ 'Content-Type': 'application/json' });
+  for (const path of ['/api', '/api/volunteer']) {
+    headers.append('Set-Cookie', `${VOL_SID}=; HttpOnly; Secure; SameSite=Strict; Path=${path}; Max-Age=0`);
+  }
+  return headers;
 }
 
 // ── Legacy Bearer-token helper (for non-session routes) ──

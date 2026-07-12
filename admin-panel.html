@@ -138,6 +138,13 @@
     .vol-status.pending { background: rgba(245,158,11,0.12); color: var(--accent); }
     .vol-status.approved { background: rgba(5,150,105,0.12); color: var(--success); }
     .vol-status.rejected { background: rgba(220,38,38,0.12); color: var(--danger); }
+.photo-grid-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; margin-top:14px; }
+.photo-grid-admin .photo-thumb { position:relative; }
+.photo-grid-admin img { width:100%; height:80px; object-fit:cover; border-radius:6px; }
+.photo-grid-admin .photo-del {
+  position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.7); color:#fff;
+  border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:0.75rem;
+}
     .act-actions { display: flex; gap: 6px; }
     .act-actions button {
       border: none; background: transparent;
@@ -278,6 +285,7 @@
           <button class="tab-btn" data-tab="activities"><i class="fas fa-calendar"></i> Manage Activities</button>
           <button class="tab-btn" data-tab="events"><i class="fas fa-star"></i> Events</button>
           <button class="tab-btn" data-tab="volunteers"><i class="fas fa-users"></i> Volunteers</button>
+          <button class="tab-btn" data-tab="gallery"><i class="fas fa-images"></i> Gallery</button>
         </div>
 
         <!-- ══ Attendance Tab ══ -->
@@ -373,6 +381,32 @@
           <div class="empty-state" id="volEmpty" style="display:none">
             <i class="fas fa-users"></i>
             <p>No volunteers match your search.</p>
+          </div>
+        </div>
+
+        <!-- ══ Gallery Tab ══ -->
+        <div class="tab-panel" id="tabGallery">
+          <div class="act-toolbar">
+            <h2>Photo Gallery (Year / Month Albums)</h2>
+            <button class="btn btn-success" id="newAlbumBtn"><i class="fas fa-plus"></i> New Album</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr>
+                  <th>Album</th>
+                  <th>Year</th>
+                  <th>Month</th>
+                  <th>Photos</th>
+                  <th style="width:220px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="albumTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="albumEmpty" style="display:none">
+            <i class="fas fa-images"></i>
+            <p>No albums yet. Create one, then upload photos to it.</p>
           </div>
         </div>
       </div>
@@ -561,6 +595,75 @@
     </div>
   </div>
 
+  <!-- ══ Album Form Modal ══ -->
+  <div class="modal-overlay" id="albumModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="albumModalTitle">New Album</h3>
+        <button class="modal-close" onclick="closeModal('albumModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="albumForm">
+          <div class="form-group">
+            <label for="albTitle">Album Title <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="albTitle" placeholder="e.g. Tree Plantation Drive" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="albYear">Year <span style="color:var(--danger)">*</span></label>
+              <input type="number" id="albYear" min="2015" max="2030" placeholder="2023" required>
+            </div>
+            <div class="form-group">
+              <label for="albMonth">Month <span style="color:var(--danger)">*</span></label>
+              <select id="albMonth" required>
+                <option value="">Select</option>
+                <option value="1">January</option><option value="2">February</option>
+                <option value="3">March</option><option value="4">April</option>
+                <option value="5">May</option><option value="6">June</option>
+                <option value="7">July</option><option value="8">August</option>
+                <option value="9">September</option><option value="10">October</option>
+                <option value="11">November</option><option value="12">December</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="albDesc">Description</label>
+            <textarea id="albDesc" rows="2" placeholder="Optional description shown on the public gallery"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('albumModal')">Cancel</button>
+        <button class="btn btn-success" id="saveAlbumBtn"><i class="fas fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Upload Photos Modal ══ -->
+  <div class="modal-overlay" id="uploadPhotosModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="uploadPhotosTitle">Upload Photos</h3>
+        <button class="modal-close" onclick="closeModal('uploadPhotosModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="photoFiles">Select photos (JPEG/PNG/WebP, max 8MB each)</label>
+          <input type="file" id="photoFiles" accept="image/jpeg,image/png,image/webp" multiple>
+        </div>
+        <div class="form-group">
+          <label for="photoCaption">Caption (applied to all uploaded photos)</label>
+          <input type="text" id="photoCaption" placeholder="Optional">
+        </div>
+        <div id="existingPhotosGrid" class="photo-grid-admin"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('uploadPhotosModal')">Close</button>
+        <button class="btn btn-success" id="uploadPhotosBtn"><i class="fas fa-upload"></i> Upload</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ Delete Confirm Modal ══ -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal" style="max-width:400px">
@@ -590,6 +693,10 @@
     let events = [];
     let editingEventId = null;
     let deletingEventId = null;
+    let albums = [];
+    let editingAlbumId = null;
+    let deletingAlbumId = null;
+    let uploadingAlbumId = null;
     let editingActivityId = null;
     let deletingActivityId = null;
     let approvingId = null;
@@ -607,6 +714,7 @@
         loadActivities();
         loadVolunteers();
         loadEvents();
+        loadAlbums();
       } catch { window.location.href = '/admin-login.html'; }
     })();
 
@@ -851,17 +959,24 @@
     function confirmDelete(id, title) {
       deletingActivityId = id;
       deletingEventId = null;
+      deletingAlbumId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-      if (!deletingActivityId && !deletingEventId) return;
+      if (!deletingActivityId && !deletingEventId && !deletingAlbumId) return;
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
       try {
-        if (deletingEventId) {
+        if (deletingAlbumId) {
+          const res = await fetch(`/api/admin/gallery/albums/${deletingAlbumId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Album deleted');
+          deletingAlbumId = null;
+          loadAlbums();
+        } else if (deletingEventId) {
           const res = await fetch(`/api/admin/events/${deletingEventId}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).error || 'Failed');
           toast('Event deleted');
@@ -1010,6 +1125,7 @@
     function confirmDeleteEvent(id, title) {
       deletingEventId = id;
       deletingActivityId = null;
+      deletingAlbumId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This will also remove all registrations for it. This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1150,6 +1266,163 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+    });
+
+    // =============================================
+    // ══ GALLERY ══
+    // =============================================
+    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    async function loadAlbums() {
+      try {
+        const res = await fetch('/api/gallery/list');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        albums = data.albums || [];
+        renderAlbums();
+      } catch (e) {
+        document.getElementById('albumTableBody').innerHTML = '';
+        document.getElementById('albumEmpty').style.display = 'block';
+      }
+    }
+
+    function renderAlbums() {
+      const tbody = document.getElementById('albumTableBody');
+      const empty = document.getElementById('albumEmpty');
+      if (!albums.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = albums.map(a => `<tr>
+        <td><strong>${esc(a.title)}</strong></td>
+        <td>${a.event_year}</td>
+        <td>${MONTH_NAMES[a.event_month - 1]}</td>
+        <td>${(a.gallery_photos || []).length}</td>
+        <td>
+          <div class="act-actions">
+            <button class="edit-btn" onclick="openUploadModal('${a.id}','${esc(a.title)}')" title="Upload / Manage Photos"><i class="fas fa-upload"></i></button>
+            <button class="edit-btn" onclick="editAlbum('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+            <button class="del-btn" onclick="confirmDeleteAlbum('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    document.getElementById('newAlbumBtn').addEventListener('click', () => {
+      editingAlbumId = null;
+      document.getElementById('albumModalTitle').textContent = 'New Album';
+      document.getElementById('albumForm').reset();
+      openModal('albumModal');
+    });
+
+    function editAlbum(id) {
+      const a = albums.find(x => x.id === id);
+      if (!a) return;
+      editingAlbumId = id;
+      document.getElementById('albumModalTitle').textContent = 'Edit Album';
+      document.getElementById('albTitle').value = a.title || '';
+      document.getElementById('albYear').value = a.event_year || '';
+      document.getElementById('albMonth').value = a.event_month || '';
+      document.getElementById('albDesc').value = a.description || '';
+      openModal('albumModal');
+    }
+
+    document.getElementById('saveAlbumBtn').addEventListener('click', async () => {
+      const title = document.getElementById('albTitle').value.trim();
+      const event_year = document.getElementById('albYear').value;
+      const event_month = document.getElementById('albMonth').value;
+
+      if (!title || !event_year || !event_month) {
+        toast('Fill required fields (Title, Year, Month)', 'error'); return;
+      }
+
+      const body = { title, event_year, event_month, description: document.getElementById('albDesc').value.trim() };
+      const btn = document.getElementById('saveAlbumBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+
+      try {
+        let res;
+        if (editingAlbumId) {
+          res = await fetch(`/api/admin/gallery/albums/${editingAlbumId}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+          });
+        } else {
+          res = await fetch('/api/admin/gallery/albums/create', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+          });
+        }
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast(editingAlbumId ? 'Album updated!' : 'Album created!');
+        closeModal('albumModal');
+        editingAlbumId = null;
+        loadAlbums();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save'; }
+    });
+
+    function confirmDeleteAlbum(id, title) {
+      deletingAlbumId = id;
+      deletingActivityId = null;
+      deletingEventId = null;
+      document.getElementById('deleteInfo').textContent = `Are you sure you want to delete album "${title}"? This will also delete all its photos. This cannot be undone.`;
+      openModal('deleteModal');
+    }
+
+    function openUploadModal(albumId, title) {
+      uploadingAlbumId = albumId;
+      document.getElementById('uploadPhotosTitle').textContent = `Photos — ${title}`;
+      document.getElementById('photoFiles').value = '';
+      document.getElementById('photoCaption').value = '';
+      renderExistingPhotos(albumId);
+      openModal('uploadPhotosModal');
+    }
+
+    function renderExistingPhotos(albumId) {
+      const album = albums.find(a => a.id === albumId);
+      const grid = document.getElementById('existingPhotosGrid');
+      const photos = (album && album.gallery_photos) || [];
+      if (!photos.length) { grid.innerHTML = '<p class="empty-note">No photos uploaded yet.</p>'; return; }
+      grid.innerHTML = photos.map(p => `
+        <div class="photo-thumb">
+          <img src="${esc(p.photo_path)}" alt="">
+          <button class="photo-del" onclick="deletePhoto('${p.id}','${albumId}')" title="Delete photo"><i class="fas fa-xmark"></i></button>
+        </div>
+      `).join('');
+    }
+
+    async function deletePhoto(photoId, albumId) {
+      try {
+        const res = await fetch(`/api/admin/gallery/photos/${photoId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Photo deleted');
+        await loadAlbums();
+        renderExistingPhotos(albumId);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    document.getElementById('uploadPhotosBtn').addEventListener('click', async () => {
+      const files = document.getElementById('photoFiles').files;
+      if (!files.length) { toast('Choose at least one photo', 'error'); return; }
+      if (!uploadingAlbumId) return;
+
+      const btn = document.getElementById('uploadPhotosBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Uploading...';
+
+      try {
+        const fd = new FormData();
+        for (const f of files) fd.append('photos', f);
+        fd.append('caption', document.getElementById('photoCaption').value.trim());
+
+        const res = await fetch(`/api/admin/gallery/albums/${uploadingAlbumId}/photos`, { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
+        toast('Photos uploaded!');
+        document.getElementById('photoFiles').value = '';
+        await loadAlbums();
+        renderExistingPhotos(uploadingAlbumId);
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Upload'; }
     });
 
     // ── Utils ──

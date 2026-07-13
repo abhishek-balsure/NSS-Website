@@ -182,6 +182,19 @@
         </div>
         <p class="empty-note" id="historyEmpty" style="display:none">No attendance submissions yet.</p>
       </div>
+
+      <div class="section-block" id="certificateSection" style="display:none">
+        <h2><i class="fas fa-award" style="color:var(--accent)"></i> Certificate of Participation</h2>
+        <div class="activity-card">
+          <div class="act-info">
+            <div class="title">You've earned <span id="certHours">0</span> approved hours</div>
+            <div class="meta" id="certStatusMsg"></div>
+          </div>
+          <a class="rsvp-btn yes" id="downloadCertBtn" href="/api/volunteer/certificate" style="display:none;text-decoration:none">
+            <i class="fas fa-download"></i> Download Certificate
+          </a>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -309,6 +322,8 @@
       }
     }
 
+    const MIN_CERT_HOURS = 10;
+
     async function loadHistory() {
       const table = document.getElementById('historyTable');
       const body = document.getElementById('historyBody');
@@ -317,6 +332,9 @@
         const res = await fetch('/api/volunteer/attendance/history');
         if (!res.ok) throw new Error();
         const { attendance } = await res.json();
+
+        updateCertificateSection(attendance || []);
+
         if (!attendance || !attendance.length) {
           empty.style.display = 'block';
           return;
@@ -333,6 +351,25 @@
       } catch (e) {
         empty.textContent = 'Could not load attendance history.';
         empty.style.display = 'block';
+      }
+    }
+
+    function updateCertificateSection(attendance) {
+      const approved = attendance.filter(a => a.status === 'approved');
+      const totalHours = approved.reduce((sum, a) => sum + (parseFloat(a.hours_attended) || 0), 0);
+
+      document.getElementById('certificateSection').style.display = 'block';
+      document.getElementById('certHours').textContent = totalHours;
+
+      const msgEl = document.getElementById('certStatusMsg');
+      const btn = document.getElementById('downloadCertBtn');
+
+      if (totalHours >= MIN_CERT_HOURS) {
+        msgEl.textContent = "You're eligible for a certificate of participation!";
+        btn.style.display = 'inline-flex';
+      } else {
+        msgEl.textContent = `Need ${(MIN_CERT_HOURS - totalHours).toFixed(1)} more approved hours to unlock your certificate.`;
+        btn.style.display = 'none';
       }
     }
 

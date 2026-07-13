@@ -145,6 +145,12 @@
   position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.7); color:#fff;
   border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:0.75rem;
 }
+.bulk-action-bar {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-glass); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm, 8px); padding: 10px 16px; margin-bottom: 12px;
+}
+.bulk-action-bar span { font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
     .act-actions { display: flex; gap: 6px; }
     .act-actions button {
       border: none; background: transparent;
@@ -286,6 +292,8 @@
           <button class="tab-btn" data-tab="events"><i class="fas fa-star"></i> Events</button>
           <button class="tab-btn" data-tab="volunteers"><i class="fas fa-users"></i> Volunteers</button>
           <button class="tab-btn" data-tab="gallery"><i class="fas fa-images"></i> Gallery</button>
+          <button class="tab-btn" data-tab="content"><i class="fas fa-book-open"></i> Content</button>
+          <button class="tab-btn" data-tab="admins" id="adminsTabBtn" style="display:none"><i class="fas fa-user-shield"></i> Manage Admins</button>
         </div>
 
         <!-- ══ Attendance Tab ══ -->
@@ -363,10 +371,16 @@
               <button class="btn btn-outline" id="exportCsvBtn"><i class="fas fa-download"></i> Export CSV</button>
             </div>
           </div>
+          <div class="bulk-action-bar" id="bulkActionBar" style="display:none">
+            <span id="bulkSelectedCount">0 selected</span>
+            <button class="btn btn-success" id="bulkApproveBtn"><i class="fas fa-check"></i> Approve Selected</button>
+            <button class="btn btn-danger" id="bulkRejectBtn"><i class="fas fa-xmark"></i> Reject Selected</button>
+          </div>
           <div class="act-table-wrap">
             <table class="act-table">
               <thead>
                 <tr>
+                  <th style="width:36px"><input type="checkbox" id="volSelectAll"></th>
                   <th>Name</th>
                   <th>Ref Code</th>
                   <th>Department</th>
@@ -407,6 +421,49 @@
           <div class="empty-state" id="albumEmpty" style="display:none">
             <i class="fas fa-images"></i>
             <p>No albums yet. Create one, then upload photos to it.</p>
+          </div>
+        </div>
+
+        <!-- ══ Content Tab (Resources + Alumni) ══ -->
+        <div class="tab-panel" id="tabContent">
+          <div class="act-toolbar">
+            <h2>Resources</h2>
+            <button class="btn btn-success" id="newResourceBtn"><i class="fas fa-plus"></i> New Resource</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead><tr><th>Title</th><th>Category</th><th>Link</th><th style="width:100px">Actions</th></tr></thead>
+              <tbody id="resourceTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="resourceEmpty" style="display:none"><p>No resources yet.</p></div>
+
+          <div class="act-toolbar" style="margin-top:32px">
+            <h2>Alumni Stories</h2>
+            <button class="btn btn-success" id="newAlumnusBtn"><i class="fas fa-plus"></i> New Alumni Story</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead><tr><th>Name</th><th>Grad. Year</th><th>Profession</th><th style="width:100px">Actions</th></tr></thead>
+              <tbody id="alumniTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="alumniEmpty" style="display:none"><p>No alumni stories yet.</p></div>
+        </div>
+
+        <!-- ══ Manage Admins Tab (super_admin only) ══ -->
+        <div class="tab-panel" id="tabAdmins">
+          <div class="act-toolbar">
+            <h2>Manage Admin Accounts</h2>
+            <button class="btn btn-success" id="newAdminBtn"><i class="fas fa-plus"></i> New Admin</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr><th>Name</th><th>Email</th><th>Role</th><th style="width:100px">Actions</th></tr>
+              </thead>
+              <tbody id="adminsTableBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -664,6 +721,125 @@
     </div>
   </div>
 
+  <!-- ══ New Admin Modal ══ -->
+  <div class="modal-overlay" id="newAdminModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>New Admin Account</h3>
+        <button class="modal-close" onclick="closeModal('newAdminModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="newAdminForm">
+          <div class="form-group">
+            <label for="newAdminName">Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="newAdminName" required>
+          </div>
+          <div class="form-group">
+            <label for="newAdminEmail">Email <span style="color:var(--danger)">*</span></label>
+            <input type="email" id="newAdminEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="newAdminPassword">Password <span style="color:var(--danger)">*</span></label>
+            <input type="password" id="newAdminPassword" placeholder="At least 8 characters" required>
+          </div>
+          <div class="form-group">
+            <label for="newAdminRole">Role</label>
+            <select id="newAdminRole">
+              <option value="admin">Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newAdminModal')">Cancel</button>
+        <button class="btn btn-success" id="saveNewAdminBtn"><i class="fas fa-floppy-disk"></i> Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Resource Form Modal ══ -->
+  <div class="modal-overlay" id="resourceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="resourceModalTitle">New Resource</h3>
+        <button class="modal-close" onclick="closeModal('resourceModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="resourceForm">
+          <div class="form-group">
+            <label for="resTitle">Title <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="resTitle" required>
+          </div>
+          <div class="form-group">
+            <label for="resFileUrl">File URL <span style="color:var(--danger)">*</span></label>
+            <input type="url" id="resFileUrl" placeholder="https://... (link to PDF/doc, e.g. Google Drive share link)" required>
+          </div>
+          <div class="form-group">
+            <label for="resCategory">Category</label>
+            <input type="text" id="resCategory" placeholder="e.g. forms, guidelines, reports">
+          </div>
+          <div class="form-group">
+            <label for="resDesc">Description</label>
+            <textarea id="resDesc" rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('resourceModal')">Cancel</button>
+        <button class="btn btn-success" id="saveResourceBtn"><i class="fas fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Alumni Story Form Modal ══ -->
+  <div class="modal-overlay" id="alumniModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="alumniModalTitle">New Alumni Story</h3>
+        <button class="modal-close" onclick="closeModal('alumniModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="alumniForm">
+          <div class="form-group">
+            <label for="alName">Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="alName" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="alGradYear">Graduation Year</label>
+              <input type="number" id="alGradYear" min="1990" max="2030">
+            </div>
+            <div class="form-group">
+              <label for="alProfession">Profession</label>
+              <input type="text" id="alProfession">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="alCompany">Company</label>
+            <input type="text" id="alCompany">
+          </div>
+          <div class="form-group">
+            <label for="alPhotoUrl">Photo URL</label>
+            <input type="url" id="alPhotoUrl" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label for="alLinkedin">LinkedIn URL</label>
+            <input type="url" id="alLinkedin" placeholder="https://linkedin.com/in/...">
+          </div>
+          <div class="form-group">
+            <label for="alStory">Story</label>
+            <textarea id="alStory" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('alumniModal')">Cancel</button>
+        <button class="btn btn-success" id="saveAlumniBtn"><i class="fas fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ Delete Confirm Modal ══ -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal" style="max-width:400px">
@@ -700,6 +876,13 @@
     let editingActivityId = null;
     let deletingActivityId = null;
     let approvingId = null;
+    let resources = [];
+    let editingResourceId = null;
+    let deletingResourceId = null;
+    let alumniList = [];
+    let editingAlumnusId = null;
+    let deletingAlumnusId = null;
+    let selectedVolunteerIds = new Set();
 
     // ── Init ──
     (async function() {
@@ -715,6 +898,12 @@
         loadVolunteers();
         loadEvents();
         loadAlbums();
+        loadResources();
+        loadAlumni();
+        if (adminData.role === 'super_admin') {
+          document.getElementById('adminsTabBtn').style.display = '';
+          loadAdmins();
+        }
       } catch { window.location.href = '/admin-login.html'; }
     })();
 
@@ -960,17 +1149,31 @@
       deletingActivityId = id;
       deletingEventId = null;
       deletingAlbumId = null;
+      deletingResourceId = null;
+      deletingAlumnusId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-      if (!deletingActivityId && !deletingEventId && !deletingAlbumId) return;
+      if (!deletingActivityId && !deletingEventId && !deletingAlbumId && !deletingResourceId && !deletingAlumnusId) return;
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
       try {
-        if (deletingAlbumId) {
+        if (deletingResourceId) {
+          const res = await fetch(`/api/admin/resources/${deletingResourceId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Resource deleted');
+          deletingResourceId = null;
+          loadResources();
+        } else if (deletingAlumnusId) {
+          const res = await fetch(`/api/admin/alumni/${deletingAlumnusId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Alumni story deleted');
+          deletingAlumnusId = null;
+          loadAlumni();
+        } else if (deletingAlbumId) {
           const res = await fetch(`/api/admin/gallery/albums/${deletingAlbumId}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).error || 'Failed');
           toast('Album deleted');
@@ -1126,6 +1329,8 @@
       deletingEventId = id;
       deletingActivityId = null;
       deletingAlbumId = null;
+      deletingResourceId = null;
+      deletingAlumnusId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This will also remove all registrations for it. This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1206,6 +1411,7 @@
       }
       empty.style.display = 'none';
       tbody.innerHTML = filtered.map(v => `<tr>
+        <td><input type="checkbox" class="vol-row-check" data-vol-id="${esc(v.id)}" ${selectedVolunteerIds.has(v.id) ? 'checked' : ''}></td>
         <td><strong>${esc(v.name)}</strong></td>
         <td>${esc(v.ref_code)}</td>
         <td>${esc(v.department || '—')}</td>
@@ -1218,6 +1424,14 @@
           </div>
         </td>
       </tr>`).join('');
+
+      tbody.querySelectorAll('.vol-row-check').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedVolunteerIds.add(cb.dataset.volId);
+          else selectedVolunteerIds.delete(cb.dataset.volId);
+          updateBulkBar();
+        });
+      });
 
       tbody.querySelectorAll('[data-vol-action]').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -1243,6 +1457,51 @@
 
     document.getElementById('volSearch').addEventListener('input', renderVolunteers);
     document.getElementById('volStatusFilter').addEventListener('change', renderVolunteers);
+
+    function updateBulkBar() {
+      const bar = document.getElementById('bulkActionBar');
+      const count = selectedVolunteerIds.size;
+      if (count > 0) {
+        bar.style.display = 'flex';
+        document.getElementById('bulkSelectedCount').textContent = `${count} selected`;
+      } else {
+        bar.style.display = 'none';
+      }
+    }
+
+    document.getElementById('volSelectAll').addEventListener('change', (e) => {
+      const filtered = getFilteredVolunteers();
+      if (e.target.checked) filtered.forEach(v => selectedVolunteerIds.add(v.id));
+      else filtered.forEach(v => selectedVolunteerIds.delete(v.id));
+      renderVolunteers();
+      updateBulkBar();
+    });
+
+    async function bulkUpdateStatus(status) {
+      const ids = [...selectedVolunteerIds];
+      if (!ids.length) return;
+      if (!confirm(`${status === 'approved' ? 'Approve' : 'Reject'} ${ids.length} selected volunteer(s)?`)) return;
+
+      const btn = status === 'approved' ? document.getElementById('bulkApproveBtn') : document.getElementById('bulkRejectBtn');
+      btn.disabled = true;
+      let failures = 0;
+      for (const id of ids) {
+        try {
+          const res = await fetch(`/api/admin/volunteers/${id}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }),
+          });
+          if (!res.ok) failures++;
+        } catch (e) { failures++; }
+      }
+      btn.disabled = false;
+      selectedVolunteerIds.clear();
+      updateBulkBar();
+      await loadVolunteers();
+      toast(failures ? `Done with ${failures} failure(s)` : `${ids.length} volunteer(s) ${status}`, failures ? 'error' : undefined);
+    }
+
+    document.getElementById('bulkApproveBtn').addEventListener('click', () => bulkUpdateStatus('approved'));
+    document.getElementById('bulkRejectBtn').addEventListener('click', () => bulkUpdateStatus('rejected'));
 
     document.getElementById('exportCsvBtn').addEventListener('click', () => {
       const rows = getFilteredVolunteers();
@@ -1366,6 +1625,8 @@
       deletingAlbumId = id;
       deletingActivityId = null;
       deletingEventId = null;
+      deletingResourceId = null;
+      deletingAlumnusId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete album "${title}"? This will also delete all its photos. This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1424,6 +1685,242 @@
       } catch (e) { toast(e.message, 'error'); }
       finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Upload'; }
     });
+
+    // =============================================
+    // ══ MANAGE ADMINS (super_admin only) ══
+    // =============================================
+    async function loadAdmins() {
+      try {
+        const res = await fetch('/api/admin/admins/list');
+        if (!res.ok) throw new Error();
+        const { admins } = await res.json();
+        renderAdmins(admins || []);
+      } catch (e) {
+        document.getElementById('adminsTableBody').innerHTML = '<tr><td colspan="4">Could not load admins.</td></tr>';
+      }
+    }
+
+    function renderAdmins(admins) {
+      document.getElementById('adminsTableBody').innerHTML = admins.map(a => `<tr>
+        <td>${esc(a.name)}</td>
+        <td>${esc(a.email)}</td>
+        <td style="text-transform:capitalize">${esc(a.role.replace('_', ' '))}</td>
+        <td>
+          ${a.id !== adminData.userId ? `<button class="del-btn" onclick="deleteAdmin('${a.id}','${esc(a.name)}')" title="Remove"><i class="fas fa-trash-can"></i></button>` : '<span style="color:var(--text-muted);font-size:0.8rem">(you)</span>'}
+        </td>
+      </tr>`).join('');
+    }
+
+    document.getElementById('newAdminBtn').addEventListener('click', () => {
+      document.getElementById('newAdminForm').reset();
+      openModal('newAdminModal');
+    });
+
+    document.getElementById('saveNewAdminBtn').addEventListener('click', async () => {
+      const name = document.getElementById('newAdminName').value.trim();
+      const email = document.getElementById('newAdminEmail').value.trim();
+      const password = document.getElementById('newAdminPassword').value;
+      const role = document.getElementById('newAdminRole').value;
+
+      if (!name || !email || !password) { toast('Fill all required fields', 'error'); return; }
+      if (password.length < 8) { toast('Password must be at least 8 characters', 'error'); return; }
+
+      const btn = document.getElementById('saveNewAdminBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Creating...';
+      try {
+        const res = await fetch('/api/admin/admins/create', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Admin account created!');
+        closeModal('newAdminModal');
+        loadAdmins();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Create'; }
+    });
+
+    async function deleteAdmin(id, name) {
+      if (!confirm(`Remove admin account "${name}"? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`/api/admin/admins/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast('Admin removed');
+        loadAdmins();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    // =============================================
+    // ══ CONTENT: RESOURCES ══
+    // =============================================
+    async function loadResources() {
+      try {
+        const res = await fetch('/api/admin/resources/list');
+        if (!res.ok) throw new Error();
+        const { resources: data } = await res.json();
+        resources = data || [];
+        renderResources();
+      } catch (e) {
+        document.getElementById('resourceTableBody').innerHTML = '';
+        document.getElementById('resourceEmpty').style.display = 'block';
+      }
+    }
+
+    function renderResources() {
+      const tbody = document.getElementById('resourceTableBody');
+      const empty = document.getElementById('resourceEmpty');
+      if (!resources.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      tbody.innerHTML = resources.map(r => `<tr>
+        <td><strong>${esc(r.title)}</strong></td>
+        <td>${esc(r.category || '—')}</td>
+        <td><a href="${esc(r.file_url)}" target="_blank" rel="noopener">Open <i class="fas fa-arrow-up-right-from-square"></i></a></td>
+        <td>
+          <div class="act-actions">
+            <button class="edit-btn" onclick="editResource('${r.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+            <button class="del-btn" onclick="confirmDeleteResource('${r.id}','${esc(r.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    document.getElementById('newResourceBtn').addEventListener('click', () => {
+      editingResourceId = null;
+      document.getElementById('resourceModalTitle').textContent = 'New Resource';
+      document.getElementById('resourceForm').reset();
+      openModal('resourceModal');
+    });
+
+    function editResource(id) {
+      const r = resources.find(x => x.id === id);
+      if (!r) return;
+      editingResourceId = id;
+      document.getElementById('resourceModalTitle').textContent = 'Edit Resource';
+      document.getElementById('resTitle').value = r.title || '';
+      document.getElementById('resFileUrl').value = r.file_url || '';
+      document.getElementById('resCategory').value = r.category || '';
+      document.getElementById('resDesc').value = r.description || '';
+      openModal('resourceModal');
+    }
+
+    document.getElementById('saveResourceBtn').addEventListener('click', async () => {
+      const title = document.getElementById('resTitle').value.trim();
+      const file_url = document.getElementById('resFileUrl').value.trim();
+      if (!title || !file_url) { toast('Title and File URL are required', 'error'); return; }
+
+      const body = {
+        title, file_url,
+        category: document.getElementById('resCategory').value.trim() || 'general',
+        description: document.getElementById('resDesc').value.trim(),
+      };
+      const btn = document.getElementById('saveResourceBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+      try {
+        const res = editingResourceId
+          ? await fetch(`/api/admin/resources/${editingResourceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          : await fetch('/api/admin/resources/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast(editingResourceId ? 'Resource updated!' : 'Resource created!');
+        closeModal('resourceModal');
+        loadResources();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save'; }
+    });
+
+    function confirmDeleteResource(id, title) {
+      deletingResourceId = id; deletingActivityId = null; deletingEventId = null; deletingAlbumId = null; deletingAlumnusId = null;
+      document.getElementById('deleteInfo').textContent = `Delete resource "${title}"? This cannot be undone.`;
+      openModal('deleteModal');
+    }
+
+    // =============================================
+    // ══ CONTENT: ALUMNI STORIES ══
+    // =============================================
+    async function loadAlumni() {
+      try {
+        const res = await fetch('/api/admin/alumni/list');
+        if (!res.ok) throw new Error();
+        const { alumni } = await res.json();
+        alumniList = alumni || [];
+        renderAlumni();
+      } catch (e) {
+        document.getElementById('alumniTableBody').innerHTML = '';
+        document.getElementById('alumniEmpty').style.display = 'block';
+      }
+    }
+
+    function renderAlumni() {
+      const tbody = document.getElementById('alumniTableBody');
+      const empty = document.getElementById('alumniEmpty');
+      if (!alumniList.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      tbody.innerHTML = alumniList.map(a => `<tr>
+        <td><strong>${esc(a.name)}</strong></td>
+        <td>${a.graduation_year || '—'}</td>
+        <td>${esc(a.profession || '—')}</td>
+        <td>
+          <div class="act-actions">
+            <button class="edit-btn" onclick="editAlumnus('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+            <button class="del-btn" onclick="confirmDeleteAlumnus('${a.id}','${esc(a.name)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    document.getElementById('newAlumnusBtn').addEventListener('click', () => {
+      editingAlumnusId = null;
+      document.getElementById('alumniModalTitle').textContent = 'New Alumni Story';
+      document.getElementById('alumniForm').reset();
+      openModal('alumniModal');
+    });
+
+    function editAlumnus(id) {
+      const a = alumniList.find(x => x.id === id);
+      if (!a) return;
+      editingAlumnusId = id;
+      document.getElementById('alumniModalTitle').textContent = 'Edit Alumni Story';
+      document.getElementById('alName').value = a.name || '';
+      document.getElementById('alGradYear').value = a.graduation_year || '';
+      document.getElementById('alProfession').value = a.profession || '';
+      document.getElementById('alCompany').value = a.company || '';
+      document.getElementById('alPhotoUrl').value = a.photo_url || '';
+      document.getElementById('alLinkedin').value = a.linkedin_url || '';
+      document.getElementById('alStory').value = a.story_content || '';
+      openModal('alumniModal');
+    }
+
+    document.getElementById('saveAlumniBtn').addEventListener('click', async () => {
+      const name = document.getElementById('alName').value.trim();
+      if (!name) { toast('Name is required', 'error'); return; }
+
+      const body = {
+        name,
+        graduation_year: document.getElementById('alGradYear').value,
+        profession: document.getElementById('alProfession').value.trim(),
+        company: document.getElementById('alCompany').value.trim(),
+        photo_url: document.getElementById('alPhotoUrl').value.trim(),
+        linkedin_url: document.getElementById('alLinkedin').value.trim(),
+        story_content: document.getElementById('alStory').value.trim(),
+      };
+      const btn = document.getElementById('saveAlumniBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+      try {
+        const res = editingAlumnusId
+          ? await fetch(`/api/admin/alumni/${editingAlumnusId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          : await fetch('/api/admin/alumni/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        toast(editingAlumnusId ? 'Alumni story updated!' : 'Alumni story created!');
+        closeModal('alumniModal');
+        loadAlumni();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save'; }
+    });
+
+    function confirmDeleteAlumnus(id, name) {
+      deletingAlumnusId = id; deletingActivityId = null; deletingEventId = null; deletingAlbumId = null; deletingResourceId = null;
+      document.getElementById('deleteInfo').textContent = `Delete alumni story for "${name}"? This cannot be undone.`;
+      openModal('deleteModal');
+    }
 
     // ── Utils ──
     function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

@@ -233,13 +233,13 @@ h6 {
     right: 0;
     height: var(--nav-height);
     z-index: 1000;
+    background: var(--bg-navbar);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     transition: all var(--transition-normal);
 }
 
 .navbar.scrolled {
-    background: var(--bg-navbar);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border-subtle);
     box-shadow: 0 2px 20px rgba(15, 23, 42, 0.06);
 }

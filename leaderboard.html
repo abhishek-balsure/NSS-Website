@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Top NSS volunteers by verified hours.">
+    <title>Leaderboard — Sarhad NSS</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .page-header { padding: calc(var(--nav-height) + 60px) 0 30px; text-align: center; }
+        .leaderboard-wrap { max-width: 640px; margin: 0 auto; padding: 0 24px 80px; }
+        .lb-row {
+            display: flex; align-items: center; gap: 16px;
+            background: var(--bg-glass); border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md, 10px); padding: 14px 18px; margin-bottom: 10px;
+        }
+        .lb-rank {
+            width: 36px; height: 36px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
+            background: rgba(127,127,127,0.15); color: var(--text-secondary);
+        }
+        .lb-row:nth-child(1) .lb-rank { background: #FFD700; color: #4A3800; }
+        .lb-row:nth-child(2) .lb-rank { background: #C0C0C0; color: #333; }
+        .lb-row:nth-child(3) .lb-rank { background: #CD7F32; color: #fff; }
+        .lb-info { flex: 1; min-width: 0; }
+        .lb-info .lb-name { font-weight: 600; }
+        .lb-info .lb-dept { font-size: 0.82rem; color: var(--text-muted); }
+        .lb-hours { font-weight: 700; color: var(--accent); white-space: nowrap; }
+        .empty-note { text-align: center; color: var(--text-muted); padding: 60px 24px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="contactus.html">Contact</a>
+                <div class="nav-dropdown">
+                    <button type="button" class="nav-dropdown-toggle">More <i class="fas fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu">
+                        <a href="quiz.html">Quiz</a>
+                        <a href="resources.html">Resources</a>
+                        <a href="alumni.html">Alumni</a>
+                        <a href="gallery.html">Gallery</a>
+                        <a href="leaderboard.html" class="active">Leaderboard</a>
+                    </div>
+                </div>
+                <a href="volunteer-login.html">Sign In</a>
+                <a href="form.html" class="nav-cta">Join NSS</a>
+                <a href="admin-login.html" class="nav-admin">Admin</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-trophy" style="color:var(--accent)"></i> Volunteer Leaderboard</h1>
+            <p>Top volunteers by verified, admin-approved hours.</p>
+        </section>
+        <div class="leaderboard-wrap" id="leaderboardWrap">
+            <p class="empty-note">Loading...</p>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Sarhad NSS. All rights reserved. &middot; <a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+        async function loadLeaderboard() {
+            const wrap = document.getElementById('leaderboardWrap');
+            try {
+                const res = await fetch('/api/leaderboard/list');
+                if (!res.ok) throw new Error();
+                const { leaderboard } = await res.json();
+                if (!leaderboard || !leaderboard.length) {
+                    wrap.innerHTML = '<p class="empty-note">No approved hours logged yet — check back soon!</p>';
+                    return;
+                }
+                wrap.innerHTML = leaderboard.map((v, i) => `
+                    <div class="lb-row">
+                        <div class="lb-rank">${i + 1}</div>
+                        <div class="lb-info">
+                            <div class="lb-name">${esc(v.name)}</div>
+                            <div class="lb-dept">${esc(v.department || '')}</div>
+                        </div>
+                        <div class="lb-hours">${v.hours.toFixed(1)} hrs</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                wrap.innerHTML = '<p class="empty-note">Could not load the leaderboard right now.</p>';
+            }
+        }
+        loadLeaderboard();
+    </script>
+</body>
+</html>

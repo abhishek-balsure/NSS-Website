@@ -130,6 +130,17 @@
     }
     .history-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
     .empty-note { color: var(--text-muted); font-size: 0.88rem; padding: 12px 0; }
+    .profile-edit-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .profile-edit-grid { grid-template-columns: 1fr; }
+    }
+    .profile-edit-grid .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.85rem; }
+    .profile-edit-grid input, .profile-edit-grid select, .profile-edit-grid textarea {
+      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm, 8px);
+      border: 1px solid var(--border-glass); background: var(--bg-body); font: inherit; color: var(--text-primary);
+    }
   </style>
 </head>
 <body>
@@ -195,6 +206,58 @@
           </a>
         </div>
       </div>
+
+      <div class="section-block">
+        <h2><i class="fas fa-pen-to-square" style="color:var(--accent)"></i> Edit Profile</h2>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">
+          You can update your contact details below. Your name, date of birth, and Aadhar number can't be changed here — contact the NSS office for corrections to those.
+        </p>
+        <form id="profileEditForm" class="profile-edit-grid">
+          <div class="form-group">
+            <label for="editMobile">Mobile Number</label>
+            <input type="text" id="editMobile">
+          </div>
+          <div class="form-group">
+            <label for="editBloodGroup">Blood Group</label>
+            <input type="text" id="editBloodGroup">
+          </div>
+          <div class="form-group">
+            <label for="editEmergencyNo">Emergency Contact Number</label>
+            <input type="text" id="editEmergencyNo">
+          </div>
+          <div class="form-group">
+            <label for="editEmergencyRelation">Emergency Contact Relation</label>
+            <input type="text" id="editEmergencyRelation">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label for="editAddress">Address</label>
+            <textarea id="editAddress" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editInterest">Area of Interest</label>
+            <input type="text" id="editInterest">
+          </div>
+          <div class="form-group">
+            <label for="editTshirt">T-Shirt Size</label>
+            <select id="editTshirt">
+              <option value="S">S</option><option value="M">M</option><option value="L">L</option>
+              <option value="XL">XL</option><option value="XXL">XXL</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label for="editMedical">Medical Information (optional)</label>
+            <input type="text" id="editMedical">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="editShowLeaderboard" style="width:auto">
+            <label for="editShowLeaderboard" style="margin:0">Show my name on the public leaderboard</label>
+          </div>
+        </form>
+        <button class="rsvp-btn yes" id="saveProfileBtn" style="margin-top:8px">
+          <i class="fas fa-floppy-disk"></i> Save Changes
+        </button>
+        <span id="profileSaveMsg" style="margin-left:12px;font-size:0.85rem"></span>
+      </div>
     </div>
   </main>
 
@@ -252,6 +315,7 @@
         document.getElementById('loading').style.display = 'none';
         document.getElementById('dashContent').style.display = 'block';
 
+        populateProfileForm(user);
         loadUpcomingActivities();
         loadHistory();
       } catch (e) {
@@ -267,6 +331,56 @@
 
     function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
     function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+    function populateProfileForm(user) {
+      document.getElementById('editMobile').value = user.mobile_no || '';
+      document.getElementById('editBloodGroup').value = user.blood_group || '';
+      document.getElementById('editEmergencyNo').value = user.emergency_no || '';
+      document.getElementById('editEmergencyRelation').value = user.emergency_relation || '';
+      document.getElementById('editAddress').value = user.address || '';
+      document.getElementById('editInterest').value = user.interest || '';
+      document.getElementById('editTshirt').value = user.tshirt_size || 'M';
+      document.getElementById('editMedical').value = user.medical || '';
+      document.getElementById('editShowLeaderboard').checked = user.show_on_leaderboard !== false;
+    }
+
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('saveProfileBtn');
+      const msg = document.getElementById('profileSaveMsg');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+      msg.textContent = '';
+
+      const body = {
+        mobile_no: document.getElementById('editMobile').value.trim(),
+        blood_group: document.getElementById('editBloodGroup').value.trim(),
+        emergency_no: document.getElementById('editEmergencyNo').value.trim(),
+        emergency_relation: document.getElementById('editEmergencyRelation').value.trim(),
+        address: document.getElementById('editAddress').value.trim(),
+        interest: document.getElementById('editInterest').value.trim(),
+        tshirt_size: document.getElementById('editTshirt').value,
+        medical: document.getElementById('editMedical').value.trim(),
+        show_on_leaderboard: document.getElementById('editShowLeaderboard').checked,
+      };
+
+      try {
+        const res = await fetch('/api/volunteer/me', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed to save');
+        msg.style.color = 'var(--success)';
+        msg.textContent = 'Saved!';
+      } catch (e) {
+        msg.style.color = 'var(--danger)';
+        msg.textContent = e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Changes';
+        setTimeout(() => { msg.textContent = ''; }, 4000);
+      }
+    });
 
     async function loadUpcomingActivities() {
       const el = document.getElementById('upcomingActivities');

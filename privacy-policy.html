@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Privacy Policy for the Sarhad NSS volunteer management platform.">
+    <title>Privacy Policy — Sarhad NSS</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .legal-page { padding: calc(var(--nav-height) + 50px) 24px 80px; max-width: 760px; margin: 0 auto; }
+        .legal-page h1 { margin-bottom: 8px; }
+        .legal-page .updated { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 32px; }
+        .legal-page h2 { font-size: 1.15rem; margin: 32px 0 12px; color: var(--accent); }
+        .legal-page p, .legal-page li { color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+        .legal-page ul { padding-left: 22px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="contactus.html">Contact</a>
+                <a href="volunteer-login.html">Sign In</a>
+                <a href="form.html" class="nav-cta">Join NSS</a>
+                <a href="admin-login.html" class="nav-admin">Admin</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main class="legal-page">
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated: July 2026</p>
+
+        <p>This policy explains what information Sarhad NSS collects through this website, why we collect it, and how it's stored and used. If you register as a volunteer, this applies to you.</p>
+
+        <h2>What we collect</h2>
+        <p>When you register through the volunteer enrollment form, we collect: your name, parent/guardian name, date of birth, gender, blood group, caste category, Aadhar number, department, academic details, roll number, email, mobile number, emergency contact details, address, area of interest, prior NSS experience, T-shirt size, and any medical information you choose to share.</p>
+        <p>When you create a login account, we additionally store your email and a securely hashed password (we never store your password in readable form).</p>
+        <p>When you submit attendance for an activity, we store a photo you upload as proof of participation, along with the activity, date, and hours.</p>
+
+        <h2>Why we collect it</h2>
+        <ul>
+            <li>Aadhar number, date of birth, and address are required by the NSS program for identity verification and official record-keeping.</li>
+            <li>Contact details let us reach you about activities and emergencies.</li>
+            <li>Attendance photos verify genuine participation for certificate eligibility and program reporting.</li>
+        </ul>
+
+        <h2>Who can see it</h2>
+        <p>Your full registration details (including Aadhar number, address, and emergency contacts) are visible only to NSS admin accounts, not to other volunteers or the public. Attendance photos are stored privately and are only viewable by admins reviewing your submission, via time-limited access links — they are never public.</p>
+        <p>Your name may appear publicly in a volunteer leaderboard (showing your name, department, and total volunteer hours only — never your Aadhar, address, or other sensitive details) unless you ask us to exclude you.</p>
+
+        <h2>How it's stored</h2>
+        <p>Data is stored with Supabase (PostgreSQL database) with row-level security policies restricting access. Attendance and gallery photos are stored in access-controlled cloud storage. We do not sell, rent, or share your information with third parties for marketing purposes.</p>
+
+        <h2>Your rights</h2>
+        <p>You can ask us to correct inaccurate information, or to remove your account and associated data, by contacting the NSS Program Officer using the details on our <a href="contactus.html">Contact page</a>. Note that some records (like official attendance history) may need to be retained for program compliance even after an account is deactivated.</p>
+
+        <h2>Changes to this policy</h2>
+        <p>If this policy changes, the "Last updated" date above will reflect it. Continued use of the site after a change means you accept the updated policy.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about this policy or your data can be directed to the NSS Program Officer via the <a href="contactus.html">Contact page</a>.</p>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Sarhad NSS. All rights reserved. &middot; <a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+</body>
+</html>

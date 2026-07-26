@@ -29,6 +29,17 @@
         .lb-info .lb-dept { font-size: 0.82rem; color: var(--text-muted); }
         .lb-hours { font-weight: 700; color: var(--accent); white-space: nowrap; }
         .empty-note { text-align: center; color: var(--text-muted); padding: 60px 24px; }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(127,127,127,0.12) 25%, rgba(127,127,127,0.22) 37%, rgba(127,127,127,0.12) 63%);
+            background-size: 400% 100%;
+            animation: skeleton-shimmer 1.4s ease infinite;
+            border-radius: var(--radius-md, 10px);
+        }
+        @keyframes skeleton-shimmer {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .lb-skeleton { height: 64px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -71,7 +82,9 @@
             <p>Top volunteers by verified, admin-approved hours.</p>
         </section>
         <div class="leaderboard-wrap" id="leaderboardWrap">
-            <p class="empty-note">Loading...</p>
+            <div class="skeleton lb-skeleton"></div>
+            <div class="skeleton lb-skeleton"></div>
+            <div class="skeleton lb-skeleton"></div>
         </div>
     </main>
 
@@ -102,12 +115,19 @@
                             <div class="lb-name">${esc(v.name)}</div>
                             <div class="lb-dept">${esc(v.department || '')}</div>
                         </div>
-                        <div class="lb-hours">${v.hours.toFixed(1)} hrs</div>
+                        <div class="lb-hours">${badgeFor(v.hours)} ${v.hours.toFixed(1)} hrs</div>
                     </div>
                 `).join('');
             } catch (e) {
                 wrap.innerHTML = '<p class="empty-note">Could not load the leaderboard right now.</p>';
             }
+        }
+
+        function badgeFor(hours) {
+            if (hours >= 50) return '🥇';
+            if (hours >= 25) return '🥈';
+            if (hours >= 10) return '🥉';
+            return '';
         }
         loadLeaderboard();
     </script>

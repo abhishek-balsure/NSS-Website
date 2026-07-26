@@ -420,11 +420,11 @@
 
                 <div class="stats-bar fade-in">
                     <div class="stat-item">
-                        <div class="stat-number" data-count="1500" data-suffix="+">0</div>
+                        <div class="stat-number" id="statVolunteers" data-suffix="+">0</div>
                         <div class="stat-label">Volunteers</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" data-count="39" data-suffix="+">0</div>
+                        <div class="stat-number" id="statActivities" data-suffix="+">0</div>
                         <div class="stat-label">Activities</div>
                     </div>
                     <div class="stat-item">
@@ -432,8 +432,8 @@
                         <div class="stat-label">Years Active</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" data-count="5000" data-suffix="+">0</div>
-                        <div class="stat-label">Lives Impacted</div>
+                        <div class="stat-number" id="statHours" data-suffix="+">0</div>
+                        <div class="stat-label">Hours Logged</div>
                     </div>
                 </div>
 
@@ -649,6 +649,53 @@
     </footer>
 
     <script src="shared.js"></script>
+    <script>
+        (async function loadHomepageStats() {
+            const elVolunteers = document.getElementById('statVolunteers');
+            const elActivities = document.getElementById('statActivities');
+            const elHours = document.getElementById('statHours');
+            if (!elVolunteers) return;
+
+            try {
+                const res = await fetch('/api/public-stats/list');
+                if (!res.ok) throw new Error();
+                const stats = await res.json();
+
+                elVolunteers.dataset.count = stats.volunteers || 0;
+                elActivities.dataset.count = stats.activities || 0;
+                elHours.dataset.count = stats.totalHours || 0;
+            } catch (e) {
+                // Leave at 0 rather than showing a fake number
+                elVolunteers.dataset.count = 0;
+                elActivities.dataset.count = 0;
+                elHours.dataset.count = 0;
+            }
+
+            // These 3 elements deliberately lack data-count until now, so
+            // shared.js's generic counter observer never picked them up —
+            // set up their own observer here, after real data has arrived.
+            const dynamicCounters = [elVolunteers, elActivities, elHours];
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !entry.target.dataset.animated) {
+                        entry.target.dataset.animated = 'true';
+                        const target = parseInt(entry.target.dataset.count) || 0;
+                        const suffix = entry.target.dataset.suffix || '';
+                        const duration = 1500;
+                        const start = performance.now();
+                        function update(now) {
+                            const progress = Math.min((now - start) / duration, 1);
+                            const eased = 1 - Math.pow(1 - progress, 3);
+                            entry.target.textContent = Math.round(target * eased).toLocaleString() + (progress === 1 ? suffix : '');
+                            if (progress < 1) requestAnimationFrame(update);
+                        }
+                        requestAnimationFrame(update);
+                    }
+                });
+            }, { threshold: 0.5 });
+            dynamicCounters.forEach(el => observer.observe(el));
+        })();
+    </script>
 </body>
 
 </html>

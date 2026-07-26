@@ -130,6 +130,44 @@
     }
     .history-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
     .empty-note { color: var(--text-muted); font-size: 0.88rem; padding: 12px 0; }
+
+    /* ── Achievement badge ── */
+    .badge-icon {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; background: rgba(127,127,127,0.15); color: var(--text-muted);
+    }
+    .badge-icon.bronze { background: rgba(205,127,50,0.18); color: #CD7F32; }
+    .badge-icon.silver { background: rgba(192,192,192,0.25); color: #8a8a8a; }
+    .badge-icon.gold { background: rgba(255,215,0,0.2); color: #B8860B; }
+
+    /* ── Progress bar ── */
+    .progress-track {
+      height: 10px; border-radius: 100px; background: rgba(127,127,127,0.15); overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--success));
+      width: 0%; transition: width 0.6s ease;
+    }
+    .progress-milestones {
+      display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);
+    }
+    .progress-milestones span.reached { color: var(--accent); font-weight: 700; }
+
+    /* ── Skeleton loading placeholders ── */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(127,127,127,0.12) 25%, rgba(127,127,127,0.22) 37%, rgba(127,127,127,0.12) 63%);
+      background-size: 400% 100%;
+      animation: skeleton-shimmer 1.4s ease infinite;
+      border-radius: 6px;
+    }
+    @keyframes skeleton-shimmer {
+      0% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .skeleton-card { height: 68px; border-radius: var(--radius-md, 10px); margin-bottom: 14px; }
+    .skeleton-line { height: 14px; margin-bottom: 8px; }
+    .skeleton-line.short { width: 40%; }
     .profile-edit-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
     }
@@ -178,13 +216,21 @@
 
       <div class="section-block">
         <h2><i class="fas fa-calendar-check" style="color:var(--accent)"></i> Upcoming Activities</h2>
-        <div id="upcomingActivities"><p class="empty-note">Loading...</p></div>
+        <div id="upcomingActivities">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
       </div>
 
       <div class="profile-grid" id="profileContent"></div>
 
       <div class="section-block">
         <h2><i class="fas fa-clipboard-list" style="color:var(--accent)"></i> My Attendance History</h2>
+        <div id="historySkeleton">
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line short"></div>
+        </div>
         <div style="overflow-x:auto">
           <table class="history-table" id="historyTable" style="display:none">
             <thead><tr><th>Activity</th><th>Date</th><th>Status</th><th>Hours</th></tr></thead>
@@ -196,14 +242,27 @@
 
       <div class="section-block" id="certificateSection" style="display:none">
         <h2><i class="fas fa-award" style="color:var(--accent)"></i> Certificate of Participation</h2>
-        <div class="activity-card">
-          <div class="act-info">
-            <div class="title">You've earned <span id="certHours">0</span> approved hours</div>
-            <div class="meta" id="certStatusMsg"></div>
+        <div class="activity-card" style="flex-direction:column;align-items:stretch;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div class="act-info" style="display:flex;align-items:center;gap:14px">
+              <div class="badge-icon" id="badgeIcon"><i class="fas fa-seedling"></i></div>
+              <div>
+                <div class="title">You've earned <span id="certHours">0</span> approved hours</div>
+                <div class="meta" id="certStatusMsg"></div>
+              </div>
+            </div>
+            <a class="rsvp-btn yes" id="downloadCertBtn" href="/api/volunteer/certificate" style="display:none;text-decoration:none">
+              <i class="fas fa-download"></i> Download Certificate
+            </a>
           </div>
-          <a class="rsvp-btn yes" id="downloadCertBtn" href="/api/volunteer/certificate" style="display:none;text-decoration:none">
-            <i class="fas fa-download"></i> Download Certificate
-          </a>
+          <div class="progress-track">
+            <div class="progress-fill" id="hoursProgressFill"></div>
+          </div>
+          <div class="progress-milestones">
+            <span id="ms10">🥉 10 hrs</span>
+            <span id="ms25">🥈 25 hrs</span>
+            <span id="ms50">🥇 50 hrs</span>
+          </div>
         </div>
       </div>
 
@@ -442,12 +501,14 @@
       const table = document.getElementById('historyTable');
       const body = document.getElementById('historyBody');
       const empty = document.getElementById('historyEmpty');
+      const skeleton = document.getElementById('historySkeleton');
       try {
         const res = await fetch('/api/volunteer/attendance/history');
         if (!res.ok) throw new Error();
         const { attendance } = await res.json();
 
         updateCertificateSection(attendance || []);
+        skeleton.style.display = 'none';
 
         if (!attendance || !attendance.length) {
           empty.style.display = 'block';
@@ -463,6 +524,7 @@
         `).join('');
         table.style.display = 'table';
       } catch (e) {
+        skeleton.style.display = 'none';
         empty.textContent = 'Could not load attendance history.';
         empty.style.display = 'block';
       }
@@ -485,6 +547,22 @@
         msgEl.textContent = `Need ${(MIN_CERT_HOURS - totalHours).toFixed(1)} more approved hours to unlock your certificate.`;
         btn.style.display = 'none';
       }
+
+      // Badge: bronze at 10hrs, silver at 25hrs, gold at 50hrs
+      const badgeIcon = document.getElementById('badgeIcon');
+      badgeIcon.className = 'badge-icon';
+      let badgeHtml = '<i class="fas fa-seedling"></i>';
+      if (totalHours >= 50) { badgeIcon.classList.add('gold'); badgeHtml = '🥇'; }
+      else if (totalHours >= 25) { badgeIcon.classList.add('silver'); badgeHtml = '🥈'; }
+      else if (totalHours >= 10) { badgeIcon.classList.add('bronze'); badgeHtml = '🥉'; }
+      badgeIcon.innerHTML = badgeHtml;
+
+      // Progress bar toward the next milestone (caps visually at 50hrs = 100%)
+      const pct = Math.min((totalHours / 50) * 100, 100);
+      document.getElementById('hoursProgressFill').style.width = pct + '%';
+      document.getElementById('ms10').classList.toggle('reached', totalHours >= 10);
+      document.getElementById('ms25').classList.toggle('reached', totalHours >= 25);
+      document.getElementById('ms50').classList.toggle('reached', totalHours >= 50);
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {

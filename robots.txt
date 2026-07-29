@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin-login.html
+Disallow: /admin-dashboard.html
+Disallow: /admin-panel.html
+Disallow: /volunteer-login.html
+Disallow: /volunteer-signup.html
+Disallow: /volunteer-dashboard.html
+Disallow: /volunteer-attendance.html
+Disallow: /forgot-password.html
+Disallow: /reset-password.html
+Disallow: /api/
+
+Sitemap: https://nss-website-8uv.pages.dev/sitemap.xml

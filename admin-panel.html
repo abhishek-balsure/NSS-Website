@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="NSS Admin Panel">
   <title>Admin Panel — Sarhad NSS</title>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Admin Panel — Sarhad NSS">
+    <meta property="og:description" content="NSS Admin Panel">
+    <meta property="og:url" content="https://nss-website-8uv.pages.dev/admin-panel.html">
+    <meta property="og:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
+    <meta property="og:site_name" content="Sarhad NSS">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Admin Panel — Sarhad NSS">
+    <meta name="twitter:description" content="NSS Admin Panel">
+    <meta name="twitter:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
+    <link rel="canonical" href="https://nss-website-8uv.pages.dev/admin-panel.html">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -258,6 +269,9 @@
       .modal { padding: 24px; }
     }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e68a00">
+    <link rel="apple-touch-icon" href="/icon-192.png">
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -440,6 +454,16 @@
               <tbody id="adminsTableBody"></tbody>
             </table>
           </div>
+
+          <div class="act-toolbar" style="margin-top:32px">
+            <h2>Database Backup</h2>
+            <a class="btn btn-outline" href="/api/admin/backup/export" download>
+              <i class="fas fa-download"></i> Download Full Backup (JSON)
+            </a>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.85rem">
+            Downloads every table (volunteers, activities, attendance, registrations, gallery, resources, alumni) as a single JSON file. Supabase's free tier has no automated backups — download this periodically and keep a copy somewhere safe.
+          </p>
         </div>
       </div>
     </div>

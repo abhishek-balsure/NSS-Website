@@ -31,11 +31,22 @@ export async function onRequest(context) {
     .from('attendance')
     .update(update)
     .eq('id', id)
-    .select()
+    .select('*, activity:activity_id(title)')
     .single();
 
   if (error) return errorResponse(error.message, 400);
   if (!data) return errorResponse('Attendance record not found', 404);
+
+  const activityTitle = data.activity ? data.activity.title : 'an activity';
+  const message = status === 'approved'
+    ? `Your attendance for "${activityTitle}" was approved (${hours_attended} hrs).`
+    : `Your attendance for "${activityTitle}" was rejected.${remarks ? ' Reason: ' + remarks : ''}`;
+
+  await supabase.from('notifications').insert({
+    volunteer_id: data.volunteer_id,
+    message,
+    link: 'volunteer-dashboard.html',
+  });
 
   return jsonResponse({ attendance: data });
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://nss-website-8uv.pages.dev/index.html</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/aboutus.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/activities.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/events.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/gallery.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/leaderboard.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/resources.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/alumni.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/quiz.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/contactus.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/register.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/privacy-policy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://nss-website-8uv.pages.dev/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

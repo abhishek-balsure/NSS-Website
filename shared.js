@@ -248,6 +248,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 accountLink.className = 'nav-account';
                 accountLink.innerHTML = `<span class="account-emoji">👤</span> ${firstName}`;
                 signInLink.replaceWith(accountLink);
+
+                // Notification bell — only fetched once we know the visitor
+                // is a logged-in volunteer, right next to their account link.
+                try {
+                    const notifRes = await fetch('/api/volunteer/notifications/list');
+                    if (notifRes.ok) {
+                        const { notifications } = await notifRes.json();
+                        const unreadCount = (notifications || []).filter(n => !n.is_read).length;
+                        const bell = document.createElement('a');
+                        bell.href = 'volunteer-dashboard.html';
+                        bell.className = 'nav-bell';
+                        bell.innerHTML = `<i class="fas fa-bell"></i>${unreadCount > 0 ? `<span class="nav-bell-badge">${unreadCount}</span>` : ''}`;
+                        accountLink.insertAdjacentElement('beforebegin', bell);
+                    }
+                } catch (e) { /* notifications are non-critical, fail silently */ }
             }
             if (joinLink) joinLink.remove(); // already a volunteer, hide registration CTA
         } catch (e) {
@@ -270,3 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
     });
 });
+
+// ── PWA: register service worker (enables "Add to Home Screen") ──
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {
+            // Non-critical — site works fine without it, just no offline shell
+        });
+    });
+}

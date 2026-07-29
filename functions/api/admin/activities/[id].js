@@ -12,7 +12,7 @@ export async function onRequest(context) {
   if (request.method === 'PUT') {
     try {
       const body = await request.json();
-      const allowed = ['title', 'description', 'activity_date', 'location', 'activity_type', 'max_volunteers', 'status'];
+      const allowed = ['title', 'description', 'activity_date', 'time', 'location', 'leader', 'activity_type', 'max_volunteers', 'is_waitlist_enabled', 'is_urgent', 'status'];
       const update = {};
       allowed.forEach(k => { if (body[k] !== undefined) update[k] = body[k]; });
 

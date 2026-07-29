@@ -1,6 +1,9 @@
-import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../_utils.js';
-import { verifyVolunteerSession } from '../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse, verifyVolunteerSession } from '../../_utils.js';
 
+// Cancel a registration/waitlist spot for an Activity. Count is computed
+// live elsewhere (list.js, register.js) rather than stored, so there's
+// no counter to decrement here — just update status and promote the
+// next waitlisted person if a registered spot opened up.
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -17,7 +20,6 @@ export async function onRequest(context) {
     const { event_id } = await request.json();
     if (!event_id) return errorResponse('event_id is required');
 
-    // Fetch registration
     const { data: reg, error: regErr } = await supabase
       .from('event_registrations')
       .select('*')
@@ -31,7 +33,6 @@ export async function onRequest(context) {
 
     const wasRegistered = reg.status === 'registered';
 
-    // Mark cancelled
     const { error: updErr } = await supabase
       .from('event_registrations')
       .update({ status: 'cancelled' })
@@ -39,10 +40,7 @@ export async function onRequest(context) {
     if (updErr) return errorResponse(updErr.message, 400);
 
     if (wasRegistered) {
-      // Decrement event count
-      await supabase.rpc('decrement_event_count', { eid: event_id });
-
-      // Promote first waitlisted user (if any)
+      // Promote the first waitlisted person, if any, into the now-open spot
       const { data: nextUp } = await supabase
         .from('event_registrations')
         .select('*')
@@ -57,11 +55,10 @@ export async function onRequest(context) {
           .from('event_registrations')
           .update({ status: 'registered', registered_at: new Date().toISOString() })
           .eq('id', nextUp.id);
-        await supabase.rpc('increment_event_count', { eid: event_id });
       }
     }
 
-    return jsonResponse({ status: 'cancelled' });
+    return jsonResponse({ status: 'cancelled', message: 'Registration cancelled' });
   } catch (e) {
     return errorResponse(e.message, 500);
   }

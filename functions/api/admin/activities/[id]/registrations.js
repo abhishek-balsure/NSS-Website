@@ -1,6 +1,8 @@
 import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../../_utils.js';
 
-// Who's registered / waitlisted / cancelled for one event, with volunteer info joined.
+// Who's registered / waitlisted / cancelled for one activity, with
+// volunteer info joined. Activities ARE the events now — the separate
+// "events" table was retired.
 export async function onRequest(context) {
   const { request, env, params } = context;
   if (request.method === 'OPTIONS') return jsonResponse(null, 204);

@@ -815,9 +815,6 @@
     let pendingAttachments = [];
     let activities = [];
     let volunteers = [];
-    let events = [];
-    let editingEventId = null;
-    let deletingEventId = null;
     let albums = [];
     let editingAlbumId = null;
     let deletingAlbumId = null;
@@ -1104,7 +1101,6 @@
     // ── Delete ──
     function confirmDelete(id, title) {
       deletingActivityId = id;
-      deletingEventId = null;
       deletingAlbumId = null;
       deletingResourceId = null;
       deletingAlumnusId = null;
@@ -1113,7 +1109,7 @@
     }
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-      if (!deletingActivityId && !deletingEventId && !deletingAlbumId && !deletingResourceId && !deletingAlumnusId) return;
+      if (!deletingActivityId && !deletingAlbumId && !deletingResourceId && !deletingAlumnusId) return;
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
@@ -1136,12 +1132,6 @@
           toast('Album deleted');
           deletingAlbumId = null;
           loadAlbums();
-        } else if (deletingEventId) {
-          const res = await fetch(`/api/admin/events/${deletingEventId}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
-          toast('Event deleted');
-          deletingEventId = null;
-          loadEvents();
         } else {
           const res = await fetch(`/api/admin/activities/${deletingActivityId}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).error || 'Failed');
@@ -1170,7 +1160,7 @@
       document.getElementById('registrantsContent').innerHTML = '<p class="empty-note">Loading...</p>';
       openModal('registrantsModal');
       try {
-        const res = await fetch(`/api/admin/events/${eventId}/registrations`);
+        const res = await fetch(`/api/admin/activities/${eventId}/registrations`);
         if (!res.ok) throw new Error('Failed to load');
         const { registrations } = await res.json();
         const registered = registrations.filter(r => r.status === 'registered');
@@ -1454,7 +1444,6 @@
     function confirmDeleteAlbum(id, title) {
       deletingAlbumId = id;
       deletingActivityId = null;
-      deletingEventId = null;
       deletingResourceId = null;
       deletingAlumnusId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete album "${title}"? This will also delete all its photos. This cannot be undone.`;
@@ -1658,7 +1647,7 @@
     });
 
     function confirmDeleteResource(id, title) {
-      deletingResourceId = id; deletingActivityId = null; deletingEventId = null; deletingAlbumId = null; deletingAlumnusId = null;
+      deletingResourceId = id; deletingActivityId = null; deletingAlbumId = null; deletingAlumnusId = null;
       document.getElementById('deleteInfo').textContent = `Delete resource "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1747,7 +1736,7 @@
     });
 
     function confirmDeleteAlumnus(id, name) {
-      deletingAlumnusId = id; deletingActivityId = null; deletingEventId = null; deletingAlbumId = null; deletingResourceId = null;
+      deletingAlumnusId = id; deletingActivityId = null; deletingAlbumId = null; deletingResourceId = null;
       document.getElementById('deleteInfo').textContent = `Delete alumni story for "${name}"? This cannot be undone.`;
       openModal('deleteModal');
     }

@@ -467,6 +467,69 @@
             font-size: 1rem;
         }
 
+        /* ── Register callout banner ── */
+        .register-callout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(37, 99, 235, 0.08));
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 20px 28px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-callout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent), var(--info));
+        }
+
+        .register-callout .callout-text {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .register-callout .callout-icon {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            border-radius: var(--radius-full);
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .register-callout h3 {
+            font-size: 1.02rem;
+            margin-bottom: 4px;
+        }
+
+        .register-callout p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .register-callout .callout-btn {
+            flex-shrink: 0;
+        }
+
         @media (max-width: 1024px) {
             .activities-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -598,6 +661,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Register callout -->
+                <div class="register-callout fade-in">
+                    <div class="callout-text">
+                        <div class="callout-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div>
+                            <h3>Want to participate in our activities?</h3>
+                            <p>Head over to the <strong>Events</strong> tab — every upcoming activity (camps, drives, meetings) is listed there with a <strong>Register as Volunteer</strong> button. Sign in with your NSS account and reserve your spot!</p>
+                        </div>
+                    </div>
+                    <a href="events.html" class="btn btn-primary callout-btn">
+                        <i class="fas fa-arrow-right"></i> Go to Events &amp; Register
+                    </a>
                 </div>
 
                 <!-- Toolbar -->

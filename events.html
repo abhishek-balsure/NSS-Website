@@ -852,6 +852,15 @@
             return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
         }
 
+        // Map activity category -> notice-board group (camp/drive => Camps,
+        // meeting => Meetings, everything else => General)
+        function noticeGroup(ev) {
+            if (ev.is_urgent) return 'urgent';
+            if (ev.category === 'camp' || ev.category === 'drive') return 'camp';
+            if (ev.category === 'meeting') return 'meeting';
+            return 'general';
+        }
+
         // Load events from API
         async function loadEvents() {
             try {
@@ -911,8 +920,7 @@
             noticesList.innerHTML = '';
             let filtered = allEvents.filter(e => {
                 if (currentNoticeFilter === 'all') return true;
-                if (currentNoticeFilter === 'urgent') return e.is_urgent;
-                return e.category === currentNoticeFilter;
+                return noticeGroup(e) === currentNoticeFilter;
             });
 
             if (filtered.length === 0) {
@@ -924,14 +932,15 @@
             filtered.forEach(ev => {
                 const card = document.createElement('div');
                 card.className = 'notice-card';
+                const grp = noticeGroup(ev);
                 let bc = 'badge-general';
-                if (ev.is_urgent) bc = 'badge-urgent';
-                else if (ev.category === 'camp') bc = 'badge-camp';
-                else if (ev.category === 'meeting') bc = 'badge-meeting';
-                card.classList.add(ev.is_urgent ? 'urgent' : (ev.category || 'general'));
+                if (grp === 'urgent') bc = 'badge-urgent';
+                else if (grp === 'camp') bc = 'badge-camp';
+                else if (grp === 'meeting') bc = 'badge-meeting';
+                card.classList.add(grp === 'urgent' ? 'urgent' : (grp || 'general'));
 
                 const fd = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : '';
-                const badgeText = ev.is_urgent ? 'URGENT' : (ev.category ? ev.category.toUpperCase() : 'GENERAL');
+                const badgeText = grp === 'urgent' ? 'URGENT' : (grp === 'camp' ? 'CAMP' : (grp === 'meeting' ? 'MEETING' : 'GENERAL'));
 
                 card.innerHTML = '<div class="notice-meta"><span class="notice-date">' + fd + '</span><span class="badge ' + bc + '">' + badgeText + '</span></div><h3>' + ev.title + '</h3><p>' + (ev.description || '') + '</p>';
 
@@ -961,11 +970,12 @@
             detailsContent.style.display = 'block';
             eventDetailsCard.classList.add('has-data');
 
+            const grp = noticeGroup(ev);
             let bc = 'badge-general';
-            if (ev.is_urgent) bc = 'badge-urgent';
-            else if (ev.category === 'camp') bc = 'badge-camp';
-            else if (ev.category === 'meeting') bc = 'badge-meeting';
-            const badgeText = ev.is_urgent ? 'URGENT' : (ev.category ? ev.category.toUpperCase() : 'GENERAL');
+            if (grp === 'urgent') bc = 'badge-urgent';
+            else if (grp === 'camp') bc = 'badge-camp';
+            else if (grp === 'meeting') bc = 'badge-meeting';
+            const badgeText = grp === 'urgent' ? 'URGENT' : (grp === 'camp' ? 'CAMP' : (grp === 'meeting' ? 'MEETING' : 'GENERAL'));
 
             detailsBadge.className = 'badge ' + bc;
             detailsBadge.textContent = badgeText;

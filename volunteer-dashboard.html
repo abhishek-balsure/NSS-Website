@@ -24,11 +24,16 @@
       min-height: 100vh;
       padding: calc(var(--nav-height) + 40px) 24px 80px;
     }
+    .dash-container {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
     .dash-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 36px;
+      margin-bottom: 32px;
       flex-wrap: wrap;
       gap: 16px;
     }
@@ -37,11 +42,12 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      background: var(--bg-glass);
+      background: var(--bg-glass-strong);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border-glass);
       border-radius: var(--radius-md);
       padding: 12px 20px;
+      box-shadow: var(--shadow-sm);
     }
     .dash-header .user-badge .avatar {
       width: 44px; height: 44px;
@@ -63,9 +69,11 @@
       background: var(--bg-glass);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border-glass);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       padding: 28px;
+      transition: all var(--transition-normal);
     }
+    .profile-section:hover { box-shadow: var(--shadow-md); }
     .profile-section.full { grid-column: 1 / -1; }
     .profile-section h3 {
       font-size: 0.85rem; text-transform: uppercase;
@@ -122,7 +130,9 @@
       margin-bottom: 14px;
       display: flex; align-items: center; justify-content: space-between;
       gap: 16px; flex-wrap: wrap;
+      transition: all var(--transition-normal);
     }
+    .activity-card:hover { box-shadow: var(--shadow-md); }
     .activity-card .act-info .title { font-weight: 600; margin-bottom: 4px; }
     .activity-card .act-info .meta { font-size: 0.82rem; color: var(--text-muted); }
     .rsvp-btns { display: flex; gap: 8px; }
@@ -140,6 +150,7 @@
       padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-subtle);
     }
     .history-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+    .history-table tbody tr:hover { background: rgba(127,127,127,0.06); }
     .empty-note { color: var(--text-muted); font-size: 0.88rem; padding: 12px 0; }
     .notif-card {
       background: var(--bg-glass); border: 1px solid var(--border-glass);
@@ -172,6 +183,49 @@
     }
     .progress-milestones span.reached { color: var(--accent); font-weight: 700; }
 
+    /* ── Quiz card ── */
+    .quiz-card {
+      background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(230,138,0,0.06), rgba(5,150,105,0.06));
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(600px circle at 0% 0%, rgba(37,99,235,0.08), transparent 60%);
+      pointer-events: none;
+    }
+    .quiz-card .quiz-info { display: flex; align-items: center; gap: 18px; position: relative; }
+    .quiz-card .quiz-icon {
+      width: 56px; height: 56px; flex-shrink: 0;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.4rem;
+      box-shadow: var(--shadow-md);
+    }
+    .quiz-card .quiz-title { font-weight: 700; font-size: 1.02rem; margin-bottom: 3px; }
+    .quiz-card .quiz-meta { font-size: 0.84rem; color: var(--text-secondary); }
+    .quiz-score-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 100px;
+      background: rgba(255,255,255,0.65); border: 1px solid var(--border-glass);
+      font-weight: 800; font-size: 0.95rem; color: var(--text-primary);
+    }
+    .quiz-score-chip .pct { color: var(--accent); }
+    .quiz-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; }
+    .quiz-attempt-note { font-size: 0.82rem; color: var(--text-muted); margin-top: 10px; position: relative; }
+
     /* ── Skeleton loading placeholders ── */
     .skeleton {
       background: linear-gradient(90deg, rgba(127,127,127,0.12) 25%, rgba(127,127,127,0.22) 37%, rgba(127,127,127,0.12) 63%);
@@ -197,6 +251,20 @@
       width: 100%; padding: 10px 12px; border-radius: var(--radius-sm, 8px);
       border: 1px solid var(--border-glass); background: var(--bg-body); font: inherit; color: var(--text-primary);
     }
+    .profile-edit-grid input:focus, .profile-edit-grid select:focus, .profile-edit-grid textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--radius-sm, 8px);
+      border: 1px solid transparent; cursor: pointer;
+      font-weight: 600; font-size: 0.88rem; font-family: inherit;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { opacity: 0.88; }
   </style>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e68a00">
@@ -230,6 +298,7 @@
     </div>
 
     <div id="dashContent" style="display:none">
+      <div class="dash-container">
       <div class="dash-header">
         <h1><i class="fas fa-user" style="color:var(--accent)"></i> My Dashboard</h1>
         <div class="user-badge" id="userBadge"></div>
@@ -248,6 +317,14 @@
         <div id="upcomingActivities">
           <div class="skeleton skeleton-card"></div>
           <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- NSS Trivia Challenge -->
+      <div class="section-block">
+        <h2><i class="fas fa-trophy" style="color:var(--accent)"></i> NSS Trivia Challenge</h2>
+        <div id="quizSection">
+          <div class="skeleton skeleton-card" style="height:110px"></div>
         </div>
       </div>
 
@@ -346,10 +423,12 @@
         </button>
         <span id="profileSaveMsg" style="margin-left:12px;font-size:0.85rem"></span>
       </div>
+      </div>
     </div>
   </main>
 
   <script src="shared.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     (async function() {
       try {
@@ -407,6 +486,7 @@
         loadUpcomingActivities();
         loadHistory();
         loadNotifications();
+        loadQuizSection(user.name || 'Volunteer');
       } catch (e) {
         console.error('Dashboard load error:', e);
         document.getElementById('loading').innerHTML =
@@ -638,6 +718,160 @@
       document.getElementById('ms10').classList.toggle('reached', totalHours >= 10);
       document.getElementById('ms25').classList.toggle('reached', totalHours >= 25);
       document.getElementById('ms50').classList.toggle('reached', totalHours >= 50);
+    }
+
+    // ── NSS Trivia Challenge section ──
+    function quizBadgeFor(percentage) {
+      if (percentage >= 90) return { name: 'NSS Commander (Gold)', cls: 'gold', emoji: '🥇' };
+      if (percentage >= 70) return { name: 'Social Leader (Silver)', cls: 'silver', emoji: '🥈' };
+      if (percentage >= 50) return { name: 'Active Volunteer (Bronze)', cls: 'bronze', emoji: '🥉' };
+      return { name: 'NSS Learner', cls: '', emoji: '📖' };
+    }
+
+    function downloadQuizCertificate(name, percentage, monthLabel) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'in', format: 'letter' });
+      const W = 11, H = 8.5;
+
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, 0, W, H, 'F');
+
+      doc.setDrawColor(26, 58, 92);
+      doc.setLineWidth(0.08);
+      doc.rect(0.35, 0.35, W - 0.7, H - 0.7);
+      doc.setLineWidth(0.02);
+      doc.rect(0.5, 0.5, W - 1.0, H - 1.0);
+
+      doc.setDrawColor(15, 23, 42);
+      doc.setLineWidth(0.006);
+      doc.rect(0.62, 0.62, W - 1.24, H - 1.24);
+
+      doc.setFont('times', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(26, 58, 92);
+      doc.text('SARHAD NSS UNIT', W / 2, 1.25, { align: 'center' });
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(16);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Certificate of Merit', W / 2, 1.75, { align: 'center' });
+
+      doc.setFont('times', 'italic');
+      doc.setFontSize(12.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text('This is proudly presented to', W / 2, 2.4, { align: 'center' });
+
+      doc.setFont('times', 'bold');
+      doc.setFontSize(30);
+      doc.setTextColor(15, 23, 42);
+      doc.text(name, W / 2, 3.2, { align: 'center' });
+
+      doc.setDrawColor(148, 163, 184);
+      doc.setLineWidth(0.02);
+      doc.line(W / 2 - 2.1, 3.38, W / 2 + 2.1, 3.38);
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(12.5);
+      doc.setTextColor(51, 65, 85);
+      const bodyText = `for successfully completing the NSS Trivia & Awareness Challenge (${monthLabel}) with an outstanding score of ${percentage}%, demonstrating excellent awareness of the National Service Scheme rules, history, and community ideals.`;
+      const bodyLines = doc.splitTextToSize(bodyText, 7.2);
+      doc.text(bodyLines, W / 2, 4.0, { align: 'center' });
+
+      doc.setDrawColor(100, 116, 139);
+      doc.setLineWidth(0.02);
+      doc.line(1.0, 6.9, 2.8, 6.9);
+      doc.setFont('times', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Dr. M. S. Patil', 1.9, 7.15, { align: 'center' });
+      doc.setFont('times', 'normal');
+      doc.setFontSize(10.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Programme Officer', 1.9, 7.35, { align: 'center' });
+
+      doc.setDrawColor(245, 158, 11);
+      doc.setLineWidth(0.03);
+      doc.circle(5.5, 7.05, 0.48);
+      doc.setFont('times', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(245, 158, 11);
+      doc.text('SARHAD', 5.5, 6.98, { align: 'center' });
+      doc.text('NSS', 5.5, 7.12, { align: 'center' });
+
+      doc.setDrawColor(100, 116, 139);
+      doc.setLineWidth(0.02);
+      doc.line(8.2, 6.9, 10.0, 6.9);
+      doc.setFont('times', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Sarhad College', 9.1, 7.15, { align: 'center' });
+      doc.setFont('times', 'normal');
+      doc.setFontSize(10.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Katraj, Pune', 9.1, 7.35, { align: 'center' });
+
+      doc.save(`NSS_Certificate_${name.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    async function loadQuizSection(userName) {
+      const el = document.getElementById('quizSection');
+      try {
+        const res = await fetch('/api/quiz/status');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+
+        if (data.attempted) {
+          const badge = quizBadgeFor(data.percentage);
+          const monthLabel = new Date(data.month + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+          const nextDate = data.next_attempt_at
+            ? new Date(data.next_attempt_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+            : 'next month';
+          const certBtn = document.createElement('button');
+          certBtn.className = 'btn btn-success';
+          certBtn.innerHTML = '<i class="fas fa-download"></i> Download Certificate';
+          certBtn.addEventListener('click', () => downloadQuizCertificate(userName, data.percentage, monthLabel));
+
+          el.innerHTML = '';
+          const card = document.createElement('div');
+          card.className = 'quiz-card';
+          card.innerHTML = `
+            <div class="quiz-info">
+              <div class="quiz-icon"><i class="fas fa-trophy"></i></div>
+              <div>
+                <div class="quiz-title">${monthLabel} Quiz — Completed <span class="quiz-score-chip">${data.score}/${data.total} &middot; <span class="pct">${data.percentage}%</span></span></div>
+                <div class="quiz-meta">
+                  Badge earned: <span class="badge-icon ${badge.cls}" style="width:24px;height:24px;font-size:0.85rem;display:inline-flex">${badge.emoji}</span> ${badge.name}
+                </div>
+              </div>
+            </div>
+            <div class="quiz-actions"></div>
+          `;
+          card.querySelector('.quiz-actions').appendChild(certBtn);
+          el.appendChild(card);
+
+          const note = document.createElement('div');
+          note.className = 'quiz-attempt-note';
+          note.innerHTML = `<i class="fas fa-calendar"></i> Next quiz opens on <strong>${nextDate}</strong> — a brand new set of questions.`;
+          el.appendChild(note);
+        } else {
+          el.innerHTML = `
+            <div class="quiz-card">
+              <div class="quiz-info">
+                <div class="quiz-icon"><i class="fas fa-brain"></i></div>
+                <div>
+                  <div class="quiz-title">This month's quiz is waiting for you</div>
+                  <div class="quiz-meta">15 questions &middot; 45 seconds each &middot; Score 70%+ to earn a badge &amp; certificate</div>
+                </div>
+              </div>
+              <div class="quiz-actions">
+                <a href="quiz.html" class="btn btn-primary"><i class="fas fa-play"></i> Start Trivia Challenge</a>
+              </div>
+            </div>
+          `;
+        }
+      } catch (e) {
+        el.innerHTML = '<p class="empty-note">Could not load quiz status.</p>';
+      }
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {

@@ -194,6 +194,14 @@
           <h3><i class="fas fa-clock"></i> Total Volunteer Hours Logged</h3>
           <div class="big-number" id="totalHoursNum">0</div>
         </div>
+        <div class="analytics-card">
+          <h3><i class="fas fa-trophy"></i> Quiz Completions by Month</h3>
+          <div id="quizMonthChart" class="bar-chart"></div>
+        </div>
+        <div class="analytics-card">
+          <h3><i class="fas fa-user-graduate"></i> Recent Quiz Attempts</h3>
+          <div id="recentQuizList"></div>
+        </div>
       </div>
 
       <div style="text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.9rem">
@@ -216,6 +224,18 @@
     .bar-row .bar-count { width: 32px; text-align: right; font-weight: 600; }
     .big-number { font-size: 2.6rem; font-weight: 700; color: var(--accent); text-align: center; padding: 12px 0; }
     .empty-note { color: var(--text-muted); font-size: 0.85rem; }
+    .recent-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 4px; border-bottom: 1px solid var(--border-subtle);
+    }
+    .recent-row:last-child { border-bottom: none; }
+    .recent-row .recent-name { font-weight: 600; font-size: 0.88rem; }
+    .recent-row .recent-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .recent-row .recent-pct {
+      padding: 3px 10px; border-radius: 100px; font-weight: 800; font-size: 0.8rem; flex-shrink: 0;
+    }
+    .recent-row .recent-pct.good { background: rgba(5,150,105,0.12); color: var(--success); }
+    .recent-row .recent-pct.mid { background: rgba(245,158,11,0.12); color: var(--accent); }
   </style>
 
   <script src="shared.js"></script>
@@ -246,7 +266,8 @@
         const cards = [
           { num: stats.total_volunteers, label: 'Total Volunteers', icon: 'fa-users', cls: 'info' },
           { num: stats.pending_approvals, label: 'Pending Approvals', icon: 'fa-clock', cls: 'warn' },
-          { num: stats.total_activities, label: 'Activities', icon: 'fa-calendar', cls: 'ok' },
+          { num: stats.quiz_attempts_this_month ?? 0, label: 'Quiz Attempts (This Month)', icon: 'fa-trophy', cls: 'ok' },
+          { num: stats.total_activities, label: 'Activities', icon: 'fa-calendar', cls: 'info' },
           { num: stats.total_attendance, label: 'Attendance Records', icon: 'fa-clipboard-list', cls: 'info' },
         ];
 
@@ -298,7 +319,7 @@
       try {
         const res = await fetch('/api/admin/analytics');
         if (!res.ok) throw new Error();
-        const { attendanceByMonth, topActivityTypes, volunteerStatus, totalHours } = await res.json();
+        const { attendanceByMonth, topActivityTypes, volunteerStatus, totalHours, quizAttemptsByMonth, recentQuizAttempts } = await res.json();
 
         document.getElementById('analyticsGrid').style.display = 'grid';
 
@@ -313,6 +334,28 @@
         renderBarChart('statusChart', statusItems, 'type', 'count');
 
         document.getElementById('totalHoursNum').textContent = totalHours || 0;
+
+        // ── Quiz analytics ──
+        const quizMonthLabels = (quizAttemptsByMonth || []).map(m => ({
+          month: new Date(m.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }),
+          count: m.count,
+        }));
+        renderBarChart('quizMonthChart', quizMonthLabels, 'month', 'count');
+
+        const recentEl = document.getElementById('recentQuizList');
+        if (!recentQuizAttempts || !recentQuizAttempts.length) {
+          recentEl.innerHTML = '<p class="empty-note">No quiz attempts yet.</p>';
+        } else {
+          recentEl.innerHTML = recentQuizAttempts.map(a => `
+            <div class="recent-row">
+              <div class="recent-info">
+                <div class="recent-name">${a.name}</div>
+                <div class="recent-meta">${new Date(a.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })} &middot; ${a.score}/${a.total}</div>
+              </div>
+              <span class="recent-pct ${a.percentage >= 70 ? 'good' : 'mid'}">${a.percentage}%</span>
+            </div>
+          `).join('');
+        }
       } catch (e) {
         document.getElementById('analyticsGrid').style.display = 'none';
       }

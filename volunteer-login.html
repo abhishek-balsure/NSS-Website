@@ -227,7 +227,15 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Login failed');
 
-        window.location.href = '/volunteer-dashboard.html';
+        // Respect a same-site ?redirect= param (e.g. quiz.html) so users
+        // land back where they were asked to sign in.
+        const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+        const safeRedirect = redirectParam
+            && /^[a-zA-Z0-9_\-./]+\.html$/.test(redirectParam)
+            && !redirectParam.startsWith('//')
+            && !redirectParam.includes('..')
+            ? redirectParam : 'volunteer-dashboard.html';
+        window.location.href = '/' + safeRedirect;
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.classList.add('visible');

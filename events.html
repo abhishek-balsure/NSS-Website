@@ -369,9 +369,18 @@
         }
 
         // ── Notice Board ──
+        function isCurrentMonth(eventDate) {
+            if (!eventDate) return false;
+            const d = new Date(eventDate);
+            const now = new Date();
+            return !isNaN(d) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }
+
         function renderNotices() {
             noticesList.innerHTML = '';
             let filtered = allEvents.filter(e => {
+                // Notice board only lists the current month's activities
+                if (!isCurrentMonth(e.event_date)) return false;
                 if (currentNoticeFilter === 'all') return true;
                 return noticeGroup(e) === currentNoticeFilter;
             });

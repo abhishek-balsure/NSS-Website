@@ -19,39 +19,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <style>
-        .page-header { padding: calc(var(--nav-height) + 60px) 0 30px; text-align: center; }
-        .leaderboard-wrap { max-width: 640px; margin: 0 auto; padding: 0 24px 80px; }
-        .lb-row {
-            display: flex; align-items: center; gap: 16px;
-            background: var(--bg-glass); border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md, 10px); padding: 14px 18px; margin-bottom: 10px;
-        }
-        .lb-rank {
-            width: 36px; height: 36px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
-            background: rgba(127,127,127,0.15); color: var(--text-secondary);
-        }
-        .lb-row:nth-child(1) .lb-rank { background: #FFD700; color: #4A3800; }
-        .lb-row:nth-child(2) .lb-rank { background: #C0C0C0; color: #333; }
-        .lb-row:nth-child(3) .lb-rank { background: #CD7F32; color: #fff; }
-        .lb-info { flex: 1; min-width: 0; }
-        .lb-info .lb-name { font-weight: 600; }
-        .lb-info .lb-dept { font-size: 0.82rem; color: var(--text-muted); }
-        .lb-hours { font-weight: 700; color: var(--accent); white-space: nowrap; }
-        .empty-note { text-align: center; color: var(--text-muted); padding: 60px 24px; }
-        .skeleton {
-            background: linear-gradient(90deg, rgba(127,127,127,0.12) 25%, rgba(127,127,127,0.22) 37%, rgba(127,127,127,0.12) 63%);
-            background-size: 400% 100%;
-            animation: skeleton-shimmer 1.4s ease infinite;
-            border-radius: var(--radius-md, 10px);
-        }
-        @keyframes skeleton-shimmer {
-            0% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .lb-skeleton { height: 64px; margin-bottom: 10px; }
-    </style>
+    <link rel="stylesheet" href="leaderboard.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e68a00">
     <link rel="apple-touch-icon" href="/icon-192.png">

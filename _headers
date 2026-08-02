@@ -1,0 +1,24 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Static assets that are hashed/stable can be cached long-term
+/images/*
+/logos/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Versioned page styles/scripts: short cache, revalidated
+*.css
+  Cache-Control: public, max-age=86400
+*.js
+  Cache-Control: public, max-age=86400
+
+# Never cache authed pages
+/admin-dashboard.html
+/admin-panel.html
+/volunteer-dashboard.html
+/volunteer-attendance.html
+  Cache-Control: no-store

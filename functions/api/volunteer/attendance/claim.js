@@ -34,7 +34,7 @@ export async function onRequest(context) {
         volunteer_id: vid,
         activity_id,
         status: 'rejected',
-        photo_url: null,
+        photo_url: '',
         remarks: 'Self-declared absent',
         hours_attended: 0,
       });
@@ -99,7 +99,7 @@ export async function onRequest(context) {
         volunteer_id: vid,
         activity_id,
         status: 'pending',
-        photo_url: null,
+        photo_url: '',
         remarks: 'Self-claimed via PIN verification',
         hours_attended: 0,
       })

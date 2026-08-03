@@ -64,6 +64,18 @@
 
         <!-- ══ Attendance Tab ══ -->
         <div class="tab-panel active" id="tabAttendance">
+          <div class="bulk-action-bar" id="bulkActionBar" style="display:none;margin-bottom:20px;padding:16px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-md);align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:relative">
+            <div style="display:flex;align-items:center;gap:12px">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:0.9rem;cursor:pointer">
+                <input type="checkbox" id="selectAllAttCheck" style="width:16px;height:16px"> Select All
+              </label>
+              <span id="selectedCountText" style="font-size:0.9rem;color:var(--text-secondary)">0 selected</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-success" id="bulkApproveBtn" style="padding:6px 14px;font-size:0.82rem"><i class="fas fa-check"></i> Bulk Approve</button>
+              <button class="btn btn-danger" id="bulkRejectBtn" style="padding:6px 14px;font-size:0.82rem"><i class="fas fa-times"></i> Bulk Reject</button>
+            </div>
+          </div>
           <div class="att-grid" id="attGrid"></div>
         </div>
 
@@ -557,6 +569,28 @@
     </div>
   </div>
 
+  <!-- ══ Attendance PIN Modal ══ -->
+  <div class="modal-overlay" id="pinModal">
+    <div class="modal text-center" style="max-width: 400px; position: relative">
+      <div class="modal-header" style="border:none;margin-bottom:0">
+        <button class="modal-close" onclick="closeModal('pinModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:0">
+        <i class="fas fa-unlock-keyhole" style="font-size:3rem;color:var(--success);margin-bottom:16px"></i>
+        <h3 id="pinModalTitle" style="font-size:1.2rem;margin-bottom:8px">Attendance is Open</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px">Share this PIN with volunteers present at the activity:</p>
+        <div id="pinDisplay" style="font-size:3.2rem;font-weight:800;letter-spacing:10px;font-family:'Outfit',sans-serif;color:var(--accent);background:rgba(245,158,11,0.08);padding:14px;border-radius:var(--radius-md);margin-bottom:20px">0000</div>
+        <div style="font-size:0.9rem;color:var(--text-secondary);font-weight:600">
+          <i class="far fa-clock"></i> Closes in: <span id="pinCountdown" style="color:var(--danger)">10:00</span>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top:none;justify-content:center;margin-top:12px">
+        <button class="btn btn-outline" onclick="closeModal('pinModal')">Keep Open</button>
+        <button class="btn btn-danger" id="closeAttendanceImmediateBtn"><i class="fas fa-lock"></i> Close Now</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ Toast ══ -->
   <div class="toast" id="toast"></div>
 
@@ -573,6 +607,9 @@
     let editingActivityId = null;
     let deletingActivityId = null;
     let approvingId = null;
+    let approvingIds = null;
+    let pinTimerInterval = null;
+    let pinModalActivityId = null;
     let resources = [];
     let editingResourceId = null;
     let deletingResourceId = null;
@@ -648,6 +685,7 @@
       const grid = document.getElementById('attGrid');
       if (!pendingAttachments.length) {
         grid.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success);opacity:0.4"></i><p>No pending attendance submissions.</p></div>';
+        document.getElementById('bulkActionBar').style.display = 'none';
         return;
       }
 
@@ -655,12 +693,18 @@
         const v = a.volunteer || {};
         const act = a.activity || {};
         const isRejected = a.status === 'rejected';
-        return `<div class="att-card ${isRejected ? 'rejected' : ''}">
-          <img class="att-photo" src="${a.photo_url || ''}" alt="Attendance photo"
-               onclick="openPhoto('${a.photo_url || ''}')"
-               onerror="this.style.display='none'">
+        return `<div class="att-card ${isRejected ? 'rejected' : ''}" style="position: relative">
+          ${!isRejected ? `<input type="checkbox" class="att-select-check" value="${a.id}" style="position:absolute;top:12px;left:12px;width:18px;height:18px;z-index:10;cursor:pointer">` : ''}
+          ${a.photo_url ? `
+            <img class="att-photo" src="${a.photo_url}" alt="Attendance photo" onclick="openPhoto('${a.photo_url}')">
+          ` : `
+            <div class="att-photo-placeholder" style="height:180px;background:rgba(245,158,11,0.08);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border-bottom:1px solid var(--border-glass)">
+              <i class="fas fa-user-check" style="font-size:2.5rem"></i>
+              <span style="font-size:0.85rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Self-Claimed (PIN Verified)</span>
+            </div>
+          `}
           <div class="att-body">
-            <div class="vol-name">${esc(v.name || 'Unknown')} ${isRejected ? '<span class="rej-badge">Rejected</span>' : ''}</div>
+            <div class="vol-name" style="${!isRejected ? 'padding-left:22px' : ''}">${esc(v.name || 'Unknown')} ${isRejected ? '<span class="rej-badge">Rejected</span>' : ''}</div>
             <div class="vol-dept">${esc(v.department || '')} &middot; ${esc(v.ref_code || '')}</div>
             <div class="att-meta"><i class="fas fa-calendar"></i> ${esc(act.title || '')} — ${fmtDate(act.activity_date)}</div>
             <div class="att-meta"><i class="fas fa-envelope"></i> ${esc(v.email || '')}</div>
@@ -674,6 +718,8 @@
           </div>` : ''}
         </div>`;
       }).join('');
+
+      updateBulkActionsUI();
     }
 
     function openPhoto(url) {
@@ -682,10 +728,9 @@
       openModal('photoModal');
     }
 
-    let approveCallback = null;
-
     function openApprove(id, vName, actTitle) {
       approvingId = id;
+      approvingIds = null;
       document.getElementById('approveInfo').textContent = `Approve ${vName}'s attendance for "${actTitle}"`;
       document.getElementById('approveHours').value = 2;
       document.getElementById('approveRemarks').value = '';
@@ -693,7 +738,7 @@
     }
 
     document.getElementById('confirmApproveBtn').addEventListener('click', async () => {
-      if (!approvingId) return;
+      if (!approvingId && (!approvingIds || !approvingIds.length)) return;
       const hours = parseFloat(document.getElementById('approveHours').value);
       if (!hours || hours <= 0) { toast('Enter valid hours', 'error'); return; }
       const remarks = document.getElementById('approveRemarks').value.trim();
@@ -701,19 +746,32 @@
       const btn = document.getElementById('confirmApproveBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
+      const ids = approvingId ? [approvingId] : approvingIds;
+
       try {
-        const res = await fetch(`/api/admin/attendance/${approvingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'approved', hours_attended: hours, remarks }),
-        });
-        if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        await Promise.all(ids.map(id =>
+          fetch(`/api/admin/attendance/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'approved', hours_attended: hours, remarks }),
+          }).then(async res => {
+            if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.error || 'Failed');
+            }
+          })
+        ));
         toast('Attendance approved!');
         closeModal('approveModal');
-        approvingId = null;
         loadAttendance();
-      } catch (e) { toast(e.message, 'error'); }
-      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Approve'; }
+      } catch (e) {
+        toast(e.message || 'Failed to approve some records', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Approve';
+        approvingId = null;
+        approvingIds = null;
+      }
     });
 
     async function rejectAttendance(id) {
@@ -729,6 +787,162 @@
         loadAttendance();
       } catch (e) { toast(e.message, 'error'); }
     }
+
+    function updateBulkActionsUI() {
+      const checks = document.querySelectorAll('.att-select-check:checked');
+      const totalChecks = document.querySelectorAll('.att-select-check').length;
+      const bar = document.getElementById('bulkActionBar');
+      const countText = document.getElementById('selectedCountText');
+      const selectAll = document.getElementById('selectAllAttCheck');
+      
+      countText.textContent = `${checks.length} selected`;
+      selectAll.checked = checks.length === totalChecks && totalChecks > 0;
+      
+      if (checks.length > 0) {
+        bar.style.display = 'flex';
+      } else {
+        bar.style.display = 'none';
+      }
+    }
+
+    document.getElementById('attGrid').addEventListener('change', (e) => {
+      if (e.target.classList.contains('att-select-check')) {
+        updateBulkActionsUI();
+      }
+    });
+
+    document.getElementById('selectAllAttCheck').addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll('.att-select-check').forEach(c => {
+        c.checked = checked;
+      });
+      updateBulkActionsUI();
+    });
+
+    document.getElementById('bulkApproveBtn').addEventListener('click', () => {
+      const checks = document.querySelectorAll('.att-select-check:checked');
+      if (!checks.length) return;
+      approvingId = null;
+      approvingIds = Array.from(checks).map(c => c.value);
+      document.getElementById('approveInfo').textContent = `Approve ${checks.length} selected attendance claims`;
+      document.getElementById('approveHours').value = 2;
+      document.getElementById('approveRemarks').value = '';
+      openModal('approveModal');
+    });
+
+    document.getElementById('bulkRejectBtn').addEventListener('click', async () => {
+      const checks = document.querySelectorAll('.att-select-check:checked');
+      if (!checks.length) return;
+      if (!confirm(`Reject all ${checks.length} selected claims?`)) return;
+
+      const ids = Array.from(checks).map(c => c.value);
+      const btn = document.getElementById('bulkRejectBtn');
+      btn.disabled = true;
+
+      try {
+        await Promise.all(ids.map(id =>
+          fetch(`/api/admin/attendance/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'rejected', remarks: 'Bulk rejected by admin' }),
+          }).then(res => {
+            if (!res.ok) throw new Error();
+          })
+        ));
+        toast('Attendance claims rejected');
+        loadAttendance();
+      } catch (e) {
+        toast('Failed to reject some claims', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    let pinTimerInterval = null;
+    let pinModalActivityId = null;
+
+    function showPinModal(id, pin, expiresAt, title) {
+      pinModalActivityId = id;
+      document.getElementById('pinModalTitle').textContent = `Attendance: ${title}`;
+      document.getElementById('pinDisplay').textContent = pin;
+      openModal('pinModal');
+
+      if (pinTimerInterval) clearInterval(pinTimerInterval);
+
+      const targetTime = new Date(expiresAt).getTime();
+
+      function updateCountdown() {
+        const now = Date.now();
+        const diff = targetTime - now;
+        if (diff <= 0) {
+          clearInterval(pinTimerInterval);
+          document.getElementById('pinCountdown').textContent = 'Expired';
+          document.getElementById('pinCountdown').style.color = 'var(--danger)';
+          loadActivities(); // Refresh to update status button
+          return;
+        }
+
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        document.getElementById('pinCountdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        document.getElementById('pinCountdown').style.color = mins < 2 ? 'var(--danger)' : 'var(--text-secondary)';
+      }
+
+      updateCountdown();
+      pinTimerInterval = setInterval(updateCountdown, 1000);
+    }
+
+    async function toggleAttendanceOpen(id, title) {
+      const durInput = prompt('Enter attendance window duration (in minutes):', '10');
+      if (durInput === null) return;
+      const duration = parseInt(durInput);
+      if (isNaN(duration) || duration <= 0) {
+        alert('Please enter a valid number of minutes.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/activities/${id}/open-attendance`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ duration })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to open attendance');
+        
+        toast('Attendance window opened!');
+        loadActivities();
+        showPinModal(id, data.pin, data.expires_at, title);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function closeAttendance(id) {
+      if (pinTimerInterval) clearInterval(pinTimerInterval);
+      closeModal('pinModal');
+      
+      try {
+        const res = await fetch(`/api/admin/activities/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            attendance_open: false,
+            attendance_pin: null,
+            attendance_expires_at: null
+          })
+        });
+        if (!res.ok) throw new Error();
+        toast('Attendance closed.');
+        loadActivities();
+      } catch (e) {
+        toast('Failed to close attendance', 'error');
+      }
+    }
+
+    document.getElementById('closeAttendanceImmediateBtn').addEventListener('click', () => {
+      if (pinModalActivityId) closeAttendance(pinModalActivityId);
+    });
 
     // =============================================
     // ══ ACTIVITIES ══
@@ -755,20 +969,35 @@
         return;
       }
       empty.style.display = 'none';
-      tbody.innerHTML = activities.map(a => `<tr>
-        <td><strong>${esc(a.title)}</strong></td>
-        <td>${fmtDate(a.activity_date)}</td>
-        <td style="text-transform:capitalize">${esc(a.activity_type)}</td>
-        <td>${esc(a.location || '—')}</td>
-        <td><span class="act-status ${esc(a.status)}">${esc(a.status)}</span></td>
-        <td>
-          <div class="act-actions">
-            <button class="edit-btn" onclick="viewRegistrants('${a.id}','${esc(a.title)}')" title="View Registrants"><i class="fas fa-users"></i></button>
-            <button class="edit-btn" onclick="editActivity('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
-            <button class="del-btn" onclick="confirmDelete('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
-          </div>
-        </td>
-      </tr>`).join('');
+
+      const now = Date.now();
+
+      tbody.innerHTML = activities.map(a => {
+        const isExpired = a.attendance_expires_at ? new Date(a.attendance_expires_at).getTime() < now : true;
+        const isAttendanceActive = a.attendance_open && !isExpired;
+
+        const attendanceBtn = isAttendanceActive ? `
+          <button class="edit-btn active" onclick="showPinModal('${a.id}','${esc(a.attendance_pin)}','${a.attendance_expires_at}','${esc(a.title)}')" title="Attendance Active (PIN: ${a.attendance_pin})" style="color:var(--danger);background:rgba(220,38,38,0.1)"><i class="fas fa-lock"></i></button>
+        ` : `
+          <button class="edit-btn" onclick="toggleAttendanceOpen('${a.id}','${esc(a.title)}')" title="Open Attendance" style="color:var(--success)"><i class="fas fa-unlock"></i></button>
+        `;
+
+        return `<tr>
+          <td><strong>${esc(a.title)}</strong></td>
+          <td>${fmtDate(a.activity_date)}</td>
+          <td style="text-transform:capitalize">${esc(a.activity_type)}</td>
+          <td>${esc(a.location || '—')}</td>
+          <td><span class="act-status ${esc(a.status)}">${esc(a.status)}</span></td>
+          <td>
+            <div class="act-actions">
+              ${attendanceBtn}
+              <button class="edit-btn" onclick="viewRegistrants('${a.id}','${esc(a.title)}')" title="View Registrants"><i class="fas fa-users"></i></button>
+              <button class="edit-btn" onclick="editActivity('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
+              <button class="del-btn" onclick="confirmDelete('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
     }
 
     // ── Create / Edit ──

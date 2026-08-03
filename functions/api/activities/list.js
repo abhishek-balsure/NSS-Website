@@ -11,7 +11,7 @@ export async function onRequest(context) {
   const statusRaw = url.searchParams.get('status');
   const type = url.searchParams.get('type');
 
-  let query = supabase.from('activities').select('*', { count: 'exact' });
+  let query = supabase.from('activities').select('id, title, description, activity_date, location, activity_type, max_volunteers, status, time, leader, attendance_open, attendance_expires_at', { count: 'exact' });
   if (statusRaw) {
     const parts = statusRaw.split(',').map(s => s.trim()).filter(Boolean);
     if (parts.length === 1) query = query.eq('status', parts[0]);

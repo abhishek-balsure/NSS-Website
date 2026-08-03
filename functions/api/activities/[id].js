@@ -9,7 +9,7 @@ export async function onRequest(context) {
   const { id } = params;
 
   if (request.method === 'GET') {
-    const { data, error } = await supabase.from('activities').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supabase.from('activities').select('id, title, description, activity_date, location, activity_type, max_volunteers, status, time, leader, attendance_open, attendance_expires_at').eq('id', id).maybeSingle();
     if (error) return errorResponse(error.message, 400);
     if (!data) return errorResponse('Not found', 404);
     return jsonResponse(data);

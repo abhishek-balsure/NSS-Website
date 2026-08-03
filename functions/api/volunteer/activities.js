@@ -12,7 +12,7 @@ export async function onRequest(context) {
 
   const { data: acts, error } = await supabase
     .from('activities')
-    .select('*')
+    .select('id, title, description, activity_date, location, activity_type, max_volunteers, status, time, leader, attendance_open, attendance_expires_at')
     .in('status', ['upcoming', 'ongoing'])
     .order('activity_date', { ascending: true });
 

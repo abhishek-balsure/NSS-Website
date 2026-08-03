@@ -264,7 +264,7 @@
         // Show success
         document.getElementById('formState').style.display = 'none';
         const successEl = document.getElementById('successState');
-        document.getElementById('successPhoto').innerHTML = `<img src="${data.photo_url}" alt="Uploaded photo">`;
+        document.getElementById('successPhoto').innerHTML = `<img src="${previewImg.src}" alt="Uploaded photo">`;
         successEl.classList.add('active');
       } catch (err) {
         attError.textContent = err.message;

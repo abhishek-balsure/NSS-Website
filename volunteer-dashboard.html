@@ -181,6 +181,30 @@
     </div>
   </main>
 
+  <!-- ══ Attendance Claim Modal ══ -->
+  <div class="modal-overlay" id="claimModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);z-index:2000;align-items:center;justify-content:center;padding:24px">
+    <div class="glass-card text-center" style="max-width:420px;width:100%;background:var(--bg-body);position:relative;border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:32px">
+      <div style="text-align:right;margin-bottom:-10px">
+        <button onclick="closeClaimModal()" style="border:none;background:transparent;font-size:1.5rem;cursor:pointer;color:var(--text-muted)">&times;</button>
+      </div>
+      <i class="fas fa-clipboard-user" style="font-size:3rem;color:var(--accent);margin-bottom:16px"></i>
+      <h3 style="font-size:1.25rem;margin-bottom:8px">Mark Attendance</h3>
+      <p id="claimPromptText" style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:20px;line-height:1.5"></p>
+      
+      <div id="claimFormContainer">
+        <div class="form-group" style="margin-bottom:16px;text-align:left">
+          <label for="claimPin" style="display:block;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:6px;color:var(--text-muted)">Enter 4-Digit PIN</label>
+          <input type="text" id="claimPin" maxlength="4" placeholder="Enter PIN code" style="width:100%;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-size:1.1rem;text-align:center;letter-spacing:4px;font-weight:700">
+        </div>
+        <div id="claimError" style="color:var(--danger);font-size:0.85rem;margin-bottom:14px;display:none"></div>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button class="rsvp-btn no" id="claimNoBtn" style="padding:10px 20px;font-size:0.85rem">I Was Absent</button>
+          <button class="rsvp-btn yes" id="claimYesBtn" style="padding:10px 20px;font-size:0.85rem"><i class="fas fa-check"></i> Submit PIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="shared.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
@@ -418,6 +442,7 @@
 
         updateCertificateSection(attendance || []);
         skeleton.style.display = 'none';
+        checkOpenAttendance(attendance || []);
 
         if (!attendance || !attendance.length) {
           empty.style.display = 'block';
@@ -627,6 +652,90 @@
         el.innerHTML = '<p class="empty-note">Could not load quiz status.</p>';
       }
     }
+
+    let activeClaimActivity = null;
+
+    async function checkOpenAttendance(history) {
+      try {
+        const res = await fetch('/api/events/list');
+        if (!res.ok) return;
+        const { events } = await res.json();
+        const now = new Date();
+
+        const claimable = (events || []).find(a => {
+          const isRegistered = a.user_registration_status === 'registered';
+          const isOpen = a.attendance_open === true;
+          const isNotExpired = !a.attendance_expires_at || new Date(a.attendance_expires_at) > now;
+          const alreadySubmitted = history.some(h => h.activity_id === a.id);
+          return isRegistered && isOpen && isNotExpired && !alreadySubmitted;
+        });
+
+        if (claimable) {
+          showClaimModal(claimable);
+        }
+      } catch (e) {
+        console.error('Error checking open attendance:', e);
+      }
+    }
+
+    function showClaimModal(activity) {
+      activeClaimActivity = activity;
+      document.getElementById('claimPromptText').textContent = 
+        `Attendance is open for "${activity.title}". Did you attend this activity? If yes, enter the 4-digit PIN displayed by the coordinator.`;
+      document.getElementById('claimPin').value = '';
+      document.getElementById('claimError').style.display = 'none';
+      document.getElementById('claimModal').style.display = 'flex';
+    }
+
+    function closeClaimModal() {
+      document.getElementById('claimModal').style.display = 'none';
+      activeClaimActivity = null;
+    }
+
+    async function submitClaim(attended) {
+      if (!activeClaimActivity) return;
+      const errorEl = document.getElementById('claimError');
+      errorEl.style.display = 'none';
+
+      let pin = '';
+      if (attended) {
+        pin = document.getElementById('claimPin').value.trim();
+        if (!pin) {
+          errorEl.textContent = 'Please enter the 4-digit PIN.';
+          errorEl.style.display = 'block';
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch('/api/volunteer/attendance/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            activity_id: activeClaimActivity.id,
+            pin,
+            attended
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          errorEl.textContent = data.error || 'Failed to submit';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        closeClaimModal();
+        alert(attended ? 'Attendance claimed successfully!' : 'Absence recorded.');
+        loadHistory();
+      } catch (e) {
+        errorEl.textContent = 'Network error. Try again.';
+        errorEl.style.display = 'block';
+      }
+    }
+
+    document.getElementById('claimYesBtn').addEventListener('click', () => submitClaim(true));
+    document.getElementById('claimNoBtn').addEventListener('click', () => submitClaim(false));
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
       e.preventDefault();

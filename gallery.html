@@ -8,13 +8,15 @@
     <title>Gallery — Sarhad NSS</title>
     <meta property="og:type" content="website">
     <meta property="og:title" content="Gallery — Sarhad NSS">
-    <meta property="og:description" content="Photo gallery of Sarhad NSS activities and events, browsable by year and month.">
+    <meta property="og:description"
+        content="Photo gallery of Sarhad NSS activities and events, browsable by year and month.">
     <meta property="og:url" content="https://nss-website-8uv.pages.dev/gallery.html">
     <meta property="og:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
     <meta property="og:site_name" content="Sarhad NSS">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Gallery — Sarhad NSS">
-    <meta name="twitter:description" content="Photo gallery of Sarhad NSS activities and events, browsable by year and month.">
+    <meta name="twitter:description"
+        content="Photo gallery of Sarhad NSS activities and events, browsable by year and month.">
     <meta name="twitter:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
     <link rel="canonical" href="https://nss-website-8uv.pages.dev/gallery.html">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -50,14 +52,16 @@
                         <a href="resources.html">Resources</a>
                         <a href="alumni.html">Alumni</a>
                         <a href="gallery.html" class="active">Gallery</a>
-                    <a href="leaderboard.html">Leaderboard</a>
+                        <a href="leaderboard.html">Leaderboard</a>
                     </div>
                 </div>
                 <a href="volunteer-login.html">Sign In</a>
                 <a href="register.html" class="nav-cta">Join NSS</a>
                 <a href="admin-login.html" class="nav-admin">Admin</a>
             </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
+            <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i
+                        class="fas fa-sun"></i></span><span class="icon-moon"><i
+                        class="fas fa-moon"></i></span></button>
             <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </button>
@@ -82,15 +86,69 @@
         <img id="lightboxImg" src="" alt="">
     </div>
 
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Sarhad NSS. All rights reserved. &middot; <a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer
+                        at a time.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                    <a href="resources.html">Resources</a>
+                    <a href="alumni.html">Alumni</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850XXXXXX</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com"
+                                style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <!-- © Made By Abhishek Balsure !! -->
+                <a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a>
+            </div>
         </div>
     </footer>
 
     <script src="shared.js"></script>
     <script>
-        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         let allAlbums = [];
         let activeYear = null;
 
@@ -170,4 +228,5 @@
         loadGallery();
     </script>
 </body>
+
 </html>

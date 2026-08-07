@@ -425,6 +425,24 @@
                 }
             });
 
+            if (formData.DOB) {
+                const dobVal = new Date(formData.DOB);
+                const today = new Date();
+                const age = today.getFullYear() - dobVal.getFullYear();
+                const dobGroup = document.getElementById('DOB').closest('.form-group');
+                const dobErr = dobGroup.querySelector('.error-text');
+
+                if (isNaN(dobVal.getTime())) {
+                    dobGroup.classList.add('error');
+                    dobErr.textContent = 'Please enter your birth date';
+                    isValid = false;
+                } else if (age < 15 || age > 80) {
+                    dobGroup.classList.add('error');
+                    dobErr.textContent = 'You must be between 15 and 80 years old';
+                    isValid = false;
+                }
+            }
+
             if (formData.MobileNo && !/^\d{10}$/.test(formData.MobileNo)) {
                 document.getElementById('MobileNo').closest('.form-group').classList.add('error');
                 isValid = false;
@@ -605,6 +623,15 @@
             let val = this.value.replace(/\D/g, '').slice(0, 12);
             this.value = val.replace(/(\d{4})(?=\d)/g, '$1 ');
         });
+
+        // Restrict Date of Birth selection to minimum 15 years in the past
+        const dobInput = document.getElementById('DOB');
+        if (dobInput) {
+            const today = new Date();
+            const maxYear = today.getFullYear() - 15;
+            const maxDate = new Date(maxYear, today.getMonth(), today.getDate());
+            dobInput.max = maxDate.toISOString().split('T')[0];
+        }
     </script>
 </body>
 

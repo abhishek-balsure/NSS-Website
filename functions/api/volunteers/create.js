@@ -11,6 +11,20 @@ export async function onRequest(context) {
     const body = await request.json();
 
     body.aadhar_no = body.aadhar_no.replace(/\s/g, '');
+
+    if (!body.dob) {
+      return errorResponse('Date of birth (dob) is required', 400);
+    }
+    const dobDate = new Date(body.dob);
+    if (isNaN(dobDate.getTime())) {
+      return errorResponse('Invalid Date of Birth format', 400);
+    }
+    const today = new Date();
+    const age = today.getFullYear() - dobDate.getFullYear();
+    if (age < 15 || age > 80) {
+      return errorResponse('Volunteer must be between 15 and 80 years old', 400);
+    }
+
     const refCode = 'SRH-NSS-' + (body.academic_year || 'XXXX').split('-')[0] + '-' + Math.floor(1000 + Math.random() * 9000);
     body.ref_code = refCode;
     body.status = 'pending';

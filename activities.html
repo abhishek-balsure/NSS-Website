@@ -240,6 +240,8 @@
     </footer>
 
     <script src="shared.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
         // ── Upcoming activities marquee ──
         (async function loadMarquee() {
@@ -360,11 +362,82 @@
         });
 
         function downloadCalendar() {
-            // Open the calendar image in a new tab to download
-            const link = document.createElement('a');
-            link.href = 'actvt.jpg';
-            link.download = 'NSS_Annual_Activity_Calendar.jpg';
-            link.click();
+            if (!activities || !activities.length) {
+                alert('No activities loaded to generate PDF.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            // Header banner styling
+            doc.setFillColor(30, 41, 59); // Dark Slate Blue
+            doc.rect(0, 0, 210, 40, 'F');
+
+            // Header titles
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text("SARHAD COLLEGE OF ARTS, COMMERCE & SCIENCE", 105, 14, { align: 'center' });
+            
+            doc.setFontSize(11);
+            doc.setFont('Helvetica', 'normal');
+            doc.text("National Service Scheme (NSS) Department", 105, 22, { align: 'center' });
+            
+            doc.setFontSize(13);
+            doc.setFont('Helvetica', 'bold');
+            doc.setTextColor(245, 158, 11); // Amber / orange accent
+            doc.text("ANNUAL ACTIVITY CALENDAR", 105, 32, { align: 'center' });
+
+            // Date & count metadata
+            doc.setTextColor(100, 116, 139);
+            doc.setFontSize(9);
+            doc.setFont('Helvetica', 'normal');
+            doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 15, 48);
+            doc.text(`Total Occasions: ${activities.length}`, 195, 48, { align: 'right' });
+
+            const headers = [["Sr.", "Occasion / Activity", "Date", "Category", "Location"]];
+            const rows = activities.map((a, index) => {
+                const dateStr = a.activity_date ? new Date(a.activity_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                return [
+                    String(index + 1).padStart(2, '0'),
+                    a.title || '—',
+                    dateStr,
+                    a.activity_type ? a.activity_type.charAt(0).toUpperCase() + a.activity_type.slice(1) : 'General',
+                    a.location || 'College Campus'
+                ];
+            });
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 52,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: [30, 41, 59],
+                    textColor: [255, 255, 255],
+                    fontSize: 9,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: { cellWidth: 12 },
+                    1: { cellWidth: 75 },
+                    2: { cellWidth: 32 },
+                    3: { cellWidth: 28 },
+                    4: { cellWidth: 43 }
+                },
+                styles: {
+                    fontSize: 8.5,
+                    cellPadding: 3,
+                    valign: 'middle'
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                },
+                margin: { left: 15, right: 15 }
+            });
+
+            doc.save('NSS_Annual_Activity_Calendar.pdf');
         }
     </script>
 </body>

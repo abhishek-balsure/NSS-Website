@@ -10,7 +10,7 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
-    const { title, description, activity_date, time, location, leader, activity_type, max_volunteers, is_waitlist_enabled, is_urgent, status } = body;
+    const { title, description, activity_date, time, location, leader, activity_type, max_volunteers, is_waitlist_enabled, is_urgent, status, latitude, longitude } = body;
 
     if (!title || !activity_date || !activity_type) {
       return errorResponse('title, activity_date, and activity_type are required');
@@ -28,6 +28,8 @@ export async function onRequest(context) {
       is_waitlist_enabled: !!is_waitlist_enabled,
       is_urgent: !!is_urgent,
       status: status || 'upcoming',
+      latitude: latitude !== undefined ? latitude : null,
+      longitude: longitude !== undefined ? longitude : null,
       created_by: ctxData.admin.userId,
     }).select().single();
 

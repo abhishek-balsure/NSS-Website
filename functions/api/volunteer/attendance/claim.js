@@ -10,7 +10,7 @@ export async function onRequest(context) {
   const vid = ctxData.volunteer.volunteerId;
 
   try {
-    const { activity_id, pin, attended } = await request.json();
+    const { activity_id, pin, attended, latitude, longitude } = await request.json();
 
     if (!activity_id) return errorResponse('activity_id is required');
     if (attended === undefined) return errorResponse('attended (true/false) is required');
@@ -49,7 +49,7 @@ export async function onRequest(context) {
     // 1. Fetch activity check parameters
     const { data: act, error: actErr } = await supabase
       .from('activities')
-      .select('id, status, attendance_open, attendance_pin, attendance_expires_at')
+      .select('id, status, attendance_open, attendance_pin, attendance_expires_at, latitude, longitude')
       .eq('id', activity_id)
       .single();
 
@@ -65,6 +65,24 @@ export async function onRequest(context) {
     // 3. Validate PIN code
     if (act.attendance_pin !== pin.toString().trim()) {
       return errorResponse('Invalid PIN code. Please try again.');
+    }
+
+    // 4. Validate Location (Geofencing) if configured
+    if (act.latitude !== null && act.longitude !== null && act.latitude !== undefined && act.longitude !== undefined) {
+      if (latitude === undefined || longitude === undefined || latitude === null || longitude === null) {
+        return errorResponse('Location access is required to mark attendance for this activity.');
+      }
+
+      const distance = getDistance(
+        parseFloat(latitude),
+        parseFloat(longitude),
+        parseFloat(act.latitude),
+        parseFloat(act.longitude)
+      );
+
+      if (distance > 200) {
+        return errorResponse(`Location verification failed. You are ${Math.round(distance)}m away from the activity venue.`);
+      }
     }
 
     // 4. Validate registration
@@ -118,4 +136,19 @@ export async function onRequest(context) {
   } catch (e) {
     return errorResponse(e.message, 500);
   }
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth radius in meters
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+            Math.cos(phi1) * Math.cos(phi2) *
+            Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
 }

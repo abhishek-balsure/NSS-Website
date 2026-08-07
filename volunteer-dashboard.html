@@ -707,6 +707,44 @@
         }
       }
 
+      let latitude = null;
+      let longitude = null;
+
+      const locationRequired = activeClaimActivity.latitude !== null && activeClaimActivity.longitude !== null && activeClaimActivity.latitude !== undefined && activeClaimActivity.longitude !== undefined;
+
+      if (attended && locationRequired) {
+        const originalBtnText = document.getElementById('claimYesBtn').innerHTML;
+        const yesBtn = document.getElementById('claimYesBtn');
+        const noBtn = document.getElementById('claimNoBtn');
+        
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+        yesBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Verifying Location...';
+
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          });
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+        } catch (err) {
+          yesBtn.disabled = false;
+          noBtn.disabled = false;
+          yesBtn.innerHTML = originalBtnText;
+          errorEl.textContent = 'GPS location permission is required to verify your attendance. Please enable location settings and try again.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        
+        yesBtn.disabled = false;
+        noBtn.disabled = false;
+        yesBtn.innerHTML = originalBtnText;
+      }
+
       try {
         const res = await fetch('/api/volunteer/attendance/claim', {
           method: 'POST',
@@ -714,7 +752,9 @@
           body: JSON.stringify({
             activity_id: activeClaimActivity.id,
             pin,
-            attended
+            attended,
+            latitude,
+            longitude
           })
         });
 

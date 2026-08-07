@@ -318,6 +318,16 @@
             </div>
           </div>
           <div class="form-row">
+            <div class="form-group">
+              <label for="actLatitude">Latitude (for Geofencing)</label>
+              <input type="number" step="any" id="actLatitude" placeholder="e.g. 18.4529">
+            </div>
+            <div class="form-group">
+              <label for="actLongitude">Longitude (for Geofencing)</label>
+              <input type="number" step="any" id="actLongitude" placeholder="e.g. 73.8643">
+            </div>
+          </div>
+          <div class="form-row">
             <label style="display:flex;align-items:center;gap:8px;font-weight:500">
               <input type="checkbox" id="actWaitlist" style="width:auto"> Enable waitlist when full
             </label>
@@ -942,6 +952,55 @@
       if (pinModalActivityId) closeAttendance(pinModalActivityId);
     });
 
+    async function exportAttendanceReport(id, title) {
+      try {
+        const res = await fetch(`/api/admin/activities/${id}/attendance`);
+        if (!res.ok) throw new Error('Failed to fetch attendance logs');
+        const data = await res.json();
+        
+        const list = data.attendance || [];
+        if (!list.length) {
+          toast('No attendance records found for this activity', 'error');
+          return;
+        }
+
+        const csvHeaders = ["Sr. No", "Name", "Email", "Department", "Class", "Roll No", "Ref Code", "Submitted At", "Status", "Hours Awarded", "Remarks"];
+        const csvRows = list.map((a, i) => {
+          const v = a.volunteer || {};
+          const row = [
+            i + 1,
+            v.name || 'Unknown',
+            v.email || '',
+            v.department || '',
+            v.class || '',
+            v.roll_no || '',
+            v.ref_code || '',
+            a.submitted_at ? new Date(a.submitted_at).toLocaleString('en-IN') : '',
+            a.status || 'pending',
+            a.hours_attended || 0,
+            a.remarks || ''
+          ];
+          return row.map(val => `"${String(val ?? '').replace(/"/g, '""')}"`).join(',');
+        });
+
+        const csvContent = [csvHeaders.join(','), ...csvRows].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `NSS_Attendance_Report_${title.replace(/[^a-z0-9]/gi, '_')}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast('Attendance report exported!');
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    }
+
     // =============================================
     // ══ ACTIVITIES ══
     // =============================================
@@ -989,6 +1048,7 @@
           <td>
             <div class="act-actions">
               ${attendanceBtn}
+              <button class="edit-btn" onclick="exportAttendanceReport('${a.id}','${esc(a.title)}')" title="Export CSV Report" style="color:var(--accent)"><i class="fas fa-file-csv"></i></button>
               <button class="edit-btn" onclick="viewRegistrants('${a.id}','${esc(a.title)}')" title="View Registrants"><i class="fas fa-users"></i></button>
               <button class="edit-btn" onclick="editActivity('${a.id}')" title="Edit"><i class="fas fa-pen-to-square"></i></button>
               <button class="del-btn" onclick="confirmDelete('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
@@ -1023,6 +1083,8 @@
       document.getElementById('actUrgent').checked = !!a.is_urgent;
       document.getElementById('actStatus').value = a.status || 'upcoming';
       document.getElementById('actDesc').value = a.description || '';
+      document.getElementById('actLatitude').value = a.latitude !== null && a.latitude !== undefined ? a.latitude : '';
+      document.getElementById('actLongitude').value = a.longitude !== null && a.longitude !== undefined ? a.longitude : '';
       openModal('activityModal');
     }
 
@@ -1034,6 +1096,9 @@
       if (!title || !activity_date || !activity_type) {
         toast('Fill required fields (Title, Date, Type)', 'error'); return;
       }
+
+      const latVal = document.getElementById('actLatitude').value.trim();
+      const lonVal = document.getElementById('actLongitude').value.trim();
 
       const body = {
         title,
@@ -1047,6 +1112,8 @@
         is_urgent: document.getElementById('actUrgent').checked,
         status: document.getElementById('actStatus').value,
         description: document.getElementById('actDesc').value.trim(),
+        latitude: latVal ? parseFloat(latVal) : null,
+        longitude: lonVal ? parseFloat(lonVal) : null,
       };
 
       const btn = document.getElementById('saveActivityBtn');

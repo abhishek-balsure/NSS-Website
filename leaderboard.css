@@ -30,3 +30,70 @@
             100% { background-position: 0% 50%; }
         }
         .lb-skeleton { height: 64px; margin-bottom: 10px; }
+
+/* Badges container inside name flex */
+.lb-name-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.lb-badges-strip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.lb-badge-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lb-badge-icon:hover {
+    transform: scale(1.2) rotate(8deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Tooltip design */
+.lb-badge-icon .tooltip {
+    visibility: hidden;
+    width: 180px;
+    background-color: #1e293b;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 6px 10px;
+    position: absolute;
+    z-index: 10;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    pointer-events: none;
+}
+.lb-badge-icon .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+}
+.lb-badge-icon:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}

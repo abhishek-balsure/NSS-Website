@@ -119,11 +119,17 @@
             <div class="progress-fill" id="hoursProgressFill"></div>
           </div>
           <div class="progress-milestones">
-            <span id="ms10">🥉 10 hrs</span>
-            <span id="ms25">🥈 25 hrs</span>
-            <span id="ms50">🥇 50 hrs</span>
+            <span id="ms20">🥉 20 hrs</span>
+            <span id="ms50">🥈 50 hrs</span>
+            <span id="ms80">🥇 80 hrs</span>
+            <span id="ms120">👑 120 hrs</span>
           </div>
         </div>
+      </div>
+
+      <div class="section-block" id="badgesSection" style="display:none">
+        <h2><i class="fas fa-medal" style="color:var(--accent)"></i> NSS Achievement Badges</h2>
+        <div class="badges-grid" id="myBadgesGrid"></div>
       </div>
 
       <div class="section-block">
@@ -482,21 +488,88 @@
         btn.style.display = 'none';
       }
 
-      // Badge: bronze at 10hrs, silver at 25hrs, gold at 50hrs
+      // Badge display based on total hours
       const badgeIcon = document.getElementById('badgeIcon');
       badgeIcon.className = 'badge-icon';
       let badgeHtml = '<i class="fas fa-seedling"></i>';
-      if (totalHours >= 50) { badgeIcon.classList.add('gold'); badgeHtml = '🥇'; }
-      else if (totalHours >= 25) { badgeIcon.classList.add('silver'); badgeHtml = '🥈'; }
-      else if (totalHours >= 10) { badgeIcon.classList.add('bronze'); badgeHtml = '🥉'; }
+      if (totalHours >= 120) { badgeIcon.classList.add('gold'); badgeHtml = '👑'; }
+      else if (totalHours >= 80) { badgeIcon.classList.add('gold'); badgeHtml = '🥇'; }
+      else if (totalHours >= 50) { badgeIcon.classList.add('silver'); badgeHtml = '🥈'; }
+      else if (totalHours >= 20) { badgeIcon.classList.add('bronze'); badgeHtml = '🥉'; }
       badgeIcon.innerHTML = badgeHtml;
 
-      // Progress bar toward the next milestone (caps visually at 50hrs = 100%)
-      const pct = Math.min((totalHours / 50) * 100, 100);
+      // Progress bar toward the next milestone (caps visually at 120hrs = 100%)
+      const pct = Math.min((totalHours / 120) * 100, 100);
       document.getElementById('hoursProgressFill').style.width = pct + '%';
-      document.getElementById('ms10').classList.toggle('reached', totalHours >= 10);
-      document.getElementById('ms25').classList.toggle('reached', totalHours >= 25);
+      document.getElementById('ms20').classList.toggle('reached', totalHours >= 20);
       document.getElementById('ms50').classList.toggle('reached', totalHours >= 50);
+      document.getElementById('ms80').classList.toggle('reached', totalHours >= 80);
+      document.getElementById('ms120').classList.toggle('reached', totalHours >= 120);
+
+      // Compute categories for specialty achievement badges
+      const cats = {};
+      approved.forEach(a => {
+        if (a.activity && a.activity.activity_type) {
+          const cat = a.activity.activity_type;
+          cats[cat] = (cats[cat] || 0) + 1;
+        }
+      });
+
+      // Construct earned achievements list
+      const earnedBadges = [];
+      if (totalHours >= 120) {
+        earnedBadges.push({ title: 'Centurion Champion', desc: 'Completed 120+ verified community service hours', icon: '👑', color: '#f59e0b' });
+      } else if (totalHours >= 80) {
+        earnedBadges.push({ title: 'Gold Medalist', desc: 'Completed 80+ verified community service hours', icon: '🥇', color: '#fbbf24' });
+      } else if (totalHours >= 50) {
+        earnedBadges.push({ title: 'Silver Ribbon', desc: 'Completed 50+ verified community service hours', icon: '🥈', color: '#94a3b8' });
+      } else if (totalHours >= 20) {
+        earnedBadges.push({ title: 'Bronze Ribbon', desc: 'Completed 20+ verified community service hours', icon: '🥉', color: '#b45309' });
+      } else if (totalHours > 0) {
+        earnedBadges.push({ title: 'NSS Initiate', desc: 'Began their volunteer journey', icon: '🌱', color: '#10b981' });
+      }
+
+      // Specialty Category Badges
+      const envCount = (cats.environment || 0) + (cats.drive || 0);
+      if (envCount >= 2) {
+        earnedBadges.push({ title: 'Eco Warrior', desc: 'Participated in 2+ environment or cleanliness drives', icon: '🌳', color: '#22c55e' });
+      }
+      
+      const healthCount = cats.health || 0;
+      if (healthCount >= 2) {
+        earnedBadges.push({ title: 'Lifesaver', desc: 'Participated in 2+ blood donation or health camps', icon: '❤️', color: '#ef4444' });
+      }
+
+      const advCount = (cats.social || 0) + (cats.national || 0) + (cats.awareness || 0);
+      if (advCount >= 2) {
+        earnedBadges.push({ title: 'Social Advocate', desc: 'Participated in 2+ national awareness, rallies or social events', icon: '📢', color: '#3b82f6' });
+      }
+
+      const campCount = cats.camp || 0;
+      if (campCount >= 1) {
+        earnedBadges.push({ title: 'Camp Veteran', desc: 'Successfully completed at least one NSS Special Camp', icon: '🏕️', color: '#ec4899' });
+      }
+
+      const skillCount = (cats.workshop || 0) + (cats.education || 0);
+      if (skillCount >= 2) {
+        earnedBadges.push({ title: 'Skill Master', desc: 'Participated in 2+ workshops or educational sessions', icon: '🎓', color: '#8b5cf6' });
+      }
+
+      // Render Badges
+      const badgesGrid = document.getElementById('myBadgesGrid');
+      const badgesSec = document.getElementById('badgesSection');
+      if (earnedBadges.length > 0) {
+        badgesSec.style.display = 'block';
+        badgesGrid.innerHTML = earnedBadges.map(b => `
+          <div class="badge-card" style="border-top: 3px solid ${b.color}">
+            <div class="badge-emoji">${b.icon}</div>
+            <div class="badge-title">${esc(b.title)}</div>
+            <div class="badge-desc">${esc(b.desc)}</div>
+          </div>
+        `).join('');
+      } else {
+        badgesSec.style.display = 'none';
+      }
     }
 
     // ── NSS Trivia Challenge section ──

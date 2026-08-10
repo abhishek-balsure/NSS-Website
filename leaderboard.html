@@ -145,26 +145,31 @@
                     wrap.innerHTML = '<p class="empty-note">No approved hours logged yet — check back soon!</p>';
                     return;
                 }
-                wrap.innerHTML = leaderboard.map((v, i) => `
-                    <div class="lb-row">
-                        <div class="lb-rank">${i + 1}</div>
-                        <div class="lb-info">
-                            <div class="lb-name">${esc(v.name)}</div>
-                            <div class="lb-dept">${esc(v.department || '')}</div>
+                wrap.innerHTML = leaderboard.map((v, i) => {
+                    const badgesHtml = (v.badges || []).map(b => `
+                        <span class="lb-badge-icon" title="${esc(b.title)}" style="border-color:${b.color}90; background:${b.color}15">
+                            ${b.icon}
+                            <span class="tooltip"><strong>${esc(b.title)}</strong><br>${esc(b.desc)}</span>
+                        </span>
+                    `).join('');
+
+                    return `
+                        <div class="lb-row">
+                            <div class="lb-rank">${i + 1}</div>
+                            <div class="lb-info">
+                                <div class="lb-name-container">
+                                    <span class="lb-name">${esc(v.name)}</span>
+                                    <div class="lb-badges-strip">${badgesHtml}</div>
+                                </div>
+                                <div class="lb-dept">${esc(v.department || '')}</div>
+                            </div>
+                            <div class="lb-hours">${v.hours.toFixed(1)} hrs</div>
                         </div>
-                        <div class="lb-hours">${badgeFor(v.hours)} ${v.hours.toFixed(1)} hrs</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {
                 wrap.innerHTML = '<p class="empty-note">Could not load the leaderboard right now.</p>';
             }
-        }
-
-        function badgeFor(hours) {
-            if (hours >= 50) return '🥇';
-            if (hours >= 25) return '🥈';
-            if (hours >= 10) return '🥉';
-            return '';
         }
         loadLeaderboard();
     </script>

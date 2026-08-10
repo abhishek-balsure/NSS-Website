@@ -244,3 +244,40 @@
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-success { background: var(--success); color: #fff; }
     .btn-success:hover { opacity: 0.88; }
+
+    /* ── Achievements Badges Grid ── */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .badge-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md, 10px);
+      padding: 14px 10px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .badge-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    .badge-card .badge-emoji {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      display: inline-block;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+    .badge-card .badge-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .badge-card .badge-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.25;
+    }

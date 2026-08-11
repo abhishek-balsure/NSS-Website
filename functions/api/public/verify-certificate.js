@@ -1,4 +1,4 @@
-import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../../_utils.js';
+import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../_utils.js';
 
 export async function onRequest(context) {
   const { request, env } = context;

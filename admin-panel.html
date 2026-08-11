@@ -59,6 +59,7 @@
           <button class="tab-btn" data-tab="volunteers"><i class="fas fa-users"></i> Volunteers</button>
           <button class="tab-btn" data-tab="gallery"><i class="fas fa-images"></i> Gallery</button>
           <button class="tab-btn" data-tab="content"><i class="fas fa-book-open"></i> Content</button>
+          <button class="tab-btn" data-tab="announcements"><i class="fas fa-bullhorn"></i> Announcements</button>
           <button class="tab-btn" data-tab="admins" id="adminsTabBtn" style="display:none"><i class="fas fa-user-shield"></i> Manage Admins</button>
         </div>
 
@@ -201,6 +202,29 @@
             </table>
           </div>
           <div class="empty-state" id="alumniEmpty" style="display:none"><p>No alumni stories yet.</p></div>
+        </div>
+
+        <!-- ══ Announcements Tab ══ -->
+        <div class="tab-panel" id="tabAnnouncements">
+          <div class="act-toolbar">
+            <h2>Announcements & Notices</h2>
+            <button class="btn btn-success" onclick="openNewAnnouncementModal()"><i class="fas fa-plus"></i> New Announcement</button>
+          </div>
+          <div class="act-table-wrap">
+            <table class="act-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Priority</th>
+                  <th>Created At</th>
+                  <th>Expires At</th>
+                  <th style="width:100px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="announcementsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="announcementsEmpty" style="display:none"><p>No announcements published yet.</p></div>
         </div>
 
         <!-- ══ Manage Admins Tab (super_admin only) ══ -->
@@ -601,6 +625,46 @@
     </div>
   </div>
 
+  <!-- ══ Announcement Modal ══ -->
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal" style="max-width:550px">
+      <div class="modal-header">
+        <h3><i class="fas fa-bullhorn" style="color:var(--accent)"></i> Publish Announcement</h3>
+        <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="announcementForm">
+          <div class="form-group">
+            <label for="announcementTitle">Title</label>
+            <input type="text" id="announcementTitle" placeholder="e.g. Winter Camp Registration Open" required>
+          </div>
+          <div class="form-group">
+            <label for="announcementMessage">Message Details</label>
+            <textarea id="announcementMessage" rows="4" placeholder="Type announcement details here..." required></textarea>
+          </div>
+          <div class="profile-edit-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label for="announcementPriority">Priority</label>
+              <select id="announcementPriority">
+                <option value="info">🔵 Info / General</option>
+                <option value="warning">🟡 Warning / Reminder</option>
+                <option value="urgent">🔴 Urgent Alert</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="announcementExpires">Expires At <span style="text-transform:none;font-weight:400;color:var(--text-muted)">(optional)</span></label>
+              <input type="date" id="announcementExpires">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('announcementModal')">Cancel</button>
+        <button class="btn btn-success" id="saveAnnouncementBtn"><i class="fas fa-paper-plane"></i> Publish</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ Toast ══ -->
   <div class="toast" id="toast"></div>
 
@@ -626,6 +690,8 @@
     let alumniList = [];
     let editingAlumnusId = null;
     let deletingAlumnusId = null;
+    let announcementsList = [];
+    let deletingAnnouncementId = null;
     let selectedVolunteerIds = new Set();
 
     // ── Init ──
@@ -656,7 +722,12 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.add('active');
+        const panelId = 'tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1);
+        document.getElementById(panelId).classList.add('active');
+        
+        if (btn.dataset.tab === 'announcements') {
+          loadAnnouncements();
+        }
       });
     });
 
@@ -1149,12 +1220,13 @@
       deletingAlbumId = null;
       deletingResourceId = null;
       deletingAlumnusId = null;
+      deletingAnnouncementId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-      if (!deletingActivityId && !deletingAlbumId && !deletingResourceId && !deletingAlumnusId) return;
+      if (!deletingActivityId && !deletingAlbumId && !deletingResourceId && !deletingAlumnusId && !deletingAnnouncementId) return;
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
 
@@ -1165,6 +1237,12 @@
           toast('Resource deleted');
           deletingResourceId = null;
           loadResources();
+        } else if (deletingAnnouncementId) {
+          const res = await fetch(`/api/admin/announcements/delete?id=${deletingAnnouncementId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+          toast('Announcement deleted');
+          deletingAnnouncementId = null;
+          loadAnnouncements();
         } else if (deletingAlumnusId) {
           const res = await fetch(`/api/admin/alumni/${deletingAlumnusId}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).error || 'Failed');
@@ -1491,6 +1569,7 @@
       deletingActivityId = null;
       deletingResourceId = null;
       deletingAlumnusId = null;
+      deletingAnnouncementId = null;
       document.getElementById('deleteInfo').textContent = `Are you sure you want to delete album "${title}"? This will also delete all its photos. This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1692,7 +1771,11 @@
     });
 
     function confirmDeleteResource(id, title) {
-      deletingResourceId = id; deletingActivityId = null; deletingAlbumId = null; deletingAlumnusId = null;
+      deletingResourceId = id;
+      deletingActivityId = null;
+      deletingAlbumId = null;
+      deletingAlumnusId = null;
+      deletingAnnouncementId = null;
       document.getElementById('deleteInfo').textContent = `Delete resource "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
@@ -1781,8 +1864,91 @@
     });
 
     function confirmDeleteAlumnus(id, name) {
-      deletingAlumnusId = id; deletingActivityId = null; deletingAlbumId = null; deletingResourceId = null;
+      deletingAlumnusId = id; deletingActivityId = null; deletingAlbumId = null; deletingResourceId = null; deletingAnnouncementId = null;
       document.getElementById('deleteInfo').textContent = `Delete alumni story for "${name}"? This cannot be undone.`;
+      openModal('deleteModal');
+    }
+
+    // =============================================
+    // ══ ANNOUNCEMENTS ══
+    // =============================================
+    async function loadAnnouncements() {
+      try {
+        const res = await fetch('/api/admin/announcements/list');
+        if (!res.ok) throw new Error();
+        const { announcements } = await res.json();
+        announcementsList = announcements || [];
+        renderAnnouncements();
+      } catch (e) {
+        document.getElementById('announcementsTableBody').innerHTML = '';
+        document.getElementById('announcementsEmpty').style.display = 'block';
+      }
+    }
+
+    function renderAnnouncements() {
+      const tbody = document.getElementById('announcementsTableBody');
+      const empty = document.getElementById('announcementsEmpty');
+      if (!announcementsList.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      
+      const priorityLabels = {
+        info: '<span class="status-badge approved">Info</span>',
+        warning: '<span class="status-badge pending">Warning</span>',
+        urgent: '<span class="status-badge rejected">Urgent</span>'
+      };
+
+      tbody.innerHTML = announcementsList.map(a => `<tr>
+        <td><strong>${esc(a.title)}</strong><br><span style="font-size:0.8rem;color:var(--text-muted)">${esc(a.message)}</span></td>
+        <td>${priorityLabels[a.priority] || a.priority}</td>
+        <td>${fmtDate(a.created_at)}</td>
+        <td>${a.expires_at ? fmtDate(a.expires_at) : '—'}</td>
+        <td>
+          <div class="act-actions">
+            <button class="del-btn" onclick="confirmDeleteAnnouncement('${a.id}','${esc(a.title)}')" title="Delete"><i class="fas fa-trash-can"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    function openNewAnnouncementModal() {
+      document.getElementById('announcementForm').reset();
+      openModal('announcementModal');
+    }
+
+    document.getElementById('saveAnnouncementBtn').addEventListener('click', async () => {
+      const title = document.getElementById('announcementTitle').value.trim();
+      const message = document.getElementById('announcementMessage').value.trim();
+      const priority = document.getElementById('announcementPriority').value;
+      const expires = document.getElementById('announcementExpires').value;
+
+      if (!title || !message) { toast('Title and Message are required', 'error'); return; }
+
+      const body = {
+        title,
+        message,
+        priority,
+        expires_at: expires ? expires + 'T23:59:59' : null
+      };
+
+      const btn = document.getElementById('saveAnnouncementBtn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+      try {
+        const res = await fetch('/api/admin/announcements/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed to publish');
+        toast('Announcement published!');
+        closeModal('announcementModal');
+        loadAnnouncements();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish'; }
+    });
+
+    function confirmDeleteAnnouncement(id, title) {
+      deletingAnnouncementId = id; deletingActivityId = null; deletingAlbumId = null; deletingResourceId = null; deletingAlumnusId = null;
+      document.getElementById('deleteInfo').textContent = `Delete announcement "${title}"? This cannot be undone.`;
       openModal('deleteModal');
     }
 

@@ -281,3 +281,89 @@
       color: var(--text-muted);
       line-height: 1.25;
     }
+
+    /* ── Announcement Banner Alerts ── */
+    .announcement-banner {
+      border-radius: var(--radius-md, 10px);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      position: relative;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      border: 1px solid var(--border-glass);
+      background: var(--bg-glass);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      animation: slideDown 0.3s ease-out;
+    }
+    .announcement-banner .announcement-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .announcement-banner .announcement-body {
+      flex: 1;
+      padding-right: 24px;
+    }
+    .announcement-banner h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: var(--text-primary);
+    }
+    .announcement-banner p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .announcement-banner .announcement-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 2px;
+      transition: color 0.15s;
+    }
+    .announcement-banner .announcement-close:hover {
+      color: var(--text-primary);
+    }
+
+    /* Priorities styling */
+    .announcement-banner.info {
+      background: rgba(59, 130, 246, 0.06);
+      border-color: rgba(59, 130, 246, 0.25);
+      border-left: 4px solid #3b82f6;
+    }
+    .announcement-banner.info .announcement-icon {
+      color: #3b82f6;
+    }
+
+    .announcement-banner.warning {
+      background: rgba(245, 158, 11, 0.06);
+      border-color: rgba(245, 158, 11, 0.25);
+      border-left: 4px solid #f59e0b;
+    }
+    .announcement-banner.warning .announcement-icon {
+      color: #f59e0b;
+    }
+
+    .announcement-banner.urgent {
+      background: rgba(239, 68, 68, 0.06);
+      border-color: rgba(239, 68, 68, 0.25);
+      border-left: 4px solid #ef4444;
+      animation: borderPulse 2s infinite ease-in-out, slideDown 0.3s ease-out;
+    }
+    .announcement-banner.urgent .announcement-icon {
+      color: #ef4444;
+    }
+
+    @keyframes borderPulse {
+      0%, 100% { border-color: rgba(239, 68, 68, 0.25); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05); }
+      50% { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15); }
+    }

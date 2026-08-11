@@ -53,7 +53,11 @@
 
     <div id="dashContent" style="display:none">
       <div class="dash-container">
-      <div class="dash-header">
+        
+        <!-- Announcement Notices Container -->
+        <div id="announcementBannerContainer" style="display:none; margin-bottom:24px;"></div>
+
+        <div class="dash-header">
         <h1><i class="fas fa-user" style="color:var(--accent)"></i> My Dashboard</h1>
         <div class="user-badge" id="userBadge"></div>
       </div>
@@ -271,6 +275,7 @@
         loadHistory();
         loadNotifications();
         loadQuizSection(user.name || 'Volunteer');
+        loadAnnouncements();
       } catch (e) {
         console.error('Dashboard load error:', e);
         document.getElementById('loading').innerHTML =
@@ -849,6 +854,68 @@
 
     document.getElementById('claimYesBtn').addEventListener('click', () => submitClaim(true));
     document.getElementById('claimNoBtn').addEventListener('click', () => submitClaim(false));
+
+    async function loadAnnouncements() {
+      try {
+        const res = await fetch('/api/volunteer/announcements/active');
+        if (!res.ok) throw new Error();
+        const { announcements } = await res.json();
+
+        const container = document.getElementById('announcementBannerContainer');
+        if (!announcements || !announcements.length) {
+          container.style.display = 'none';
+          return;
+        }
+
+        const icons = {
+          info: 'fa-info-circle',
+          warning: 'fa-triangle-exclamation',
+          urgent: 'fa-circle-exclamation'
+        };
+
+        const dismissed = JSON.parse(sessionStorage.getItem('dismissedAnnouncements') || '[]');
+
+        const visibleList = announcements.filter(a => !dismissed.includes(a.id));
+        if (!visibleList.length) {
+          container.style.display = 'none';
+          return;
+        }
+
+        container.style.display = 'block';
+        container.innerHTML = visibleList.map(a => `
+          <div class="announcement-banner ${a.priority}" id="ann-banner-${a.id}">
+            <div class="announcement-icon"><i class="fas ${icons[a.priority] || 'fa-bell'}"></i></div>
+            <div class="announcement-body">
+              <h4>${esc(a.title)}</h4>
+              <p>${esc(a.message)}</p>
+            </div>
+            <button class="announcement-close" onclick="dismissAnnouncement('${a.id}')" title="Dismiss">&times;</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load announcements', e);
+      }
+    }
+
+    window.dismissAnnouncement = function(id) {
+      const banner = document.getElementById(`ann-banner-${id}`);
+      if (banner) {
+        banner.style.transform = 'translateY(-10px)';
+        banner.style.opacity = '0';
+        banner.style.transition = 'all 0.2s ease';
+        setTimeout(() => {
+          banner.remove();
+          const dismissed = JSON.parse(sessionStorage.getItem('dismissedAnnouncements') || '[]');
+          dismissed.push(id);
+          sessionStorage.setItem('dismissedAnnouncements', JSON.stringify(dismissed));
+          
+          const container = document.getElementById('announcementBannerContainer');
+          if (container.querySelectorAll('.announcement-banner').length === 0) {
+            container.style.display = 'none';
+          }
+        }, 200);
+      }
+    };
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
       e.preventDefault();

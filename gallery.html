@@ -71,15 +71,41 @@
 
     <main>
         <section class="page-header">
-            <h1><i class="fas fa-images" style="color:var(--accent)"></i> Photo Gallery</h1>
-            <p>Moments from our activities and events, year by year.</p>
+            <div class="container">
+                <span class="hero-badge"><i class="fas fa-images"></i> Memory Lane</span>
+                <h1>Photo Gallery</h1>
+                <p>Moments from our activities and events, year by year.</p>
+            </div>
         </section>
 
-        <div class="year-tabs" id="yearTabs"></div>
-        <div id="galleryContent" style="min-height:300px">
-            <p class="empty-note">Loading gallery...</p>
+        <div class="gallery-toolbar container fade-in" style="margin-bottom:28px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+            <div class="search-box" style="flex:1; min-width:220px; position:relative">
+                <i class="fas fa-search" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted)"></i>
+                <input type="text" id="gallerySearch" placeholder="Search albums..." style="width:100%; padding:10px 14px 10px 40px; border-radius: var(--radius-sm, 8px); border: 1px solid var(--border-glass); background:var(--bg-glass); color:var(--text-primary); font-family:inherit;">
+            </div>
+            <div class="year-tabs" id="yearTabs" style="margin:0"></div>
+        </div>
+
+        <div class="container" style="padding-bottom:80px">
+            <div class="album-grid" id="albumGrid">
+                <p class="empty-note">Loading gallery...</p>
+            </div>
         </div>
     </main>
+
+    <!-- Album Photos Modal -->
+    <div class="album-modal" id="albumModal">
+        <div class="album-modal-content">
+            <div class="album-modal-header">
+                <div>
+                    <h3 id="modalAlbumTitle"></h3>
+                    <p id="modalAlbumDesc" class="meta"></p>
+                </div>
+                <button class="album-modal-close" id="albumModalClose">&times;</button>
+            </div>
+            <div class="album-photo-grid" id="albumPhotoGrid"></div>
+        </div>
+    </div>
 
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" id="lightboxClose">&times;</button>
@@ -149,7 +175,7 @@
     <script>
         const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         let allAlbums = [];
-        let activeYear = null;
+        let activeYear = 'all';
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
 
@@ -161,67 +187,125 @@
                 allAlbums = albums || [];
 
                 if (!allAlbums.length) {
-                    document.getElementById('galleryContent').innerHTML = '<p class="empty-note">No photos added yet — check back soon!</p>';
+                    document.getElementById('albumGrid').innerHTML = '<p class="empty-note">No photos added yet — check back soon!</p>';
                     return;
                 }
 
                 const years = [...new Set(allAlbums.map(a => a.event_year))].sort((a, b) => b - a);
-                document.getElementById('yearTabs').innerHTML = years.map(y =>
-                    `<button class="year-tab" data-year="${y}">${y}</button>`
-                ).join('');
+                
+                const tabsContainer = document.getElementById('yearTabs');
+                tabsContainer.innerHTML = `<button class="year-tab active" data-year="all">All</button>` + 
+                    years.map(y => `<button class="year-tab" data-year="${y}">${y}</button>`).join('');
 
                 document.querySelectorAll('.year-tab').forEach(btn => {
-                    btn.addEventListener('click', () => selectYear(parseInt(btn.dataset.year)));
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.year-tab').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        activeYear = btn.dataset.year === 'all' ? 'all' : parseInt(btn.dataset.year);
+                        renderAlbums(activeYear, document.getElementById('gallerySearch').value.trim());
+                    });
                 });
 
-                selectYear(years[0]);
+                renderAlbums('all', '');
             } catch (e) {
-                document.getElementById('galleryContent').innerHTML = '<p class="empty-note">Could not load the gallery right now.</p>';
+                document.getElementById('albumGrid').innerHTML = '<p class="empty-note">Could not load the gallery right now.</p>';
             }
         }
 
-        function selectYear(year) {
-            activeYear = year;
-            document.querySelectorAll('.year-tab').forEach(btn => {
-                btn.classList.toggle('active', parseInt(btn.dataset.year) === year);
-            });
+        function renderAlbums(year, query) {
+            const grid = document.getElementById('albumGrid');
+            grid.innerHTML = '';
 
-            const albumsThisYear = allAlbums.filter(a => a.event_year === year);
-            const months = [...new Set(albumsThisYear.map(a => a.event_month))].sort((a, b) => b - a);
+            let filtered = allAlbums;
+            if (year !== 'all') {
+                filtered = filtered.filter(a => a.event_year === year);
+            }
+            if (query) {
+                const q = query.toLowerCase();
+                filtered = filtered.filter(a => (a.title + ' ' + (a.description || '')).toLowerCase().includes(q));
+            }
 
-            const html = months.map(m => {
-                const albumsThisMonth = albumsThisYear.filter(a => a.event_month === m);
-                const albumsHtml = albumsThisMonth.map(album => {
-                    const photos = album.gallery_photos || [];
-                    if (!photos.length) return '';
-                    return `
-                        <div class="album-block">
-                            <h4>${esc(album.title)}</h4>
-                            ${album.description ? `<div class="album-desc">${esc(album.description)}</div>` : ''}
-                            <div class="photo-grid">
-                                ${photos.map(p => `<img src="${esc(p.photo_path)}" alt="${esc(p.caption || album.title)}" loading="lazy" onclick="openLightbox('${esc(p.photo_path)}')">`).join('')}
+            if (!filtered.length) {
+                grid.innerHTML = '<p class="empty-note">No albums found matching your criteria.</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(album => {
+                const photos = album.gallery_photos || [];
+                const count = photos.length;
+                const cover = album.cover_photo || (count > 0 ? photos[0].photo_path : 'logos/nss.jpg');
+                
+                return `
+                    <div class="album-card animate-card" onclick="openAlbum('${album.id}')">
+                        <div class="album-cover-wrap">
+                            <img src="${esc(cover)}" alt="${esc(album.title)}" loading="lazy" class="album-cover">
+                            <div class="photo-count-badge">
+                                <i class="fas fa-camera"></i> ${count} Photo${count !== 1 ? 's' : ''}
                             </div>
                         </div>
-                    `;
-                }).join('');
-                if (!albumsHtml.trim()) return '';
-                return `<div class="month-section"><h3>${MONTH_NAMES[m - 1]}</h3>${albumsHtml}</div>`;
+                        <div class="album-info">
+                            <span class="album-date">${MONTH_NAMES[album.event_month - 1]} ${album.event_year}</span>
+                            <h4>${esc(album.title)}</h4>
+                            ${album.description ? `<p class="album-desc">${esc(album.description)}</p>` : ''}
+                        </div>
+                    </div>
+                `;
             }).join('');
-
-            document.getElementById('galleryContent').innerHTML = html.trim()
-                ? html
-                : '<p class="empty-note">No photos for this year yet.</p>';
         }
+
+        function openAlbum(id) {
+            const album = allAlbums.find(a => a.id === id);
+            if (!album) return;
+
+            document.getElementById('modalAlbumTitle').textContent = album.title;
+            document.getElementById('modalAlbumDesc').textContent = `${MONTH_NAMES[album.event_month - 1]} ${album.event_year} · ${album.description || 'NSS activity photos'}`;
+            
+            const photos = album.gallery_photos || [];
+            const grid = document.getElementById('albumPhotoGrid');
+            
+            if (!photos.length) {
+                grid.innerHTML = '<p class="empty-note">No photos in this album yet.</p>';
+            } else {
+                grid.innerHTML = photos.map(p => `
+                    <div class="photo-card" onclick="openLightbox('${esc(p.photo_path)}')">
+                        <img src="${esc(p.photo_path)}" alt="${esc(p.caption || album.title)}" loading="lazy">
+                        ${p.caption ? `<div class="photo-caption">${esc(p.caption)}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            const modal = document.getElementById('albumModal');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeAlbumModal() {
+            document.getElementById('albumModal').classList.remove('open');
+            document.body.style.overflow = ''; 
+        }
+
+        document.getElementById('albumModalClose').addEventListener('click', closeAlbumModal);
+        
+        document.getElementById('albumModal').addEventListener('click', (e) => {
+            if (e.target.id === 'albumModal') closeAlbumModal();
+        });
 
         function openLightbox(url) {
             document.getElementById('lightboxImg').src = url;
             document.getElementById('lightbox').classList.add('open');
         }
-        document.getElementById('lightboxClose').addEventListener('click', () => {
+
+        function closeLightbox() {
             document.getElementById('lightbox').classList.remove('open');
-        });
+        }
+
+        document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
         document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target.id === 'lightbox') document.getElementById('lightbox').classList.remove('open');
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+
+        document.getElementById('gallerySearch').addEventListener('input', function() {
+            renderAlbums(activeYear, this.value.trim());
         });
 
         loadGallery();

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Official certificate verification portal for Savitribai Phule Pune University (SPPU) NSS units at Sarhad College, Pune.">
+    <title>Verify Certificate — Sarhad NSS</title>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Verify Certificate — Sarhad NSS">
+    <meta property="og:description" content="Official certificate verification portal for Savitribai Phule Pune University (SPPU) NSS units at Sarhad College, Pune.">
+    <meta property="og:url" content="https://nss-website-8uv.pages.dev/verify.html">
+    <meta property="og:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
+    <meta property="og:site_name" content="Sarhad NSS">
+    <link rel="canonical" href="https://nss-website-8uv.pages.dev/verify.html">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="verify.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e68a00">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+                Sarhad<span>NSS</span>
+            </a>
+            <div class="nav-logos-strip">
+                <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="activities.html">Activities</a>
+                <a href="events.html">Events</a>
+                <a href="contactus.html">Contact</a>
+                <div class="nav-dropdown">
+                    <button type="button" class="nav-dropdown-toggle">More <i class="fas fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu">
+                        <a href="quiz.html">Quiz</a>
+                        <a href="resources.html">Resources</a>
+                        <a href="alumni.html">Alumni</a>
+                        <a href="gallery.html">Gallery</a>
+                        <a href="leaderboard.html">Leaderboard</a>
+                        <a href="verify.html" class="active">Verify Certificate</a>
+                    </div>
+                </div>
+                <a href="volunteer-login.html">Sign In</a>
+                <a href="register.html" class="nav-cta">Join NSS</a>
+                <a href="admin-login.html" class="nav-admin">Admin</a>
+            </div>
+            <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i
+                        class="fas fa-sun"></i></span><span class="icon-moon"><i
+                        class="fas fa-moon"></i></span></button>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <span class="hero-badge"><i class="fas fa-shield-check"></i> Verification Portal</span>
+                <h1>Certificate Verification</h1>
+                <p>Verify the authenticity of NSS Certificates of Participation issued by Sarhad College.</p>
+            </div>
+        </section>
+
+        <section class="section-padding" style="padding-top:0">
+            <div class="container">
+                <div class="verify-wrap">
+                    <div class="verify-card">
+                        <h3>Enter Reference Code</h3>
+                        <p class="verify-note">Input the unique registration code printed on the bottom of the NSS Certificate (Format: SRH-NSS-YYYY-XXXX)</p>
+                        
+                        <div class="verify-form-group">
+                            <input type="text" id="refCodeInput" placeholder="e.g. SRH-NSS-2026-1234" maxlength="17" autocomplete="off">
+                            <button id="verifyBtn" class="btn btn-primary"><i class="fas fa-search"></i> Verify Certificate</button>
+                        </div>
+                        
+                        <!-- Status/Result Display Container -->
+                        <div id="verifyResult" style="display:none">
+                            <div class="verify-loading">
+                                <i class="fas fa-circle-notch spinner"></i> Searching records...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Sarhad<span>NSS</span></h3>
+                    <p>Empowering youth through community service since 2008. Building a better society, one volunteer
+                        at a time.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/abhii_balsure/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.youtube.com/@sarhadcollegenssdepartment2365" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    <div class="footer-logos-strip">
+                        <img src="logos/nss.jpg" alt="NSS Logo" title="NSS">
+                        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+                        <img src="logos/sppu.jpg" alt="SPPU Logo" title="SPPU">
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="aboutus.html">About Us</a>
+                    <a href="activities.html">Activities</a>
+                    <a href="events.html">Events</a>
+                    <a href="quiz.html">NSS Quiz</a>
+                    <a href="resources.html">Resources</a>
+                    <a href="alumni.html">Alumni</a>
+                    <a href="contactus.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <a href="register.html">Join NSS</a>
+                    <a href="activities.html">Our Activities</a>
+                    <a href="contactus.html">Volunteer</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Sarhad College of Arts, Commerce & Science, Katraj, Pune-46</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+91 9850XXXXXX</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p><a href="mailto:nssposarhad@gmail.com"
+                                style="color: var(--accent);">nssposarhad@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        const input = document.getElementById('refCodeInput');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const resultContainer = document.getElementById('verifyResult');
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+        // Dynamic Formatting as User Types (SRH-NSS-YYYY-XXXX)
+        input.addEventListener('input', function() {
+            let val = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            
+            // Auto prefix SRH-NSS- if not present
+            if (val.length >= 3 && !val.startsWith('SRH')) {
+                val = 'SRH-NSS-' + val.replace(/-/g, '');
+            } else if (val.length >= 7 && val.startsWith('SRH') && !val.includes('SRH-NSS')) {
+                val = 'SRH-NSS-' + val.substring(3).replace(/-/g, '');
+            }
+            this.value = val;
+        });
+
+        // Check if query param exists on load (e.g. ?ref_code=SRH-NSS-...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const qRef = urlParams.get('ref_code');
+        if (qRef) {
+            input.value = qRef;
+            triggerVerification(qRef);
+        }
+
+        verifyBtn.addEventListener('click', () => {
+            const code = input.value.trim();
+            if (!code) {
+                alert('Please enter a reference code.');
+                return;
+            }
+            // Update URL search params without reloading
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('ref_code', code);
+            window.history.pushState({}, '', newUrl);
+
+            triggerVerification(code);
+        });
+
+        async function triggerVerification(code) {
+            resultContainer.style.display = 'block';
+            resultContainer.innerHTML = `
+                <div class="verify-loading">
+                    <i class="fas fa-circle-notch spinner"></i> Searching records...
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`/api/public/verify-certificate?ref_code=${encodeURIComponent(code)}`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    resultContainer.innerHTML = `
+                        <div class="verify-status error">
+                            <div class="status-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                            <h4>Verification Failed</h4>
+                            <p>${esc(data.error || 'Invalid or expired reference code. Make sure you entered it correctly.')}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (data.verified) {
+                    const v = data.volunteer;
+                    resultContainer.innerHTML = `
+                        <div class="verify-status success">
+                            <div class="status-icon"><i class="fas fa-certificate"></i></div>
+                            <h4>NSS Certificate Verified</h4>
+                            <p class="success-subtitle">Official Record Found in Sarhad NSS Registry</p>
+                            
+                            <div class="certificate-details">
+                                <div class="cert-row"><span>Volunteer Name:</span> <strong>${esc(v.name)}</strong></div>
+                                <div class="cert-row"><span>Reference Code:</span> <strong>${esc(code)}</strong></div>
+                                <div class="cert-row"><span>Department:</span> <strong>${esc(v.department)}</strong></div>
+                                <div class="cert-row"><span>Class & Roll:</span> <strong>${esc(v.class)} (Roll: ${esc(v.roll_no)})</strong></div>
+                                <div class="cert-row"><span>NSS Batch Year:</span> <strong>${esc(v.academic_year)}</strong></div>
+                                <div class="cert-row"><span>Verified Service:</span> <strong style="color:var(--success)">${v.hours.toFixed(1)} Hours</strong></div>
+                                <div class="cert-row"><span>Status:</span> <strong class="badge-status">Active & Verified</strong></div>
+                            </div>
+                            
+                            <div class="cert-footer">
+                                <div class="stamp-seal">
+                                    <i class="fas fa-stamp"></i>
+                                    <span>NSS SARHAD<br>SEAL</span>
+                                </div>
+                                <div class="sign-block">
+                                    <p>Verified on: ${new Date().toLocaleDateString('en-IN')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="verify-status warning">
+                            <div class="status-icon"><i class="fas fa-circle-exclamation"></i></div>
+                            <h4>Record Found (Ineligible)</h4>
+                            <p>${esc(data.message)}</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                resultContainer.innerHTML = `
+                    <div class="verify-status error">
+                        <div class="status-icon"><i class="fas fa-wifi"></i></div>
+                        <h4>Connection Error</h4>
+                        <p>Unable to connect to verification servers. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

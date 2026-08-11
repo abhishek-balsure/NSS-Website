@@ -1,0 +1,236 @@
+/* CSS for Certificate Verification Portal */
+
+.verify-wrap {
+    max-width: 620px;
+    margin: 40px auto 80px;
+    padding: 0 16px;
+}
+
+.verify-card {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg, 16px);
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.verify-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.verify-note {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.verify-form-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.verify-form-group input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--border-glass);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.verify-form-group input::placeholder {
+    text-transform: none;
+}
+
+.verify-form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.verify-form-group .btn {
+    white-space: nowrap;
+}
+
+.verify-loading {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Status Screens */
+.verify-status {
+    border-radius: var(--radius-md, 12px);
+    padding: 30px 24px;
+    margin-top: 10px;
+    animation: fadeIn 0.4s ease;
+}
+
+.verify-status.success {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px dashed rgba(16, 185, 129, 0.3);
+}
+
+.verify-status.warning {
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px dashed rgba(245, 158, 11, 0.3);
+}
+
+.verify-status.error {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px dashed rgba(239, 68, 68, 0.3);
+}
+
+.verify-status .status-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 16px;
+}
+
+.verify-status.success .status-icon {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+}
+
+.verify-status.warning .status-icon {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent);
+}
+
+.verify-status.error .status-icon {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
+}
+
+.verify-status h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.success-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* Certificate Details Grid */
+.certificate-details {
+    background: var(--bg-body);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm, 8px);
+    padding: 18px 24px;
+    margin-bottom: 24px;
+}
+
+.cert-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 0.92rem;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.cert-row:last-child {
+    border-bottom: none;
+}
+
+.cert-row span {
+    color: var(--text-muted);
+}
+
+.cert-row strong {
+    color: var(--text-primary);
+    text-align: right;
+    padding-left: 12px;
+}
+
+.badge-status {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success) !important;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Stamp & Verification Footer */
+.cert-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-glass);
+    padding-top: 18px;
+}
+
+.stamp-seal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--accent);
+}
+
+.stamp-seal i {
+    font-size: 2.2rem;
+    opacity: 0.8;
+}
+
+.stamp-seal span {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    line-height: 1.3;
+}
+
+.sign-block p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 500px) {
+    .verify-form-group {
+        flex-direction: column;
+    }
+    .verify-form-group .btn {
+        width: 100%;
+    }
+    .cert-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .cert-row strong {
+        text-align: left;
+        padding-left: 0;
+    }
+    .cert-footer {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+}

@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="activities.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e68a00">
     <link rel="apple-touch-icon" href="/icon-192.png">
@@ -161,6 +163,12 @@
                     <div class="legend-item"><span class="legend-dot awareness"></span> Awareness & Safety</div>
                 </div>
 
+                <!-- Activities Geo-Map Section -->
+                <div class="map-section fade-in" style="margin-bottom: 28px; display: none;" id="mapSection">
+                    <h3 style="margin-bottom:12px; font-weight:600; display:flex; align-items:center; gap:8px"><i class="fas fa-map-location-dot" style="color:var(--accent)"></i> Event Venue Map</h3>
+                    <div id="activitiesMap" style="height: 350px; border-radius: 10px; border: 1px solid var(--border-glass); z-index:1;"></div>
+                </div>
+
                 <!-- Activities Grid -->
                 <div class="activities-grid" id="activitiesGrid"></div>
 
@@ -290,9 +298,67 @@
         const fmtDate = (d) => isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         const parseDate = (s) => { if (!s) return new Date(NaN); return new Date(s.length === 10 ? s + 'T00:00:00' : s); };
 
+        let map = null;
+        let mapMarkers = [];
+
+        function initMap(geolocatedActivities) {
+            const mapSection = document.getElementById('mapSection');
+            if (!geolocatedActivities || !geolocatedActivities.length) {
+                mapSection.style.display = 'none';
+                return;
+            }
+            mapSection.style.display = 'block';
+
+            const defaultCenter = [18.4529, 73.8643]; // Center at Sarhad College
+            
+            setTimeout(() => {
+                if (!map) {
+                    map = L.map('activitiesMap').setView(defaultCenter, 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+                }
+
+                // Remove existing markers
+                mapMarkers.forEach(m => map.removeLayer(m));
+                mapMarkers = [];
+
+                const bounds = [];
+                geolocatedActivities.forEach(a => {
+                    const lat = parseFloat(a.latitude);
+                    const lon = parseFloat(a.longitude);
+                    if (isNaN(lat) || isNaN(lon)) return;
+
+                    const marker = L.marker([lat, lon]).addTo(map);
+                    const dateStr = a.activity_date ? new Date(a.activity_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                    marker.bindPopup(`
+                        <div style="font-family: inherit; font-size: 0.85rem; line-height: 1.4; min-width: 140px;">
+                            <strong style="color: var(--accent); font-size: 0.92rem; display:block; margin-bottom:4px;">${escHtml(a.title)}</strong>
+                            <span style="color:#64748b; display:block; margin-bottom:2px;"><i class="fas fa-calendar" style="width:16px;"></i> ${dateStr}</span>
+                            <span style="color:#64748b; display:block;"><i class="fas fa-location-dot" style="width:16px;"></i> ${escHtml(a.location || 'Campus')}</span>
+                        </div>
+                    `);
+                    mapMarkers.push(marker);
+                    bounds.push([lat, lon]);
+                });
+
+                if (bounds.length > 0) {
+                    map.fitBounds(bounds, { padding: [40, 40] });
+                } else {
+                    map.setView(defaultCenter, 13);
+                }
+                
+                // Force leaflet size recalculation
+                map.invalidateSize();
+            }, 100);
+        }
+
         function renderAll(filterMonth, query) {
             grid.innerHTML = '';
             let visible = 0;
+            const geolocated = [];
+
             activities.forEach((a, i) => {
                 const d = parseDate(a.activity_date);
                 const month = MONTHS[d.getMonth()] || '';
@@ -302,6 +368,10 @@
                     if (!hay.includes(query)) return;
                 }
                 visible++;
+
+                if (a.latitude !== null && a.latitude !== undefined && a.longitude !== null && a.longitude !== undefined) {
+                    geolocated.push(a);
+                }
 
                 const cat = a.activity_type;
                 const icon = CAT_ICONS[cat] || 'fa-star';
@@ -326,6 +396,8 @@
             });
             countEl.textContent = visible;
             noResults.style.display = visible === 0 ? 'block' : 'none';
+
+            initMap(geolocated);
         }
 
         let activities = [];

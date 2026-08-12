@@ -131,6 +131,57 @@
         </div>
       </div>
 
+
+      <!-- Camp Diary Section -->
+      <div class="section-block" id="campDiarySection" style="display:none">
+        <h2><i class="fas fa-book" style="color:var(--accent)"></i> NSS Special Camp Diary</h2>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">
+          If you are registered for a 7-day Special Camp, you can submit your daily diary logs here for verification.
+        </p>
+        <div class="form-group" style="max-width:300px;margin-bottom:16px">
+          <label for="diaryCampSelect" style="display:block;margin-bottom:6px;font-weight:500;font-size:0.85rem">Select Special Camp</label>
+          <select id="diaryCampSelect" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-body);font:inherit;color:var(--text-primary)">
+            <option value="">-- Select Camp --</option>
+          </select>
+        </div>
+        <div id="diaryEntryContainer" style="display:none">
+          <div class="diary-tabs" id="diaryTabs">
+            <!-- Day tabs 1-7 generated dynamically -->
+          </div>
+          <div class="glass-card" style="padding:24px;background:var(--bg-card);border:1px solid var(--border-glass);border-radius:var(--radius-lg)">
+            <h3 id="diaryDayTitle" style="margin-bottom:12px;font-size:1.1rem;color:var(--text-primary)">Day 1</h3>
+            <div id="diaryStatusContainer" style="margin-bottom:16px">
+              <span id="diaryStatusBadge" class="status-badge">pending</span>
+            </div>
+            
+            <div class="form-group" style="margin-bottom:16px">
+              <label for="diaryWorkDescription" style="display:block;margin-bottom:6px;font-weight:500;font-size:0.85rem">Work Description (cleanliness, survey, construction, etc.)</label>
+              <textarea id="diaryWorkDescription" rows="4" placeholder="Detail the social service work you conducted today..." style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-body);font:inherit;color:var(--text-primary);resize:vertical"></textarea>
+            </div>
+            
+            <div class="profile-edit-grid" style="margin-bottom:16px">
+              <div class="form-group">
+                <label for="diaryHoursSpent" style="display:block;margin-bottom:6px;font-weight:500;font-size:0.85rem">Hours Spent</label>
+                <input type="number" id="diaryHoursSpent" step="0.5" min="1" max="24" value="8" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-body);font:inherit;color:var(--text-primary)">
+              </div>
+              <div class="form-group">
+                <label for="diaryPhotoUrl" style="display:block;margin-bottom:6px;font-weight:500;font-size:0.85rem">Photo URL (Google Drive / Imgur link as visual proof)</label>
+                <input type="url" id="diaryPhotoUrl" placeholder="https://example.com/photo.jpg" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);background:var(--bg-body);font:inherit;color:var(--text-primary)">
+              </div>
+            </div>
+
+            <div id="diaryFeedbackContainer" style="margin-bottom:16px;display:none;padding:12px;background:rgba(239,68,68,0.06);border-left:4px solid var(--danger);border-radius:4px">
+              <strong>Feedback:</strong> <span id="diaryFeedbackText" style="font-size:0.9rem;color:var(--text-primary)"></span>
+            </div>
+
+            <button class="rsvp-btn yes" id="submitDiaryBtn" style="border-radius:var(--radius-sm)">
+              <i class="fas fa-paper-plane"></i> Submit Day Entry
+            </button>
+            <span id="diarySubmitMsg" style="margin-left:12px;font-size:0.85rem"></span>
+          </div>
+        </div>
+      </div>
+
       <div class="section-block" id="badgesSection" style="display:none">
         <h2><i class="fas fa-medal" style="color:var(--accent)"></i> NSS Achievement Badges</h2>
         <div class="badges-grid" id="myBadgesGrid"></div>
@@ -276,6 +327,7 @@
         loadNotifications();
         loadQuizSection(user.name || 'Volunteer');
         loadAnnouncements();
+        initCampDiary();
       } catch (e) {
         console.error('Dashboard load error:', e);
         document.getElementById('loading').innerHTML =
@@ -894,6 +946,213 @@
         `).join('');
       } catch (e) {
         console.error('Failed to load announcements', e);
+      }
+    }
+
+    let activeDiaryDay = 1;
+    let campDiariesList = [];
+
+    async function initCampDiary() {
+      const select = document.getElementById('diaryCampSelect');
+      try {
+        const res = await fetch('/api/volunteer/camp-diary/camps');
+        if (!res.ok) throw new Error();
+        const { camps } = await res.json();
+        
+        if (!camps || !camps.length) {
+          document.getElementById('campDiarySection').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('campDiarySection').style.display = 'block';
+        select.innerHTML = '<option value="">-- Select Camp --</option>' + 
+          camps.map(c => `<option value="${esc(c.id)}">${esc(c.title)} (${new Date(c.activity_date).getFullYear()})</option>`).join('');
+
+        select.addEventListener('change', async () => {
+          const campId = select.value;
+          if (!campId) {
+            document.getElementById('diaryEntryContainer').style.display = 'none';
+            return;
+          }
+          await loadDiaryEntries(campId);
+        });
+
+        document.getElementById('submitDiaryBtn').addEventListener('click', submitDiaryEntry);
+      } catch (e) {
+        console.error('Failed to initialize camp diary', e);
+      }
+    }
+
+    async function loadDiaryEntries(campId) {
+      try {
+        const res = await fetch(`/api/volunteer/camp-diary/list?activity_id=${campId}`);
+        if (!res.ok) throw new Error();
+        const { diaries } = await res.json();
+        campDiariesList = diaries || [];
+
+        renderDiaryTabs();
+        selectDiaryDay(activeDiaryDay);
+        document.getElementById('diaryEntryContainer').style.display = 'block';
+      } catch (e) {
+        alert('Could not load camp diary entries.');
+      }
+    }
+
+    function renderDiaryTabs() {
+      const container = document.getElementById('diaryTabs');
+      
+      const dayStatusMap = {};
+      campDiariesList.forEach(d => {
+        dayStatusMap[d.day_number] = d.status;
+      });
+
+      let html = '';
+      for (let i = 1; i <= 7; i++) {
+        const status = dayStatusMap[i] || 'none';
+        const statusClass = status !== 'none' ? `status-${status}` : '';
+        const activeClass = i === activeDiaryDay ? 'active' : '';
+        
+        let icon = '';
+        if (status === 'approved') icon = ' <i class="fas fa-check-circle" style="color:var(--success)"></i>';
+        else if (status === 'pending') icon = ' <i class="fas fa-clock" style="color:var(--accent)"></i>';
+        else if (status === 'rejected') icon = ' <i class="fas fa-circle-xmark" style="color:var(--danger)"></i>';
+
+        html += `<button type="button" class="diary-tab-btn ${statusClass} ${activeClass}" onclick="selectDiaryDay(${i})">Day ${i}${icon}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    window.selectDiaryDay = function(day) {
+      activeDiaryDay = day;
+      
+      // Update active tab styling
+      const tabs = document.querySelectorAll('#diaryTabs .diary-tab-btn');
+      tabs.forEach((tab, index) => {
+        if (index + 1 === day) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      document.getElementById('diaryDayTitle').textContent = `Day ${day} Entry`;
+      
+      const entry = campDiariesList.find(d => d.day_number === day);
+      const descInput = document.getElementById('diaryWorkDescription');
+      const hoursInput = document.getElementById('diaryHoursSpent');
+      const photoInput = document.getElementById('diaryPhotoUrl');
+      const statusBadge = document.getElementById('diaryStatusBadge');
+      const feedbackContainer = document.getElementById('diaryFeedbackContainer');
+      const feedbackText = document.getElementById('diaryFeedbackText');
+      const submitBtn = document.getElementById('submitDiaryBtn');
+      const submitMsg = document.getElementById('diarySubmitMsg');
+
+      submitMsg.textContent = '';
+
+      if (entry) {
+        descInput.value = entry.work_description || '';
+        hoursInput.value = entry.hours_spent || 8;
+        photoInput.value = entry.photo_url || '';
+        
+        statusBadge.textContent = entry.status;
+        statusBadge.className = `status-badge ${entry.status}`;
+
+        if (entry.status === 'approved') {
+          descInput.disabled = true;
+          hoursInput.disabled = true;
+          photoInput.disabled = true;
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-lock"></i> Entry Approved';
+          feedbackContainer.style.display = 'none';
+        } else if (entry.status === 'rejected') {
+          descInput.disabled = false;
+          hoursInput.disabled = false;
+          photoInput.disabled = false;
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Re-submit Entry';
+          
+          if (entry.admin_feedback) {
+            feedbackText.textContent = entry.admin_feedback;
+            feedbackContainer.style.display = 'block';
+          } else {
+            feedbackContainer.style.display = 'none';
+          }
+        } else {
+          // Pending
+          descInput.disabled = false;
+          hoursInput.disabled = false;
+          photoInput.disabled = false;
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Day Entry';
+          feedbackContainer.style.display = 'none';
+        }
+      } else {
+        // Not submitted
+        descInput.value = '';
+        hoursInput.value = 8;
+        photoInput.value = '';
+        
+        statusBadge.textContent = 'Not Submitted';
+        statusBadge.className = 'status-badge pending';
+        
+        descInput.disabled = false;
+        hoursInput.disabled = false;
+        photoInput.disabled = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Day Entry';
+        feedbackContainer.style.display = 'none';
+      }
+    };
+
+    async function submitDiaryEntry() {
+      const campId = document.getElementById('diaryCampSelect').value;
+      const desc = document.getElementById('diaryWorkDescription').value.trim();
+      const hours = parseFloat(document.getElementById('diaryHoursSpent').value);
+      const photo = document.getElementById('diaryPhotoUrl').value.trim();
+      const submitBtn = document.getElementById('submitDiaryBtn');
+      const submitMsg = document.getElementById('diarySubmitMsg');
+
+      if (!desc) {
+        submitMsg.style.color = 'var(--danger)';
+        submitMsg.textContent = 'Work description is required.';
+        return;
+      }
+
+      if (isNaN(hours) || hours <= 0 || hours > 24) {
+        submitMsg.style.color = 'var(--danger)';
+        submitMsg.textContent = 'Enter valid hours between 0 and 24.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Submitting...';
+      submitMsg.textContent = '';
+
+      try {
+        const res = await fetch('/api/volunteer/camp-diary/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            activity_id: campId,
+            day_number: activeDiaryDay,
+            work_description: desc,
+            hours_spent: hours,
+            photo_url: photo || null
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to submit entry');
+
+        submitMsg.style.color = 'var(--success)';
+        submitMsg.textContent = 'Entry submitted successfully!';
+        
+        await loadDiaryEntries(campId);
+      } catch (e) {
+        submitMsg.style.color = 'var(--danger)';
+        submitMsg.textContent = e.message;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Day Entry';
       }
     }
 

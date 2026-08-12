@@ -60,6 +60,7 @@
           <button class="tab-btn" data-tab="gallery"><i class="fas fa-images"></i> Gallery</button>
           <button class="tab-btn" data-tab="content"><i class="fas fa-book-open"></i> Content</button>
           <button class="tab-btn" data-tab="announcements"><i class="fas fa-bullhorn"></i> Announcements</button>
+          <button class="tab-btn" data-tab="diaries"><i class="fas fa-book"></i> Camp Diaries</button>
           <button class="tab-btn" data-tab="admins" id="adminsTabBtn" style="display:none"><i class="fas fa-user-shield"></i> Manage Admins</button>
         </div>
 
@@ -225,6 +226,20 @@
             </table>
           </div>
           <div class="empty-state" id="announcementsEmpty" style="display:none"><p>No announcements published yet.</p></div>
+        </div>
+
+
+        <!-- ══ Camp Diaries Tab ══ -->
+        <div class="tab-panel" id="tabDiaries">
+          <div class="act-toolbar">
+            <h2>Pending Special Camp Diaries</h2>
+            <button class="btn btn-outline" id="refreshDiariesBtn" onclick="loadPendingDiaries()"><i class="fas fa-arrows-rotate"></i> Refresh</button>
+          </div>
+          <div class="att-grid" id="diariesGrid"></div>
+          <div class="empty-state" id="diariesEmpty" style="display:none">
+            <i class="fas fa-book-open" style="font-size:2.5rem;color:var(--text-muted);opacity:0.4;margin-bottom:12px"></i>
+            <p>No pending camp diary entries to review.</p>
+          </div>
         </div>
 
         <!-- ══ Manage Admins Tab (super_admin only) ══ -->
@@ -709,6 +724,7 @@
         loadAlbums();
         loadResources();
         loadAlumni();
+        loadPendingDiaries();
         if (adminData.role === 'super_admin') {
           document.getElementById('adminsTabBtn').style.display = '';
           loadAdmins();
@@ -727,6 +743,8 @@
         
         if (btn.dataset.tab === 'announcements') {
           loadAnnouncements();
+        } else if (btn.dataset.tab === 'diaries') {
+          loadPendingDiaries();
         }
       });
     });
@@ -745,6 +763,96 @@
     document.querySelectorAll('.modal-overlay').forEach(m => {
       m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
     });
+
+    // =============================================
+    // ══ CAMP DIARIES ══
+    // =============================================
+    let pendingDiaries = [];
+
+    async function loadPendingDiaries() {
+      const grid = document.getElementById('diariesGrid');
+      const empty = document.getElementById('diariesEmpty');
+      grid.innerHTML = '<div class="loading-section" style="grid-column: 1/-1;"><i class="fas fa-circle-notch spinner"></i><p>Loading pending diaries...</p></div>';
+      empty.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/camp-diary/list-pending');
+        if (!res.ok) throw new Error();
+        const { pendingDiaries: data } = await res.json();
+        pendingDiaries = data || [];
+        renderPendingDiaries();
+      } catch (e) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="fas fa-exclamation-triangle"></i><p>Failed to load pending diaries.</p></div>';
+      }
+    }
+
+    function renderPendingDiaries() {
+      const grid = document.getElementById('diariesGrid');
+      const empty = document.getElementById('diariesEmpty');
+      
+      if (!pendingDiaries.length) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.innerHTML = pendingDiaries.map(d => {
+        const v = d.volunteer || {};
+        const act = d.activity || {};
+        return `<div class="att-card" style="position: relative">
+          ${d.photo_url ? `
+            <img class="att-photo" src="${esc(d.photo_url)}" alt="Camp activity proof" onclick="openPhoto('${esc(d.photo_url)}')">
+          ` : `
+            <div class="att-photo-placeholder" style="height:180px;background:rgba(37,99,235,0.05);color:var(--info);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border-bottom:1px solid var(--border-glass)">
+              <i class="fas fa-book" style="font-size:2.5rem"></i>
+              <span style="font-size:0.85rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">No Photo Attached</span>
+            </div>
+          `}
+          <div class="att-body" style="padding: 16px;">
+            <div class="vol-name" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${esc(v.name || 'Unknown')}</div>
+            <div class="vol-dept" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">${esc(v.department || '')} &middot; ${esc(v.ref_code || '')}</div>
+            
+            <div class="att-meta" style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 6px;"><i class="fas fa-campground" style="margin-right: 6px;"></i> <strong>${esc(act.title || '')}</strong></div>
+            <div class="att-meta" style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px;"><i class="fas fa-calendar-day" style="margin-right: 6px;"></i> <strong>Day ${d.day_number}</strong> &middot; ${d.hours_spent} hours</div>
+            
+            <div class="att-notes" style="background: rgba(127,127,127,0.06); padding: 12px; border-radius: var(--radius-sm); font-style: italic; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.4;">
+              "${esc(d.work_description)}"
+            </div>
+            
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="feedback-${d.id}" style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Feedback / Remarks</label>
+              <input type="text" id="feedback-${d.id}" placeholder="Reason for rejection or comment" style="width:100%; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); background:var(--bg-body); color:var(--text-primary); font:inherit; font-size:0.85rem;">
+            </div>
+          </div>
+          <div class="att-actions" style="display: flex; gap: 8px; padding: 16px; border-top: 1px solid var(--border-subtle); background: rgba(127,127,127,0.02);">
+            <button class="btn btn-success" style="flex: 1; justify-content: center;" onclick="verifyDiary('${d.id}', 'approved')"><i class="fas fa-check"></i> Approve</button>
+            <button class="btn btn-danger" style="flex: 1; justify-content: center;" onclick="verifyDiary('${d.id}', 'rejected')"><i class="fas fa-times"></i> Reject</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function verifyDiary(diaryId, status) {
+      const feedbackInput = document.getElementById(`feedback-${diaryId}`);
+      const feedback = feedbackInput ? feedbackInput.value.trim() : '';
+
+      try {
+        const res = await fetch('/api/admin/camp-diary/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ diary_id: diaryId, status, feedback })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to verify entry');
+
+        toast(`Diary entry was successfully ${status}!`, 'success');
+        await loadPendingDiaries();
+      } catch (e) {
+        toast(e.message, 'danger');
+      }
+    }
 
     // =============================================
     // ══ ATTENDANCE ══

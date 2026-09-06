@@ -7,6 +7,7 @@ import { createSupabaseAdmin, jsonResponse, errorResponse } from '../../_utils.j
 const EDITABLE_FIELDS = [
   'mobile_no', 'emergency_no', 'emergency_relation', 'address',
   'interest', 'tshirt_size', 'medical', 'blood_group', 'show_on_leaderboard',
+  'dob', 'department'
 ];
 
 export async function onRequest(context) {
@@ -29,7 +30,23 @@ export async function onRequest(context) {
       for (const key of EDITABLE_FIELDS) {
         if (body[key] !== undefined) update[key] = body[key];
       }
+
+      // Secure Password Update
+      if (body.password !== undefined && body.password.trim().length > 0) {
+        const pw = body.password.trim();
+        if (pw.length < 6) {
+          return errorResponse('Password must be at least 6 characters long', 400);
+        }
+        const { error: authErr } = await supabase.auth.admin.updateUserById(ctxData.volunteer.authUserId, {
+          password: pw
+        });
+        if (authErr) return errorResponse(authErr.message, 400);
+      }
+
       if (Object.keys(update).length === 0) {
+        if (body.password !== undefined && body.password.trim().length > 0) {
+          return jsonResponse({ success: true, message: 'Password updated successfully' });
+        }
         return errorResponse('No editable fields provided');
       }
 

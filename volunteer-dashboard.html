@@ -20,7 +20,9 @@
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="volunteer-dashboard.css">
-    <link rel="manifest" href="/manifest.json">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e68a00">
     <link rel="apple-touch-icon" href="/icon-192.png">
 </head>
@@ -115,9 +117,14 @@
                 <div class="meta" id="certStatusMsg"></div>
               </div>
             </div>
-            <a class="rsvp-btn yes" id="downloadCertBtn" href="/api/volunteer/certificate" style="display:none;text-decoration:none">
-              <i class="fas fa-download"></i> Download Certificate
-            </a>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <a class="rsvp-btn yes" id="downloadCertBtn" href="/api/volunteer/certificate" style="display:none;text-decoration:none">
+                <i class="fas fa-download"></i> Download Certificate
+              </a>
+              <button class="rsvp-btn yes" id="downloadReportBtn" style="display:none;background:var(--primary);color:white;border:none;cursor:pointer">
+                <i class="fas fa-file-pdf"></i> Service Report Card
+              </button>
+            </div>
           </div>
           <div class="progress-track">
             <div class="progress-fill" id="hoursProgressFill"></div>
@@ -188,9 +195,9 @@
       </div>
 
       <div class="section-block">
-        <h2><i class="fas fa-pen-to-square" style="color:var(--accent)"></i> Edit Profile</h2>
+        <h2><i class="fas fa-user-edit" style="color:var(--accent)"></i> Edit Profile & Settings</h2>
         <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">
-          You can update your contact details below. Your name, date of birth, and Aadhar number can't be changed here — contact the NSS office for corrections to those.
+          You can update your personal information and change your account password below. Your name and Aadhar number cannot be changed here.
         </p>
         <form id="profileEditForm" class="profile-edit-grid">
           <div class="form-group">
@@ -200,6 +207,14 @@
           <div class="form-group">
             <label for="editBloodGroup">Blood Group</label>
             <input type="text" id="editBloodGroup">
+          </div>
+          <div class="form-group">
+            <label for="editDob">Date of Birth</label>
+            <input type="date" id="editDob">
+          </div>
+          <div class="form-group">
+            <label for="editDept">Department</label>
+            <input type="text" id="editDept" placeholder="e.g. BCA, BSc, BCom">
           </div>
           <div class="form-group">
             <label for="editEmergencyNo">Emergency Contact Number</label>
@@ -227,6 +242,10 @@
           <div class="form-group" style="grid-column:1/-1">
             <label for="editMedical">Medical Information (optional)</label>
             <input type="text" id="editMedical">
+          </div>
+          <div class="form-group" style="grid-column:1/-1; border-top: 1px solid var(--border-glass); padding-top: 15px; margin-top: 10px;">
+            <label for="editPassword" style="font-weight:600"><i class="fas fa-key" style="margin-right:6px"></i> Change Password</label>
+            <input type="password" id="editPassword" placeholder="Leave blank to keep current password" style="max-width:320px">
           </div>
           <div class="form-group" style="grid-column:1/-1;display:flex;align-items:center;gap:8px">
             <input type="checkbox" id="editShowLeaderboard" style="width:auto">
@@ -269,12 +288,16 @@
   <script src="shared.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
+    let volunteerProfile = null;
+    let attendanceHistory = [];
+
     (async function() {
       try {
         const res = await fetch('/api/volunteer/me');
         if (res.status === 401) { window.location.href = '/volunteer-login.html'; return; }
         if (!res.ok) throw new Error('Failed to load profile (status ' + res.status + ')');
         const { user } = await res.json();
+        volunteerProfile = user;
 
         document.getElementById('userBadge').innerHTML = `
           <div class="avatar">${(user.name || 'V').charAt(0).toUpperCase()}</div>
@@ -345,6 +368,8 @@
     function populateProfileForm(user) {
       document.getElementById('editMobile').value = user.mobile_no || '';
       document.getElementById('editBloodGroup').value = user.blood_group || '';
+      document.getElementById('editDob').value = user.dob || '';
+      document.getElementById('editDept').value = user.department || '';
       document.getElementById('editEmergencyNo').value = user.emergency_no || '';
       document.getElementById('editEmergencyRelation').value = user.emergency_relation || '';
       document.getElementById('editAddress').value = user.address || '';
@@ -361,9 +386,13 @@
       btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
       msg.textContent = '';
 
+      const password = document.getElementById('editPassword').value;
+
       const body = {
         mobile_no: document.getElementById('editMobile').value.trim(),
         blood_group: document.getElementById('editBloodGroup').value.trim(),
+        dob: document.getElementById('editDob').value,
+        department: document.getElementById('editDept').value.trim(),
         emergency_no: document.getElementById('editEmergencyNo').value.trim(),
         emergency_relation: document.getElementById('editEmergencyRelation').value.trim(),
         address: document.getElementById('editAddress').value.trim(),
@@ -372,6 +401,10 @@
         medical: document.getElementById('editMedical').value.trim(),
         show_on_leaderboard: document.getElementById('editShowLeaderboard').checked,
       };
+
+      if (password.trim().length > 0) {
+        body.password = password;
+      }
 
       try {
         const res = await fetch('/api/volunteer/me', {
@@ -382,6 +415,7 @@
         if (!res.ok) throw new Error((await res.json()).error || 'Failed to save');
         msg.style.color = 'var(--success)';
         msg.textContent = 'Saved!';
+        document.getElementById('editPassword').value = '';
       } catch (e) {
         msg.style.color = 'var(--danger)';
         msg.textContent = e.message;
@@ -502,6 +536,7 @@
         const res = await fetch('/api/volunteer/attendance/history');
         if (!res.ok) throw new Error();
         const { attendance } = await res.json();
+        attendanceHistory = attendance || [];
 
         updateCertificateSection(attendance || []);
         skeleton.style.display = 'none';
@@ -536,6 +571,7 @@
 
       const msgEl = document.getElementById('certStatusMsg');
       const btn = document.getElementById('downloadCertBtn');
+      const reportBtn = document.getElementById('downloadReportBtn');
 
       if (totalHours >= MIN_CERT_HOURS) {
         msgEl.textContent = "You're eligible for a certificate of participation!";
@@ -543,6 +579,12 @@
       } else {
         msgEl.textContent = `Need ${(MIN_CERT_HOURS - totalHours).toFixed(1)} more approved hours to unlock your certificate.`;
         btn.style.display = 'none';
+      }
+
+      if (totalHours > 0) {
+        reportBtn.style.display = 'inline-flex';
+      } else {
+        reportBtn.style.display = 'none';
       }
 
       // Badge display based on total hours
@@ -1175,6 +1217,166 @@
         }, 200);
       }
     };
+
+    document.getElementById('downloadReportBtn').addEventListener('click', () => {
+      if (!volunteerProfile) return;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      
+      const width = doc.internal.pageSize.getWidth();
+      const height = doc.internal.pageSize.getHeight();
+
+      // Draw elegant double border
+      doc.setDrawColor(230, 138, 0); // NSS Amber
+      doc.setLineWidth(1);
+      doc.rect(5, 5, width - 10, height - 10);
+      doc.rect(6, 6, width - 12, height - 12);
+
+      // Header Banner
+      doc.setFillColor(248, 249, 250);
+      doc.rect(7, 7, width - 14, 38, 'F');
+      
+      // Title
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(230, 138, 0);
+      doc.text("NATIONAL SERVICE SCHEME (NSS)", width / 2, 18, { align: 'center' });
+      
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text("SARHAD COLLEGE OF ARTS, COMMERCE & SCIENCE", width / 2, 24, { align: 'center' });
+      doc.text("Katraj, Pune - 411046", width / 2, 29, { align: 'center' });
+
+      // Service Report card Subtitle
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(30, 41, 59);
+      doc.text("VOLUNTEER SERVICE REPORT CARD", width / 2, 40, { align: 'center' });
+
+      // Divider Line
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.5);
+      doc.line(15, 48, width - 15, 48);
+
+      // Volunteer Information
+      doc.setFontSize(10);
+      doc.setTextColor(71, 85, 105);
+      
+      // Left Column
+      doc.setFont("Helvetica", "bold"); doc.text("Volunteer Name:", 15, 56);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.name || '—', 52, 56);
+      
+      doc.setFont("Helvetica", "bold"); doc.text("Reference Code:", 15, 62);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.ref_code || '—', 52, 62);
+      
+      doc.setFont("Helvetica", "bold"); doc.text("Department:", 15, 68);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.department || '—', 52, 68);
+
+      // Right Column
+      doc.setFont("Helvetica", "bold"); doc.text("Email ID:", 115, 56);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.email || '—', 138, 56);
+      
+      doc.setFont("Helvetica", "bold"); doc.text("Mobile No:", 115, 62);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.mobile_no || '—', 138, 62);
+
+      doc.setFont("Helvetica", "bold"); doc.text("Date of Birth:", 115, 68);
+      doc.setFont("Helvetica", "normal"); doc.text(volunteerProfile.dob ? fmtDate(volunteerProfile.dob) : '—', 138, 68);
+
+      // Divider Line
+      doc.line(15, 74, width - 15, 74);
+
+      // Activity Table
+      const approved = attendanceHistory.filter(a => a.status === 'approved');
+      const totalHours = approved.reduce((sum, a) => sum + (parseFloat(a.hours_attended) || 0), 0);
+
+      const tableRows = approved.map((a, idx) => [
+        idx + 1,
+        a.activity ? a.activity.title : 'Unknown activity',
+        a.activity ? a.activity.activity_type : 'General',
+        a.activity ? fmtDate(a.activity.activity_date) : '—',
+        a.hours_attended ?? '0'
+      ]);
+
+      // Calculate Badge Level
+      let badgeLevel = 'Initiate';
+      if (totalHours >= 120) badgeLevel = 'Crown Elite (120+ Hours)';
+      else if (totalHours >= 80) badgeLevel = 'Gold Milestone (80+ Hours)';
+      else if (totalHours >= 50) badgeLevel = 'Silver Milestone (50+ Hours)';
+      else if (totalHours >= 20) badgeLevel = 'Bronze Milestone (20+ Hours)';
+
+      // AutoTable
+      doc.autoTable({
+        startY: 79,
+        head: [['Sr', 'Activity Title', 'Category', 'Date', 'Hours']],
+        body: tableRows,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [230, 138, 0], // Amber
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'left'
+        },
+        bodyStyles: {
+          textColor: [50, 50, 50],
+          fontSize: 9
+        },
+        columnStyles: {
+          0: { cellWidth: 12 },
+          1: { cellWidth: 70 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 40 },
+          4: { cellWidth: 20 }
+        },
+        margin: { left: 15, right: 15 }
+      });
+
+      let finalY = doc.lastAutoTable.finalY + 15;
+      
+      // Prevent page overflow for summary/signature blocks
+      if (finalY > height - 60) {
+        doc.addPage();
+        // Redraw border on new page
+        doc.setDrawColor(230, 138, 0);
+        doc.setLineWidth(1);
+        doc.rect(5, 5, width - 10, height - 10);
+        doc.rect(6, 6, width - 12, height - 12);
+        finalY = 25;
+      }
+
+      // Summary Card
+      doc.setFillColor(245, 247, 250);
+      doc.rect(15, finalY, width - 30, 20, 'F');
+      
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 41, 59);
+      doc.text(`TOTAL CERTIFIED HOURS: ${totalHours} Hours`, 20, finalY + 7);
+      doc.text(`CURRENT MILESTONE STATUS: ${badgeLevel}`, 20, finalY + 14);
+
+      // Signatures
+      const sigY = finalY + 36;
+      doc.line(20, sigY, 70, sigY);
+      doc.setFont("Helvetica", "bold");
+      doc.text("NSS Program Officer", 20, sigY + 5);
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text("Sarhad College, Pune", 20, sigY + 9);
+
+      doc.line(width - 70, sigY, width - 20, sigY);
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("Principal / Chairman", width - 70, sigY + 5);
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text("Sarhad College, Pune", width - 70, sigY + 9);
+
+      // Date of issue
+      doc.text(`Report Generated On: ${new Date().toLocaleDateString('en-IN')}`, width / 2, sigY + 14, { align: 'center' });
+
+      doc.save(`NSS_Service_Report_${volunteerProfile.ref_code || 'Volunteer'}.pdf`);
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
       e.preventDefault();

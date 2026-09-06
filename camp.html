@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Special Winter Camp Diary & Vlogs — Sarhad NSS Unit 7-day rural camp documentation and photo logs.">
+  <title>Camp Diary & Vlogs — Sarhad NSS</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Camp Diary & Vlogs — Sarhad NSS">
+  <meta property="og:description" content="Explore daily photo logs and activities from the annual 7-day NSS Special Winter Camp.">
+  <meta property="og:url" content="https://nss-website-8uv.pages.dev/camp.html">
+  <meta property="og:image" content="https://nss-website-8uv.pages.dev/logos/nss.jpg">
+  <meta property="og:site_name" content="Sarhad NSS">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="camp.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e68a00">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><img src="logos/nss.jpg" alt="NSS Logo"></div>
+        Sarhad<span>NSS</span>
+      </a>
+      <div class="nav-logos-strip">
+        <img src="logos/clg.jpg" alt="Sarhad College Logo" title="Sarhad College">
+        <img src="logos/sppu.jpg" alt="SPPU Logo" title="Savitribai Phule Pune University">
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="activities.html">Activities</a>
+        <a href="events.html">Events</a>
+        <a href="contactus.html">Contact</a>
+        <div class="nav-dropdown active">
+          <button type="button" class="nav-dropdown-toggle">More <i class="fas fa-chevron-down"></i></button>
+          <div class="nav-dropdown-menu">
+            <a href="quiz.html">Quiz</a>
+            <a href="resources.html">Resources</a>
+            <a href="alumni.html">Alumni</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="verify.html">Verify Certificate</a>
+            <a href="camp.html" class="active">Camp Diary</a>
+          </div>
+        </div>
+        <a href="volunteer-login.html">Sign In</a>
+        <a href="register.html" class="nav-cta">Join NSS</a>
+        <a href="admin-login.html" class="nav-admin">Admin</a>
+      </div>
+      <button class="theme-toggle" aria-label="Toggle dark mode"><span class="icon-sun"><i class="fas fa-sun"></i></span><span class="icon-moon"><i class="fas fa-moon"></i></span></button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main>
+    <!-- Header -->
+    <section class="page-header">
+      <div class="container">
+        <h1><i class="fas fa-campground" style="color:var(--accent);margin-right:12px"></i>Special Winter Camp Diary</h1>
+        <p>7-Day Annual Rural Social Development & Community Outreach Camp — Daily Activity Vlogs & Photo Logs</p>
+      </div>
+    </section>
+
+    <!-- Toolbar / Filters -->
+    <div class="container">
+      <div class="filter-toolbar" id="campFilterToolbar" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:30px 0 20px;">
+        <button class="filter-btn active" data-day="all">All Days</button>
+      </div>
+
+      <!-- Timeline Logs Container -->
+      <div class="camp-timeline" id="campTimeline">
+        <div class="loading-state" id="campLoading" style="text-align:center;padding:60px 0;">
+          <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--accent)"></i>
+          <p style="margin-top:14px;color:var(--text-muted)">Loading camp logs...</p>
+        </div>
+      </div>
+
+      <div class="empty-state" id="campEmpty" style="display:none;text-align:center;padding:60px 0;">
+        <i class="fas fa-campground" style="font-size:3rem;color:var(--text-muted);opacity:0.4;margin-bottom:14px"></i>
+        <h3>No Camp Logs Published Yet</h3>
+        <p style="color:var(--text-muted)">Check back during or after the annual 7-day Special Winter Camp season!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div class="camp-lightbox" id="campLightbox" onclick="closeLightbox()">
+    <button class="camp-lightbox-close" onclick="closeLightbox()">&times;</button>
+    <img id="lightboxImg" src="" alt="Full Camp Photo" onclick="event.stopPropagation()">
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">
+            <img src="logos/nss.jpg" alt="NSS Logo">
+            <span>Sarhad NSS</span>
+          </div>
+          <p>Not Me But You — Dedicated to youth empowerment and community development through social action.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="activities.html">Activities</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="camp.html">Camp Diary</a></li>
+            <li><a href="leaderboard.html">Leaderboard</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get Involved</h4>
+          <ul>
+            <li><a href="register.html">Join NSS</a></li>
+            <li><a href="volunteer-login.html">Volunteer Login</a></li>
+            <li><a href="verify.html">Verify Certificate</a></li>
+            <li><a href="contactus.html">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Sarhad NSS Unit. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script>
+    let allCampLogs = [];
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+    function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+    function openLightbox(url) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('campLightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+      document.getElementById('campLightbox').classList.remove('active');
+    }
+
+    async function loadCampDiary() {
+      const timeline = document.getElementById('campTimeline');
+      const empty = document.getElementById('campEmpty');
+      const loading = document.getElementById('campLoading');
+      const toolbar = document.getElementById('campFilterToolbar');
+
+      try {
+        const res = await fetch('/api/camp/list');
+        if (!res.ok) throw new Error();
+        const { logs } = await res.json();
+        allCampLogs = logs || [];
+
+        loading.style.display = 'none';
+
+        if (!allCampLogs.length) {
+          timeline.style.display = 'none';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        timeline.style.display = 'block';
+
+        // Build dynamic day filter buttons
+        const days = [...new Set(allCampLogs.map(l => l.day_number))].sort((a,b) => a - b);
+        days.forEach(d => {
+          const btn = document.createElement('button');
+          btn.className = 'filter-btn';
+          btn.dataset.day = d;
+          btn.textContent = `Day ${d}`;
+          toolbar.appendChild(btn);
+        });
+
+        renderLogs('all');
+      } catch (e) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+      }
+    }
+
+    function renderLogs(filterDay) {
+      const timeline = document.getElementById('campTimeline');
+      const filtered = filterDay === 'all' 
+        ? allCampLogs 
+        : allCampLogs.filter(l => String(l.day_number) === String(filterDay));
+
+      if (!filtered.length) {
+        timeline.innerHTML = '<div class="empty-state"><h3>No logs found for this day.</h3></div>';
+        return;
+      }
+
+      timeline.innerHTML = filtered.map(log => {
+        const photos = Array.isArray(log.photos) ? log.photos : [];
+        const photosHtml = photos.length ? `
+          <div class="camp-photos-grid">
+            ${photos.map(p => `
+              <div class="camp-photo-item" onclick="openLightbox('${esc(p)}')">
+                <img src="${esc(p)}" alt="Camp Photo Day ${log.day_number}" loading="lazy">
+                <div class="overlay-zoom"><i class="fas fa-magnifying-glass-plus"></i></div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '';
+
+        return `
+          <div class="camp-day-card">
+            <div class="camp-day-marker">${log.day_number}</div>
+            <div class="camp-day-header">
+              <h2>Day ${log.day_number}: ${esc(log.title)}</h2>
+              <div class="camp-day-date"><i class="far fa-calendar-alt"></i> ${fmtDate(log.log_date)}</div>
+            </div>
+            <div class="camp-day-desc">${esc(log.description)}</div>
+            ${photosHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('campFilterToolbar').addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('#campFilterToolbar .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLogs(btn.dataset.day);
+    });
+
+    loadCampDiary();
+  </script>
+</body>
+</html>
